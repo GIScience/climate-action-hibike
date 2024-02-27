@@ -9,57 +9,50 @@ from typing import List, Tuple
 import geopandas as gpd
 import pandas as pd
 import shapely
+from PIL import Image
 from climatoology.base.artifact import (
     Chart2dData,
     ChartType,
     RasterInfo,
-    create_chart_artifact,
-    create_geojson_artifact,
-    create_geotiff_artifact,
-    create_image_artifact,
-    create_markdown_artifact,
-    create_table_artifact,
 )
 from climatoology.base.operator import ComputationResources, Concern, Info, Operator, PluginAuthor, _Artifact
 from climatoology.utility.api import LulcUtility, LulcWorkUnit
 from ohsome import OhsomeClient
 from pandas import DataFrame
-from PIL import Image
 from pydantic_extra_types.color import Color
 from semver import Version
 
-from plugin_blueprint.input import ComputeInputBlueprint
+from plugin_blueprint.artifact import (
+    build_markdown_artifact,
+    build_table_artifact,
+    build_image_artifact,
+    build_chart_artifacts,
+    build_vector_artifacts,
+    build_raster_artifact,
+)
+from plugin_blueprint.input import ComputeInput
 
 log = logging.getLogger(__name__)
 
 
-class OperatorBlueprint(Operator[ComputeInputBlueprint]):
+class OperatorBlueprint(Operator[ComputeInput]):
     # This is your working-class hero.
     # See all the details below.
 
-    def __init__(
-        self,
-        lulc_utility_host: str,
-        lulc_utility_port: int,
-        lulc_utility_path: str,
-    ):
+    def __init__(self, lulc_utility: LulcUtility):
         # Create a base connection for the LULC classification utility.
         # Remove it, if you don't plan on using that utility.
-        self.lulc_generator = LulcUtility(
-            host=lulc_utility_host,
-            port=lulc_utility_port,
-            path=lulc_utility_path,
-        )
+        self.lulc_utility = lulc_utility
 
         # Here is an example for another Utility you can use
         self.ohsome = OhsomeClient(user_agent='CA Plugin Blueprint')
 
-        log.debug(f'Initialised operator with lulc_generator {lulc_utility_host} and ohsome client')
+        log.debug(f'Initialised operator with lulc_generator {lulc_utility.base_url} and ohsome client')
 
     def info(self) -> Info:
         info = Info(
             name='Plugin Blueprint',
-            icon=Path('resources/icon.jpeg'),
+            icon=Path('resources/info/icon.jpeg'),
             authors=[
                 PluginAuthor(
                     name='Moritz Schott',
@@ -74,15 +67,15 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
             ],
             version=str(Version(0, 0, 1)),
             concerns=[Concern.CLIMATE_ACTION__GHG_EMISSION],
-            purpose='This Plugin serves no purpose besides being a blueprint for real plugins.',
-            methodology='This Plugin uses no methodology because it does nothing.',
-            sources=Path('resources/example.bib'),
+            purpose=Path('resources/info/purpose.md').read_text(),
+            methodology=Path('resources/info/methodology.md').read_text(),
+            sources=Path('resources/info/sources.bib'),
         )
         log.info(f'Return info {info.model_dump()}')
 
         return info
 
-    def compute(self, resources: ComputationResources, params: ComputeInputBlueprint) -> List[_Artifact]:
+    def compute(self, resources: ComputationResources, params: ComputeInput) -> List[_Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         # The code is split into several functions from here.
@@ -91,16 +84,16 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
 
         # ## _Artifact types ##
         # This function creates an example Markdown artifact
-        markdown_artifact = OperatorBlueprint.markdown_artifact_creator(params, resources)
+        markdown_artifact = OperatorBlueprint.markdown_artifact(params, resources)
 
         # This function creates an example table artifact
-        table_artifact = OperatorBlueprint.table_artifact_creator(params, resources)
+        table_artifact = OperatorBlueprint.table_artifact(params, resources)
 
         # This function creates an example image artifact
-        image_artifact = OperatorBlueprint.image_artifact_creator(resources)
+        image_artifact = OperatorBlueprint.image_artifact(resources)
 
         # This function creates example chart artifacts
-        chart_artifacts = OperatorBlueprint.chart_artifact_creator(params.float_blueprint, resources)
+        chart_artifacts = OperatorBlueprint.chart_artifacts(params.float_blueprint, resources)
 
         # Further we have the geographic output types of raster and vector data.
         # We kill two birds with one stone and use the land-use and land-cover utility to demonstrate them.
@@ -109,7 +102,7 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
 
         # ### Ohsome ###
         # This function provides an example for the ohsome usage to create a vector artifact.
-        vector_artifacts = self.vector_artifact_creator_and_ohsome_usage(
+        vector_artifacts = self.vector_artifact_and_ohsome_usage(
             params.get_geom(),
             params.date_blueprint,
             resources,
@@ -117,7 +110,7 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
 
         # ### LULC ###
         # This function provides an example for the LULC utility usage to create a raster artifact.
-        raster_artifact = self.raster_artifact_creator_and_lulc_utility_usage(
+        raster_artifact = self.raster_artifact_and_lulc_utility_usage(
             params.get_geom(),
             params.date_blueprint,
             resources,
@@ -135,7 +128,7 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         return artifacts
 
     @staticmethod
-    def markdown_artifact_creator(params: ComputeInputBlueprint, resources: ComputationResources) -> _Artifact:
+    def markdown_artifact(params: ComputeInput, resources: ComputationResources) -> _Artifact:
         """This method creates a simple Markdown artifact.
 
         :param params: The input parameters.
@@ -145,35 +138,22 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         log.debug('Creating dummy markdown artifact.')
         text = OperatorBlueprint.get_md_text(params)
 
-        return create_markdown_artifact(
-            text=text,
-            name='A Text',
-            tl_dr='A JSON-block of the input parameters',
-            resources=resources,
-            filename='markdown_blueprint',
-        )
+        return build_markdown_artifact(text, resources)
 
     @staticmethod
-    def table_artifact_creator(params: ComputeInputBlueprint, resources: ComputationResources) -> _Artifact:
+    def table_artifact(params: ComputeInput, resources: ComputationResources) -> _Artifact:
         """This method creates a simple table artifact.
 
         :param params: The input parameters.
         :param resources: The plugin computation resources
         :return: A table artifact.
         """
-        table = OperatorBlueprint.create_table(params.string_blueprint)
+        table = OperatorBlueprint.get_table(params.string_blueprint)
 
-        return create_table_artifact(
-            data=table,
-            title='Character Count',
-            caption='The table lists the number of occurrences for each character in the input parameters.',
-            description='A table with two columns.',
-            resources=resources,
-            filename='table_blueprint',
-        )
+        return build_table_artifact(table, resources)
 
     @staticmethod
-    def image_artifact_creator(resources: ComputationResources) -> _Artifact:
+    def image_artifact(resources: ComputationResources) -> _Artifact:
         """This method creates a simple image artifact.
 
         :param resources: The plugin computation resources.
@@ -181,20 +161,10 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         """
         log.debug('Creating dummy image artifact.')
         with Image.open('resources/cc0_image.jpg') as image:
-            image_artifact = create_image_artifact(
-                image=image,
-                title='Image',
-                caption='A nice image.',
-                description='The image is under CC0 license taken from [pexels]'
-                '(https://www.pexels.com/photo/person-holding-a-green-'
-                'plant-1072824/).',
-                resources=resources,
-                filename='image_blueprint',
-            )
-        return image_artifact
+            return build_image_artifact(image, resources)
 
     @staticmethod
-    def chart_artifact_creator(
+    def chart_artifacts(
         incline: float, resources: ComputationResources
     ) -> Tuple[_Artifact, _Artifact, _Artifact, _Artifact]:
         """This method creates four simple chart artifacts.
@@ -203,44 +173,11 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         :param resources: The plugin computation resources.
         :return: Four graph artifacts.
         """
-        scatter_chart_data, line_chart_data, bar_chart_data, pie_chart_data = OperatorBlueprint.chart_creator(incline)
+        scatter_chart_data, line_chart_data, bar_chart_data, pie_chart_data = OperatorBlueprint.get_chart_data(incline)
 
-        scatter_chart = create_chart_artifact(
-            data=scatter_chart_data,
-            title='The Points',
-            caption='A simple scatter plot.',
-            description='Beautiful points.',
-            resources=resources,
-            filename='scatter_chart_blueprint',
-        )
+        return build_chart_artifacts(bar_chart_data, line_chart_data, pie_chart_data, scatter_chart_data, resources)
 
-        line_chart = create_chart_artifact(
-            data=line_chart_data,
-            title='The Line',
-            caption='A simple line of negative incline.',
-            resources=resources,
-            filename='line_chart_blueprint',
-        )
-
-        bar_chart = create_chart_artifact(
-            data=bar_chart_data,
-            title='The Bars',
-            caption='A simple bar chart.',
-            resources=resources,
-            filename='bar_chart_blueprint',
-        )
-
-        pie_chart = create_chart_artifact(
-            data=pie_chart_data,
-            title='The Pie',
-            caption='A simple pie.',
-            resources=resources,
-            filename='pie_chart_blueprint',
-        )
-
-        return scatter_chart, line_chart, bar_chart, pie_chart
-
-    def vector_artifact_creator_and_ohsome_usage(
+    def vector_artifact_and_ohsome_usage(
         self,
         aoi: shapely.MultiPolygon,
         target_date: datetime.date,
@@ -253,41 +190,11 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         :param resources: The plugin computation resources.
         :return: Three vector artifacts.
         """
-        points, lines, polygons = self.vector_creator(aoi, target_date)
+        points, lines, polygons = self.get_vector_data(aoi, target_date)
 
-        point_artifact = create_geojson_artifact(
-            features=points.geometry,
-            layer_name='Points',
-            caption='Schools in the area of interest including a dummy school in the center.',
-            description='The schools are taken from OSM at the date given in the input form.',
-            color=points.color.to_list(),
-            resources=resources,
-            filename='points_blueprint',
-        )
+        return build_vector_artifacts(lines, points, polygons, resources)
 
-        line_artifact = create_geojson_artifact(
-            features=lines.geometry,
-            layer_name='Lines',
-            caption='Buffers around schools in the area of interest including a dummy school in the center.',
-            description='The schools are taken from OSM at the date given in the input form.',
-            color=lines.color.to_list(),
-            resources=resources,
-            filename='lines_blueprint',
-        )
-
-        polygon_artifact = create_geojson_artifact(
-            features=polygons.geometry,
-            layer_name='Polygons',
-            caption='Schools in the area of interest including a dummy school in the center, buffered by ca. 100m.',
-            description='The schools are taken from OSM at the date given in the input form.',
-            color=polygons.color.to_list(),
-            resources=resources,
-            filename='polygons_blueprint',
-        )
-
-        return point_artifact, line_artifact, polygon_artifact
-
-    def raster_artifact_creator_and_lulc_utility_usage(
+    def raster_artifact_and_lulc_utility_usage(
         self,
         aoi: shapely.MultiPolygon,
         target_date: datetime.date,
@@ -308,7 +215,7 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
         # These can be handed to the user for adaption via the input parameters.
         aoi = LulcWorkUnit(area_coords=aoi.bounds, end_date=target_date.isoformat())
 
-        with self.lulc_generator.compute_raster([aoi]) as lulc_classification:
+        with self.lulc_utility.compute_raster([aoi]) as lulc_classification:
             raster_info = RasterInfo(
                 data=lulc_classification.read(),
                 crs=lulc_classification.crs,
@@ -316,19 +223,10 @@ class OperatorBlueprint(Operator[ComputeInputBlueprint]):
                 colormap=lulc_classification.colormap(1),
             )
 
-            artifact = create_geotiff_artifact(
-                raster_info=raster_info,
-                layer_name='LULC Classification',
-                caption='A land-use and land-cover classification of a user defined area.',
-                description='The classification is created using a deep learning model.',
-                resources=resources,
-                filename='raster_blueprint',
-            )
-
-        return artifact
+            return build_raster_artifact(raster_info, resources)
 
     @staticmethod
-    def get_md_text(params: ComputeInputBlueprint) -> str:
+    def get_md_text(params: ComputeInput) -> str:
         """Transform the input parameters to Markdown text with json blocks."""
         return f"""# Input Parameters
 
@@ -348,7 +246,7 @@ In addition the following area of interest was sent:
 """
 
     @staticmethod
-    def create_table(text: str) -> pd.DataFrame:
+    def get_table(text: str) -> pd.DataFrame:
         """Counts the number of occurrences of each character in a string."""
         log.debug('Creating dummy table artifact.')
         data = [{'character': e, 'count': text.lower().count(e)} for e in set(text.lower())]
@@ -357,7 +255,7 @@ In addition the following area of interest was sent:
         return table
 
     @staticmethod
-    def chart_creator(incline: float) -> Tuple[Chart2dData, Chart2dData, Chart2dData, Chart2dData]:
+    def get_chart_data(incline: float) -> Tuple[Chart2dData, Chart2dData, Chart2dData, Chart2dData]:
         """Creates a scatter plot, a line chart, a bar chart and a pie chart."""
         log.debug('Creating dummy chart artifacts.')
 
@@ -391,7 +289,7 @@ In addition the following area of interest was sent:
 
         return scatter_chart_data, line_chart_data, bar_chart_data, pie_chart_data
 
-    def vector_creator(
+    def get_vector_data(
         self, aoi: shapely.MultiPolygon, target_date: datetime.date
     ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
         """Schools from OSM.

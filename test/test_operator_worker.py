@@ -71,7 +71,7 @@ In addition the following area of interest was sent:
     assert received == expected
 
 
-def test_create_table(expected_compute_input):
+def test_get_table(expected_compute_input):
     data = [
         {'character': 'o', 'count': 2},
         {'character': ' ', 'count': 1},
@@ -82,12 +82,12 @@ def test_create_table(expected_compute_input):
         {'character': 'n', 'count': 1},
     ]
     expected = pd.DataFrame.from_records(data, index='character')
-    received = OperatorBlueprint.create_table(expected_compute_input.string_blueprint)
+    received = OperatorBlueprint.get_table(expected_compute_input.string_blueprint)
 
     pd.testing.assert_frame_equal(received, expected)
 
 
-def test_chart_creator():
+def test_get_chart_data():
     expected = (
         Chart2dData(
             x=[0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
@@ -136,11 +136,11 @@ def test_chart_creator():
             ],
         ),
     )
-    received = OperatorBlueprint.chart_creator(1)
+    received = OperatorBlueprint.get_chart_data(1)
     assert received == expected
 
 
-def test_vector_creator(settings, expected_compute_input, ohsome_api):
+def test_get_vector_data(operator, expected_compute_input, ohsome_api):
     line_blue = shapely.LineString(
         [
             [8.698543628011903, 49.39500732240416],
@@ -179,12 +179,8 @@ def test_vector_creator(settings, expected_compute_input, ohsome_api):
             crs='EPSG:4326',
         ),
     )
-    bp = OperatorBlueprint(
-        settings.lulc_host,
-        settings.lulc_port,
-        settings.lulc_path,
-    )
-    received = bp.vector_creator(expected_compute_input.get_geom(), expected_compute_input.date_blueprint)
+
+    received = operator.get_vector_data(expected_compute_input.get_geom(), expected_compute_input.date_blueprint)
     for expected_gdf, received_gdf in zip(expected, received):
         testing.assert_geodataframe_equal(
             received_gdf,

@@ -5,6 +5,7 @@ import yaml
 from climatoology.app.plugin import PlatformPlugin
 from climatoology.broker.message_broker import AsyncRabbitMQ
 from climatoology.store.object_store import MinioStorage
+from climatoology.utility.api import LulcUtility
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from plugin_blueprint.operator_worker import OperatorBlueprint
@@ -42,11 +43,12 @@ async def start_plugin(settings: Settings) -> None:
 
     :return:
     """
-    operator = OperatorBlueprint(
-        settings.lulc_host,
-        settings.lulc_port,
-        settings.lulc_path,
+    lulc_utility = LulcUtility(
+        host=settings.lulc_host,
+        port=settings.lulc_port,
+        path=settings.lulc_path,
     )
+    operator = OperatorBlueprint(lulc_utility)
     log.info(f'Configuring plugin: {operator.info().name}')
 
     storage = MinioStorage(
@@ -82,6 +84,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=settings.log_level.upper())
     with open(log_config) as file:
         logging.config.dictConfig(yaml.safe_load(file))
-    log.info('Starting Plugin')
 
+    log.info('Starting Plugin')
     asyncio.run(start_plugin(settings))
