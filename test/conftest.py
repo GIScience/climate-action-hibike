@@ -1,48 +1,24 @@
 import uuid
 from pathlib import Path
 from typing import List
+from unittest.mock import patch
 
 import pytest
+import rasterio
 import responses
 from climatoology.base.artifact import ArtifactModality
 from climatoology.base.computation import ComputationScope
 from climatoology.base.operator import Concern, Info, PluginAuthor, _Artifact
 from semver import Version
 
-from plugin_blueprint.input import ComputeInputBlueprint
-from plugin_blueprint.plugin import Settings
+from plugin_blueprint.input import ComputeInput
+from plugin_blueprint.operator_worker import OperatorBlueprint
 
 
 @pytest.fixture
-def expected_info_output() -> Info:
+def expected_compute_input() -> ComputeInput:
     # noinspection PyTypeChecker
-    return Info(
-        name='Plugin Blueprint',
-        icon=Path('resources/icon.jpeg'),
-        authors=[
-            PluginAuthor(
-                name='Moritz Schott',
-                affiliation='HeiGIT gGmbH',
-                website='https://heigit.org/heigit-team/',
-            ),
-            PluginAuthor(
-                name='Maciej Adamiak',
-                affiliation='Consultant at HeiGIT gGmbH',
-                website='https://heigit.org/heigit-team/',
-            ),
-        ],
-        version=Version(0, 0, 1),
-        concerns=[Concern.CLIMATE_ACTION__GHG_EMISSION],
-        purpose='This Plugin serves no purpose besides being a blueprint for real plugins.',
-        methodology='This Plugin uses no methodology because it does nothing.',
-        sources=Path('resources/example.bib'),
-    )
-
-
-@pytest.fixture
-def expected_compute_input() -> ComputeInputBlueprint:
-    # noinspection PyTypeChecker
-    return ComputeInputBlueprint(
+    return ComputeInput(
         bool_blueprint=True,
         aoi_blueprint={
             'type': 'Feature',
@@ -62,6 +38,32 @@ def expected_compute_input() -> ComputeInputBlueprint:
                 ],
             },
         },
+    )
+
+
+@pytest.fixture
+def expected_info_output() -> Info:
+    # noinspection PyTypeChecker
+    return Info(
+        name='Plugin Blueprint',
+        icon=Path('resources/info/icon.jpeg'),
+        authors=[
+            PluginAuthor(
+                name='Moritz Schott',
+                affiliation='HeiGIT gGmbH',
+                website='https://heigit.org/heigit-team/',
+            ),
+            PluginAuthor(
+                name='Maciej Adamiak',
+                affiliation='Consultant at HeiGIT gGmbH',
+                website='https://heigit.org/heigit-team/',
+            ),
+        ],
+        version=Version(0, 0, 1),
+        concerns=[Concern.CLIMATE_ACTION__GHG_EMISSION],
+        purpose=Path('resources/info/purpose.md').read_text(),
+        methodology=Path('resources/info/methodology.md').read_text(),
+        sources=Path('resources/info/sources.bib'),
     )
 
 
@@ -164,46 +166,21 @@ def compute_resources():
 
 
 @pytest.fixture
-def settings():
-    return Settings(
-        minio_host='localhost',
-        minio_port=80,
-        minio_access_key='access_key',
-        minio_secret_key='secret_key',
-        minio_bucket='bucket',
-        rabbitmq_host='localhost',
-        rabbitmq_port=80,
-        rabbitmq_user='user',
-        rabbitmq_password='password',
-        lulc_host='localhost',
-        lulc_port=80,
-        lulc_path='/api/lulc/',
-    )
-
-
-@pytest.fixture
-def web_apis():
-    with (
-        responses.RequestsMock() as rsps,
-        open('resources/test_segmentation.tiff', 'rb') as raster,
-        open('resources/ohsome.geojson', 'rb') as vector,
-    ):
-        rsps.get('http://localhost:80/api/lulc/health', json={'status': 'ok'})
-        rsps.post('http://localhost:80/api/lulc/segment/', body=raster.read())
-        rsps.post('https://api.ohsome.org/v1/elements/centroid', body=vector.read())
-        yield rsps
+def operator(lulc_utility):
+    return OperatorBlueprint(lulc_utility)
 
 
 @pytest.fixture
 def ohsome_api():
-    with responses.RequestsMock() as rsps, open('resources/ohsome.geojson', 'rb') as vector:
-        rsps.get('http://localhost:80/api/lulc/health', json={'status': 'ok'})
+    with responses.RequestsMock() as rsps, open('resources/test/ohsome.geojson', 'rb') as vector:
         rsps.post('https://api.ohsome.org/v1/elements/centroid', body=vector.read())
         yield rsps
 
 
 @pytest.fixture
 def lulc_utility():
-    with responses.RequestsMock() as rsps:
-        rsps.get('http://localhost:80/api/lulc/health', json={'status': 'ok'})
-        yield rsps
+    with patch('climatoology.utility.api.LulcUtility') as lulc_utility:
+        lulc_utility.compute_raster.return_value.__enter__.return_value = rasterio.open(
+            'resources/test/segmentation.tiff'
+        )
+        yield lulc_utility

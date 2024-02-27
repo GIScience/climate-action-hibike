@@ -1,4 +1,4 @@
-# Plugin Blueprint
+# <img src="resources/info/icon.jpeg" width="5%"> Plugin Blueprint
 
 This repository is a blueprint for operator creators. Operators are science2production facilitators that will make it easy for you to bring your ideas and research results to the Climate Action (CA) platform. Operators are the main workers inside plugins. You will create a plugin but all you need to do is code the operator functionality, the plugin wrapper is already set to go. The terms Operator and Plugin are therefore mostly synonymous for you. For more information on the architecture, please contact the [CA team](https://heigit.org/).
 
@@ -65,9 +65,9 @@ Rename it to the project name you have defined above in your `pyproject.toml`.
 This directory is also copied to the Docker container we use for deployment.
 Therefore, you have to change the name also in the [Dockerfile](Dockerfile) and the [Dockerfile.Kaniko](Dockerfile.Kaniko).
 
-Next there are two classes that should be name-related to your plugin:
-The `ComputeInputBlueprint` and the `OperatorBlueprint` in [plugin.py](plugin_blueprint/plugin.py).
-Refactor-rename these classnames with reasonable names related to your idea.
+Next there is one class that should be name-related to your plugin:
+The `OperatorBlueprint` in [plugin.py](plugin_blueprint/plugin.py).
+Refactor-rename this class with reasonable names related to your idea.
 
 **Make these changes your first merge request** and add your CA-team contact as reviewer.
 
@@ -102,7 +102,7 @@ Adapt the content of the following three `pytest.fixture` functions to meet your
  1. The `expected_info_output` fixture is quite easy to write:
 simply declare an `Info` element.
 Have a look at the classes source code to see all required attributes.
-Make sure you add the icon and bibliography files to your repository.
+Make sure you add the referenced files to your repository.
 The list of concerns is limited on purpose to have a curated set of keywords.
 If you feel that your plugin would benefit from an extension of that list, feel free to contact the CA team or create a MR in the [climatoology](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/climatoology) repository.
 
