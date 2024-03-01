@@ -13,7 +13,7 @@ A new plugin should be thoroughly discussed with the CA team. But don't be hesit
 The CA team will fork **this** repository for you and you will get full access to the fork (see below for admins). You can then `git clone` the fork and work on it as in any other git project.
 
 Create a new branch by running `git checkout -b <my_new_plugin_name>`.
-After you have finished your implementation, you can create a merge request to the `main` branch that can be reviewed by the CA team.
+After you have finished your implementation, you can create a merge request (MR) to the `main` branch that can be reviewed by the CA team.
 Yet, we highly encourage you to create smaller intermediate MRs for review!
 
 ### Python Environment
@@ -69,7 +69,7 @@ Next there is one class that should be name-related to your plugin:
 The `OperatorBlueprint` in [plugin.py](plugin_blueprint/plugin.py).
 Refactor-rename this class with reasonable names related to your idea.
 
-**Make these changes your first merge request** and add your CA-team contact as reviewer.
+**Make these changes your first MR** and add your CA-team contact as reviewer.
 
 ### Functionality
 
@@ -157,10 +157,52 @@ The only requirement is to return a (potentially empty) list of Artifacts i.e. r
 
 Keep in mind to update the input parameter class and the tests while you are coding away.
 
-## Finalisation
+### Development stages
 
+The first MR you created above paved the way for the future development of the plugin.
+
+#### Dummy
+
+Your next step will be to create a dummy version of your plugin.
+The dummy version will help you formalise the data creation pipeline.
+It will _not_ create real output but rather return a mocked result that in its type, color etc. resembles the real output.
+Therefore, it will not be shared outside the climate action group!
+
+To create your dummy you can either hand-craft a very small dataset or you can use a subset of an existing dataset.
+For example if you want to output highways colored by certain attributes, your dummy could be to output all lines from OSM having the tag `highway=path` in the area of interest.
+Nothing more.
+
+To accomplish this goal, first go through the existing code and remove all methods, tests and dependencies that are not required for this dummy.
+Reduce the code and documentation (like *this* README) to a bare minimum.
+Don't worry, you can later go back to the [plugin blueprint](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/plugin-blueprint) repository and recover methods that you deleted earlier, if you need them.
+
+Next, hand-craft your dummy in the code and return it as an artifact.
+Don't forget to adapt the tests and update the documentation.
 If you are satisfied with the results and the tests pass, you have succeeded!
-Please create a merge request to `main` and ask the CA team for a review.
+Please create a MR to `main` and ask the CA team for a review.
+Make sure to follow the [companies' guidelines](https://heigit.atlassian.net/wiki/spaces/SD/pages/3735635/Guidelines) on commits and merge requests.
+
+After your MR was accepted and merged [create a release in GitLab] called `dummy` (https://docs.gitlab.com/ee/user/project/releases/#create-a-release-in-the-releases-page).
+
+#### Demo
+
+The next step is your demo.
+You should have established an outline and a definition of the content of your demo content with your content supervisor.
+The goal of the demo is to create output that has real content but is extremely limited.
+It will be the first version that is also communicated to the respective partners.
+
+Follow the same process as for the Dummy
+
+1. Add the methods, tests, dependencies and documentation required to accomplish the goal
+2. Create a MR
+3. Create a release called `demo`
+
+#### Version 1 and beyond
+
+From now on you can repeat this process for each release target that you, your content supervisor and the partner devine.
+
+
+## Finalisation
 
 Unfortunately, seeing your plugin in production takes a bit more setup.
 After your plugin is ready for production, the CA team will create a Docker image and deploy your code to the infrastructure.
