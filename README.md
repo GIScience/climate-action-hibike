@@ -243,5 +243,6 @@ The following changes are necessary in the new fork:
    2. Delete source branch by default
    3. Require squashing
    4. Pipelines must be successful
-3. Assign the appointed person as maintainer
-4. Create an issue for the appointed maintainer stating `Please choose an appropriate repository icon and name`
+3. [Protect tags](https://docs.gitlab.com/ee/user/project/protected_tags.html) in order to have access to the protected docker credentials when creating releases
+4. Assign the appointed person as maintainer
+5. Create an issue for the appointed maintainer stating `Please choose an appropriate repository icon and name`
