@@ -39,7 +39,8 @@ docker_build_deploy_development:
       /kaniko/executor \
           --context "${CI_PROJECT_DIR}" \
           --dockerfile "${CI_PROJECT_DIR}/Dockerfile.Kaniko" \
-          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:devel"
+          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:devel" \
+          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:staging"
 
 docker_build_deploy_release:
   stage: deploy
