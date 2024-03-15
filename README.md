@@ -230,6 +230,19 @@ DOCKER_BUILDKIT=1 docker build --secret id=CI_JOB_TOKEN . --tag heigit/{plugin-n
 docker image push heigit/{plugin-name}:devel
 ```
 
+### Kaniko
+
+To test the docker build from Kaniko run
+
+```shell
+docker run -v ./:/workspace \
+    -v ./CI_JOB_TOKEN:/kaniko/CI_JOB_TOKEN \
+    gcr.io/kaniko-project/executor:v1.14.0-debug \
+    --dockerfile /workspace/Dockerfile.Kaniko \
+    --context dir:///workspace/ \
+    --no-push
+```
+
 Don't forget to add the plugin to the [infrastructure](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/infrastructure) and deploy it, once ready.
 
 ## Forking this repository (for admins)
