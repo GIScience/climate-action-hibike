@@ -22,7 +22,6 @@ unit_tests:
     - poetry run pre-commit run --all-files
     - poetry run pytest
 
-
 docker_build_deploy_development:
   stage: deploy
   rules:
@@ -39,8 +38,12 @@ docker_build_deploy_development:
       /kaniko/executor \
           --context "${CI_PROJECT_DIR}" \
           --dockerfile "${CI_PROJECT_DIR}/Dockerfile.Kaniko" \
+          --cache \
+          --cache-repo "docker.io/heigit/ca-${CI_PROJECT_NAME}-cache" \
+          --cache-copy-layers \
           --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:devel" \
-          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:staging"
+          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:staging" \
+          --cleanup
 
 docker_build_deploy_release:
   stage: deploy
@@ -58,4 +61,5 @@ docker_build_deploy_release:
       /kaniko/executor \
           --context "${CI_PROJECT_DIR}" \
           --dockerfile "${CI_PROJECT_DIR}/Dockerfile.Kaniko" \
-          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:${CI_COMMIT_TAG}"
+          --destination "docker.io/heigit/ca-${CI_PROJECT_NAME}:${CI_COMMIT_TAG}" \
+          --cleanup
