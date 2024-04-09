@@ -182,7 +182,7 @@ If you are satisfied with the results and the tests pass, you have succeeded!
 Please create a MR to `main` and ask the CA team for a review.
 Make sure to follow the [companies' guidelines](https://heigit.atlassian.net/wiki/spaces/SD/pages/3735635/Guidelines) on commits and merge requests.
 
-After your MR was accepted and merged [create a release in GitLab] called `dummy` (https://docs.gitlab.com/ee/user/project/releases/#create-a-release-in-the-releases-page).
+After your MR was accepted and merged create a release ([see how-to below](#releasing-a-new-plugin-version)) called `dummy` (https://docs.gitlab.com/ee/user/project/releases/#create-a-release-in-the-releases-page).
 
 #### Demo
 
@@ -211,6 +211,18 @@ If you want to run it locally before that, you will have to set up the [infrastr
 Then you could run `poetry run python {plugin-name}/plugin.py`
 But we suggest you create trust in your code through unit tests and strive for a first minimal demo as quick as possible.
 After that you will be able to see your plugin live on our website.
+
+## Releasing a new plugin version
+
+To release a new plugin version
+
+1. update the version attribute in the [pyproject.toml](pyproject.toml) (e.g. by running `poetry version {patch|minor|major}`)
+2. update the version in the plugin `info` method
+3. create a [release](https://docs.gitlab.com/ee/user/project/releases/) on GitLab, preferably including a changelog
+
+Once your plugin outgrew the 'special versions' `dummy` and `demo`, we suggest to adhere to the [Semantic Versioning](https://semver.org/) scheme.
+You can think of your plugin methods (info method, input parameters and artifacts) as the public API of your plugin.
+
 
 ## Docker (for admins and interested devs)
 
