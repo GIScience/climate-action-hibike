@@ -183,6 +183,7 @@ Please create a MR to `main` and ask the CA team for a review.
 Make sure to follow the [companies' guidelines](https://heigit.atlassian.net/wiki/spaces/SD/pages/3735635/Guidelines) on commits and merge requests.
 
 After your MR was accepted and merged create a release ([see how-to below](#releasing-a-new-plugin-version)) called `dummy` (https://docs.gitlab.com/ee/user/project/releases/#create-a-release-in-the-releases-page).
+Then ask the climate action admins to deploy your plugin to the [staging environment](https://staging.climate-action.heigit.org).
 
 #### Demo
 
@@ -199,18 +200,24 @@ Follow the same process as for the Dummy
 
 #### Version 1 and beyond
 
-From now on you can repeat this process for each release target that you, your content supervisor and the partner devine.
+From now on you can repeat this process for each release target that you, your content supervisor and the partner define.
 
 
-## Finalisation
+## Development setup
 
-Unfortunately, seeing your plugin in production takes a bit more setup.
-After your plugin is ready for production, the CA team will create a Docker image and deploy your code to the infrastructure.
+By now your plugin should be up and running on the climate action infrastructure.
+Because you are doing rigorous testing we can have trust in the code and be sure it works in deployment.
 
-If you want to run it locally before that, you will have to set up the [infrastructure](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/infrastructure) and set a range of environment variables.
-Then you could run `poetry run python {plugin-name}/plugin.py`
-But we suggest you create trust in your code through unit tests and strive for a first minimal demo as quick as possible.
-After that you will be able to see your plugin live on our website.
+Yet, you may still want to run your plugin locally.
+Unfortunately, running you plugin locally takes a bit more setup:
+
+1. Set up the [infrastructure](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/infrastructure) locally in `dev` mode
+2. Copy [.env_template](.env_template) to `.env` and update it
+
+You now have two options:
+
+1. Run `env $(cat .env | xargs) poetry run python {plugin-name}/plugin.py` or add the env-vars to your IDE and run the plugin OR
+2. Build a docker container and run the plugin dockerised (see [below](#Docker-for-admins-and-interested-devs))
 
 ## Releasing a new plugin version
 
@@ -271,3 +278,6 @@ The following changes are necessary in the new fork:
 3. [Protect tags](https://docs.gitlab.com/ee/user/project/protected_tags.html) in order to have access to the protected docker credentials when creating releases
 4. Assign the appointed person as maintainer
 5. Create an issue for the appointed maintainer stating `Please choose an appropriate repository icon and name`
+6. Create the necessary (private!) docker repositories to push images
+   1. the main repository with read and write access set to `climateactionreader` and `climateactionwriter` respectively
+   2. the `[...]-cache` repository with equal access
