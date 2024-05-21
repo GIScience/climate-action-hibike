@@ -216,6 +216,7 @@ class OperatorBlueprint(Operator[ComputeInput]):
         aoi = LulcWorkUnit(area_coords=aoi.bounds, end_date=target_date.isoformat())
 
         with self.lulc_utility.compute_raster([aoi]) as lulc_classification:
+            labels = self.lulc_utility.get_class_legend()
             raster_info = RasterInfo(
                 data=lulc_classification.read(),
                 crs=lulc_classification.crs,
@@ -223,7 +224,7 @@ class OperatorBlueprint(Operator[ComputeInput]):
                 colormap=lulc_classification.colormap(1),
             )
 
-            return build_raster_artifact(raster_info, resources)
+            return build_raster_artifact(raster_info, labels, resources)
 
     @staticmethod
     def get_md_text(params: ComputeInput) -> str:
@@ -300,12 +301,16 @@ In addition the following area of interest was sent:
         ohsome_response = self.ohsome.elements.centroid.post(bpolys=aoi, time=target_date, filter='amenity=school')
         elements = ohsome_response.as_dataframe()
         elements['color'] = Color('blue')
+        elements['label'] = 'School'
 
         # We add a default element in case the output is empty
-        waldo = gpd.GeoDataFrame({'color': [Color('red')], 'geometry': [aoi.centroid]}, crs='EPSG:4326')
+        waldo = gpd.GeoDataFrame(
+            {'color': [Color('red')], 'label': ['Dummy'], 'geometry': [aoi.centroid]},
+            crs='EPSG:4326',
+        )
 
         points = gpd.GeoDataFrame(pd.concat([elements, waldo]))
-        points = points.reset_index(drop=True)[['color', 'geometry']]
+        points = points.reset_index(drop=True)[['color', 'label', 'geometry']]
 
         polygons = points.to_crs('ESRI:54012')
         polygons.geometry = polygons.buffer(100, resolution=2, cap_style=3)
