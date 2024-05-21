@@ -109,18 +109,7 @@ def test_get_chart_data():
         ),
         Chart2dData(
             x=[0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-            y=[
-                0.0,
-                0.022222222222222223,
-                0.044444444444444446,
-                0.06666666666666667,
-                0.08888888888888889,
-                0.1111111111111111,
-                0.13333333333333333,
-                0.15555555555555556,
-                0.17777777777777778,
-                0.2,
-            ],
+            y=[0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
             chart_type=ChartType.PIE,
             color=[
                 Color('#a6cee3'),
@@ -163,17 +152,23 @@ def test_get_vector_data(operator, expected_compute_input, ohsome_api):
         gpd.GeoDataFrame(
             data={
                 'color': [Color('blue'), Color('red')],
+                'label': ['School', 'Dummy'],
                 'geometry': [shapely.Point(8.697234, 49.3940144), shapely.Point(12.39, 48.279999999999994)],
             },
             crs='EPSG:4326',
         ),
         gpd.GeoDataFrame(
-            data={'color': [Color('blue'), Color('red')], 'geometry': [line_blue, line_red]},
+            data={
+                'color': [Color('blue'), Color('red')],
+                'label': ['School', 'Dummy'],
+                'geometry': [line_blue, line_red],
+            },
             crs='EPSG:4326',
         ),
         gpd.GeoDataFrame(
             data={
                 'color': [Color('blue'), Color('red')],
+                'label': ['School', 'Dummy'],
                 'geometry': [shapely.Polygon(line_blue), shapely.Polygon(line_red)],
             },
             crs='EPSG:4326',
