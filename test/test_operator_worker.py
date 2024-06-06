@@ -63,7 +63,10 @@ In addition the following area of interest was sent:
             ]
         ]
     },
-    "properties": null
+    "properties": {
+        "name": "Heidelberg",
+        "id": "Q12345"
+    }
 }
 ```
 """
@@ -175,7 +178,7 @@ def test_get_vector_data(operator, expected_compute_input, ohsome_api):
         ),
     )
 
-    received = operator.get_vector_data(expected_compute_input.get_geom(), expected_compute_input.date_blueprint)
+    received = operator.get_vector_data(expected_compute_input.get_aoi_geom(), expected_compute_input.date_blueprint)
     for expected_gdf, received_gdf in zip(expected, received):
         testing.assert_geodataframe_equal(
             received_gdf,

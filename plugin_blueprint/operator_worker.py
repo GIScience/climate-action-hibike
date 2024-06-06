@@ -103,7 +103,7 @@ class OperatorBlueprint(Operator[ComputeInput]):
         # ### Ohsome ###
         # This function provides an example for the ohsome usage to create a vector artifact.
         vector_artifacts = self.vector_artifact_and_ohsome_usage(
-            params.get_geom(),
+            params.get_aoi_geom(),
             params.date_blueprint,
             resources,
         )
@@ -111,7 +111,7 @@ class OperatorBlueprint(Operator[ComputeInput]):
         # ### LULC ###
         # This function provides an example for the LULC utility usage to create a raster artifact.
         raster_artifact = self.raster_artifact_and_lulc_utility_usage(
-            params.get_geom(),
+            params.get_aoi_geom(),
             params.date_blueprint,
             resources,
         )
@@ -236,13 +236,13 @@ You can check if your input was received in the correct manner.
 Be aware that if you did not specify a value, some of the optional parameters may use defaults.
 
 ```json
-{params.model_dump_json(indent=4, exclude={'aoi_blueprint'})}
+{params.model_dump_json(indent=4, exclude={'aoi'})}
 ```
 
 In addition the following area of interest was sent:
 
 ```json
-{params.aoi_blueprint.model_dump_json(indent=4)}
+{params.aoi.model_dump_json(indent=4)}
 ```
 """
 

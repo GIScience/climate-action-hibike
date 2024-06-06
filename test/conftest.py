@@ -22,9 +22,9 @@ def expected_compute_input() -> ComputeInput:
     # noinspection PyTypeChecker
     return ComputeInput(
         bool_blueprint=True,
-        aoi_blueprint={
+        aoi={
             'type': 'Feature',
-            'properties': None,
+            'properties': {'name': 'Heidelberg', 'id': 'Q12345'},
             'geometry': {
                 'type': 'MultiPolygon',
                 'coordinates': [

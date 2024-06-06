@@ -1,10 +1,11 @@
 import datetime
+import uuid
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import geojson_pydantic
 import shapely
-from pydantic import BaseModel, Field, condate
+from pydantic import BaseModel, Field, condate, field_validator
 
 
 class Option(Enum):
@@ -13,6 +14,19 @@ class Option(Enum):
 
     OPT1 = 'Option 1'
     OPT2 = 'Option 2'
+
+
+class AoiProperties(BaseModel):
+    name: str = Field(
+        title='Name',
+        description='The name of the area of interest i.e. a human readable description.',
+        examples=['Heidelberg'],
+    )
+    id: str = Field(
+        title='ID',
+        description='A unique identifier of the area of interest.',
+        examples=[uuid.uuid4()],
+    )
 
 
 class ComputeInput(BaseModel):
@@ -81,20 +95,23 @@ class ComputeInput(BaseModel):
     )
 
     # Last is the geographical area of interest.
+    # This parameter is mandatory for all plugins.
     # Unfortunately it is a bit cumbersome.
     # We use geojson as input type and MultiPolygons as geometry type.
     # All plugins should be able to work on arbitrary polygonal areas.
     # Yet, you don't have to bother about the input type here.
-    # Simply use the convenience methods .get_geom below that will provide a shapely geometry.
+    # Simply use the convenience methods .get_aoi_geom below that will provide a shapely geometry.
     # See the methods further down for an example.
-    aoi_blueprint: geojson_pydantic.Feature[geojson_pydantic.MultiPolygon, Optional[Dict]] = Field(
-        title='Area of Interest Input',
-        description='A required area of interest parameter.',
+    # IMPORTANT: Do not change the name of the variable, it adheres to a contract with the front-end!
+    # You may though adapt the title or description to your liking.
+    aoi: geojson_pydantic.Feature[geojson_pydantic.MultiPolygon, AoiProperties] = Field(
+        title='Area of Interest',
+        description="The geographic area of interest for this plugin's indicator computation.",
         validate_default=True,
         examples=[
             {
                 'type': 'Feature',
-                'properties': {},
+                'properties': {'name': 'Heidelberg', 'id': 'Q12345'},
                 'geometry': {
                     'type': 'MultiPolygon',
                     'coordinates': [
@@ -113,9 +130,21 @@ class ComputeInput(BaseModel):
         ],
     )
 
-    def get_geom(self) -> shapely.MultiPolygon:
+    @field_validator('aoi')
+    def assert_aoi_properties_not_null(cls, aoi: geojson_pydantic.Feature) -> geojson_pydantic.Feature:
+        assert aoi.properties, 'AOI properties are required.'
+        return aoi
+
+    def get_aoi_geom(self) -> shapely.MultiPolygon:
         """Convert the input geojson geometry to a shapely geometry.
 
         :return: A shapely.MultiPolygon representing the area of interest defined by the user.
         """
-        return shapely.geometry.shape(self.aoi_blueprint.geometry)
+        return shapely.geometry.shape(self.aoi.geometry)
+
+    def get_aoi_properties(self) -> AoiProperties:
+        """Return the properties of the aoi.
+
+        :return:
+        """
+        return self.aoi.properties
