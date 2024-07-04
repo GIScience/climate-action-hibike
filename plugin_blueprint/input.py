@@ -16,6 +16,29 @@ class Option(Enum):
     OPT2 = 'Option 2'
 
 
+class Mapping(BaseModel):
+    good: str = Field(
+        title='String for Good',
+        description='A good string.',
+        examples=['John Doe'],
+        default='John Doe',
+    )
+    mediocre: float = Field(
+        title='Mediocre Float',
+        description='A mediocre float.',
+        examples=[2.1],
+        default=2.1,
+        ge=0.5,
+        le=4,
+    )
+    bad: Optional[Option] = Field(
+        title='Bad Selection',
+        description='A bad selection.',
+        examples=[Option.OPT2],
+        default=Option.OPT2,
+    )
+
+
 class AoiProperties(BaseModel):
     name: str = Field(
         title='Name',
@@ -92,6 +115,14 @@ class ComputeInput(BaseModel):
         description='An optional selection parameter. The user can choose multiple of the available options.',
         examples=[[Option.OPT2]],
         default=[Option.OPT2],
+    )
+
+    mapping_blueprint: Optional[Mapping] = Field(
+        title='Mapping Input',
+        description='An optional mapping parameter. The user can define key->value pairs representing choices/options '
+        'that values/results are mapped to.',
+        examples=[Mapping(good='John Doe', mediocre=2.1)],
+        default=Mapping(good='John Doe', mediocre=2.1),
     )
 
     # Last is the geographical area of interest.

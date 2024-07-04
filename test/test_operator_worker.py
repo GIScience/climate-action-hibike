@@ -25,7 +25,12 @@ Be aware that if you did not specify a value, some of the optional parameters ma
     "select_blueprint": "Option 2",
     "select_multi_blueprint": [
         "Option 2"
-    ]
+    ],
+    "mapping_blueprint": {
+        "good": "John Doe",
+        "mediocre": 2.1,
+        "bad": "Option 2"
+    }
 }
 ```
 
