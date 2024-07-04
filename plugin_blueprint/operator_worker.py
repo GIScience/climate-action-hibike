@@ -16,7 +16,7 @@ from climatoology.base.artifact import (
     RasterInfo,
 )
 from climatoology.base.operator import ComputationResources, Concern, Info, Operator, PluginAuthor, _Artifact
-from climatoology.utility.api import LulcUtility, LulcWorkUnit
+from climatoology.utility.api import LulcUtility, LulcWorkUnit, FusionMode
 from ohsome import OhsomeClient
 from pandas import DataFrame
 from pydantic_extra_types.color import Color
@@ -213,7 +213,11 @@ class OperatorBlueprint(Operator[ComputeInput]):
         log.debug('Creating dummy raster artifact.')
         # Be aware that there are more parameters to the LULCWorkUnit which affect the configuration of the service.
         # These can be handed to the user for adaption via the input parameters.
-        aoi = LulcWorkUnit(area_coords=aoi.bounds, end_date=target_date.isoformat())
+        aoi = LulcWorkUnit(
+            area_coords=aoi.bounds,
+            end_date=target_date.isoformat(),
+            fusion_mode=FusionMode.ONLY_MODEL,
+        )
 
         with self.lulc_utility.compute_raster([aoi]) as lulc_classification:
             labels = self.lulc_utility.get_class_legend()
@@ -224,7 +228,7 @@ class OperatorBlueprint(Operator[ComputeInput]):
                 colormap=lulc_classification.colormap(1),
             )
 
-            return build_raster_artifact(raster_info, labels, resources)
+            return build_raster_artifact(raster_info, labels.osm, resources)
 
     @staticmethod
     def get_md_text(params: ComputeInput) -> str:
