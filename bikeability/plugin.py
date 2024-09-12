@@ -5,10 +5,9 @@ import yaml
 from climatoology.app.plugin import PlatformPlugin
 from climatoology.broker.message_broker import AsyncRabbitMQ
 from climatoology.store.object_store import MinioStorage
-from climatoology.utility.api import LulcUtility
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from plugin_blueprint.operator_worker import OperatorBlueprint
+from bikeability.operator_worker import OperatorBikeability
 
 log_config = 'conf/logging.yaml'
 log = logging.getLogger(__name__)
@@ -29,26 +28,11 @@ class Settings(BaseSettings):
     rabbitmq_user: str
     rabbitmq_password: str
 
-    lulc_host: str
-    lulc_port: int
-    lulc_path: str
-
     model_config = SettingsConfigDict(env_file='.env')
 
 
 async def start_plugin(settings: Settings) -> None:
-    """Function to start the plugin within the architecture.
-
-    Please adjust the class reference to the class you created above. Apart from that **DO NOT TOUCH**.
-
-    :return:
-    """
-    lulc_utility = LulcUtility(
-        host=settings.lulc_host,
-        port=settings.lulc_port,
-        path=settings.lulc_path,
-    )
-    operator = OperatorBlueprint(lulc_utility)
+    operator = OperatorBikeability()
     log.info(f'Configuring plugin: {operator.info().name}')
 
     storage = MinioStorage(

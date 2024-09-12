@@ -1,27 +1,24 @@
 import uuid
 from pathlib import Path
 from typing import List
-from unittest.mock import patch
 
 import pytest
-import rasterio
 import responses
-from climatoology.base.artifact import ArtifactModality, AttachmentType, Legend, ContinuousLegendData
+from climatoology.base.artifact import ArtifactModality, AttachmentType, Legend
 from climatoology.base.computation import ComputationScope
 from climatoology.base.operator import Concern, Info, PluginAuthor, _Artifact
-from climatoology.utility.api import LabelDescriptor, LabelResponse
 from pydantic_extra_types.color import Color
 from semver import Version
 
-from plugin_blueprint.input import ComputeInput
-from plugin_blueprint.operator_worker import OperatorBlueprint
+from bikeability.input import ComputeInputBikeability
+from bikeability.operator_worker import OperatorBikeability
+from bikeability.utils import filter_start_matcher
 
 
 @pytest.fixture
-def expected_compute_input() -> ComputeInput:
+def expected_compute_input() -> ComputeInputBikeability:
     # noinspection PyTypeChecker
-    return ComputeInput(
-        bool_blueprint=True,
+    return ComputeInputBikeability(
         aoi={
             'type': 'Feature',
             'properties': {'name': 'Heidelberg', 'id': 'Q12345'},
@@ -30,11 +27,11 @@ def expected_compute_input() -> ComputeInput:
                 'coordinates': [
                     [
                         [
-                            [12.3, 48.22],
-                            [12.3, 48.34],
-                            [12.48, 48.34],
-                            [12.48, 48.22],
-                            [12.3, 48.22],
+                            [12.300, 48.220],
+                            [12.300, 48.221],
+                            [12.301, 48.221],
+                            [12.301, 48.220],
+                            [12.300, 48.220],
                         ]
                     ]
                 ],
@@ -47,137 +44,48 @@ def expected_compute_input() -> ComputeInput:
 def expected_info_output() -> Info:
     # noinspection PyTypeChecker
     return Info(
-        name='Plugin Blueprint',
+        name='Bikeability',
         icon=Path('resources/info/icon.jpeg'),
         authors=[
+            PluginAuthor(
+                name='Jonas Kemmer',
+                affiliation='HeiGIT gGmbH',
+                website='https://heigit.org/heigit-team/',
+            ),
             PluginAuthor(
                 name='Moritz Schott',
                 affiliation='HeiGIT gGmbH',
                 website='https://heigit.org/heigit-team/',
             ),
-            PluginAuthor(
-                name='Maciej Adamiak',
-                affiliation='Consultant at HeiGIT gGmbH',
-                website='https://heigit.org/heigit-team/',
-            ),
         ],
         version=Version(0, 0, 1),
-        concerns=[Concern.CLIMATE_ACTION__GHG_EMISSION],
-        purpose=Path('resources/info/purpose.md').read_text(),
-        methodology=Path('resources/info/methodology.md').read_text(),
-        sources=Path('resources/info/sources.bib'),
+        concerns=[Concern.MOBILITY_CYCLING],
+        purpose='This is a dummy for the rework of the plugin.',
+        methodology='The dummy is based on the functionality of walkability.',
+        sources=Path('resources/literature.bib'),
     )
 
 
 @pytest.fixture
 def expected_compute_output(compute_resources) -> List[_Artifact]:
-    markdown_artifact = _Artifact(
-        name='A Text',
-        modality=ArtifactModality.MARKDOWN,
-        file_path=Path(compute_resources.computation_dir / 'markdown_blueprint.md'),
-        summary='A JSON-block of the input parameters',
-    )
-    table_artifact = _Artifact(
-        name='Character Count',
-        modality=ArtifactModality.TABLE,
-        file_path=Path(compute_resources.computation_dir / 'table_blueprint.csv'),
-        summary='The table lists the number of occurrences for each character in the input parameters.',
-        description='A table with two columns.',
-    )
-    image_artifact = _Artifact(
-        name='Image',
-        modality=ArtifactModality.IMAGE,
-        file_path=Path(compute_resources.computation_dir / 'image_blueprint.png'),
-        summary='A nice image.',
-        description='The image is under CC0 license taken from [pexels](https://www.pexels.com/'
-        'photo/person-holding-a-green-plant-1072824/).',
-    )
-    scatter_chart_artifact = _Artifact(
-        name='The Points',
-        modality=ArtifactModality.CHART,
-        file_path=Path(compute_resources.computation_dir / 'scatter_chart_blueprint.json'),
-        summary='A simple scatter plot.',
-        description='Beautiful points.',
-    )
-    line_chart_artifact = _Artifact(
-        name='The Line',
-        modality=ArtifactModality.CHART,
-        primary=False,
-        file_path=Path(compute_resources.computation_dir / 'line_chart_blueprint.json'),
-        summary='A simple line of negative incline.',
-    )
-    bar_chart_artifact = _Artifact(
-        name='The Bars',
-        modality=ArtifactModality.CHART,
-        primary=False,
-        file_path=Path(compute_resources.computation_dir / 'bar_chart_blueprint.json'),
-        summary='A simple bar chart.',
-    )
-    pie_chart_artifact = _Artifact(
-        name='The Pie',
-        modality=ArtifactModality.CHART,
-        primary=False,
-        file_path=Path(compute_resources.computation_dir / 'pie_chart_blueprint.json'),
-        summary='A simple pie.',
-    )
-    point_artifact = _Artifact(
-        name='Points',
+    paths_artifact = _Artifact(
+        name='Cycling infrastructure path categories',
         modality=ArtifactModality.MAP_LAYER_GEOJSON,
-        file_path=Path(compute_resources.computation_dir / 'points_blueprint.geojson'),
-        summary='Schools in the area of interest including a dummy school in the center.',
-        description='The schools are taken from OSM at the date given in the input form.',
-        attachments={AttachmentType.LEGEND: Legend(legend_data={'School': Color('blue'), 'Dummy': Color('red')})},
-    )
-    line_artifact = _Artifact(
-        name='Lines',
-        modality=ArtifactModality.MAP_LAYER_GEOJSON,
-        primary=False,
-        file_path=Path(compute_resources.computation_dir / 'lines_blueprint.geojson'),
-        summary='Buffers around schools in the area of interest including a dummy school in the center.',
-        description='The schools are taken from OSM at the date given in the input form.',
-        attachments={AttachmentType.LEGEND: Legend(legend_data={'School': Color('blue'), 'Dummy': Color('red')})},
-    )
-    polygon_artifact = _Artifact(
-        name='Polygons',
-        modality=ArtifactModality.MAP_LAYER_GEOJSON,
-        primary=False,
-        file_path=Path(compute_resources.computation_dir / 'polygons_blueprint.geojson'),
-        summary='Schools in the area of interest including a dummy school in the center, buffered by ca. 100m.',
-        description='The schools are taken from OSM at the date given in the input form.',
-        attachments={
-            AttachmentType.LEGEND: Legend(
-                legend_data=ContinuousLegendData(cmap_name='seismic', ticks={'Good School': 0.0, 'Bad School': 1.0})
-            )
-        },
-    )
-    raster_artifact = _Artifact(
-        name='LULC Classification',
-        modality=ArtifactModality.MAP_LAYER_GEOTIFF,
-        file_path=Path(compute_resources.computation_dir / 'raster_blueprint.tiff'),
-        summary='A land-use and land-cover classification of a user defined area.',
-        description='The classification is created using a deep learning model.',
+        file_path=Path(compute_resources.computation_dir / 'cycling_infrastructure_path_categories.geojson'),
+        summary='TBD',
+        description='TBD',
         attachments={
             AttachmentType.LEGEND: Legend(
                 legend_data={
-                    'unknown': Color('black'),
+                    'designated': Color('#006837'),
+                    'forbidden': Color('#a50026'),
+                    'not_categorised': Color('grey'),
                 }
             )
         },
     )
 
-    return [
-        markdown_artifact,
-        table_artifact,
-        image_artifact,
-        scatter_chart_artifact,
-        line_chart_artifact,
-        bar_chart_artifact,
-        pie_chart_artifact,
-        point_artifact,
-        line_artifact,
-        polygon_artifact,
-        raster_artifact,
-    ]
+    return [paths_artifact]
 
 
 # The following fixtures can be ignored on plugin setup
@@ -188,41 +96,32 @@ def compute_resources():
 
 
 @pytest.fixture
-def operator(lulc_utility):
-    return OperatorBlueprint(lulc_utility)
-
-
-@pytest.fixture
-def ohsome_api():
-    with responses.RequestsMock() as rsps, open('resources/test/ohsome.geojson', 'rb') as vector:
-        rsps.post('https://api.ohsome.org/v1/elements/centroid', body=vector.read())
+def responses_mock():
+    with responses.RequestsMock() as rsps:
         yield rsps
 
 
 @pytest.fixture
-def lulc_utility():
-    with patch('climatoology.utility.api.LulcUtility') as lulc_utility:
-        lulc_utility.compute_raster.return_value.__enter__.return_value = rasterio.open(
-            'resources/test/segmentation.tiff'
-        )
-        lulc_utility.get_class_legend.return_value = LabelResponse(
-            osm={
-                'unknown': LabelDescriptor(
-                    name='unknown',
-                    osm_filter=None,
-                    color=(0, 0, 0),
-                    description='Class Unknown',
-                    raster_value=0,
-                )
-            },
-            corine={
-                'unknown': LabelDescriptor(
-                    name='unknown',
-                    osm_filter=None,
-                    color=(0, 0, 0),
-                    description='Class Unknown',
-                    raster_value=0,
-                )
-            },
-        )
-    yield lulc_utility
+def operator():
+    return OperatorBikeability()
+
+
+@pytest.fixture
+def ohsome_api(responses_mock):
+    with (
+        open('resources/test/ohsome_line_and_polygon_response.geojson', 'r') as line_and_polygon_file,
+        open('resources/test/ohsome_route_response.geojson', 'r') as route_file,
+    ):
+        line_and_polygon_body = line_and_polygon_file.read()
+        route_body = route_file.read()
+    responses_mock.post(
+        'https://api.ohsome.org/v1/elements/geometry',
+        body=line_and_polygon_body,
+        match=[filter_start_matcher('(geometry:line or geometry:polygon)')],
+    )
+    responses_mock.post(
+        'https://api.ohsome.org/v1/elements/geometry',
+        body=route_body,
+        match=[filter_start_matcher('route in (bicycle)')],
+    )
+    return responses_mock
