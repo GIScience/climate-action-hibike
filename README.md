@@ -20,7 +20,7 @@ Yet, we highly encourage you to create smaller intermediate MRs for review!
 
 We use [poetry](https://python-poetry.org) as an environment management system.
 Make sure you have it installed.
-Apart from some base dependencies, there is only one fixed dependency for you, which is the [climatoology](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/climatoology) package that holds all the infrastructure functionality.
+Apart from some base dependencies, there is only one fixed dependency for you, which is the [climatoology](https://gitlab.heigit.org/climate-action/climatoology) package that holds all the infrastructure functionality.
 Make sure you have read-access to the climatoology repository (i.e. you can clone it).
 
 Head over to the [pyproject.toml](pyproject.toml) and replace the name description and author attributes with your plugins information.
@@ -60,13 +60,13 @@ This will make debugging easier at a later stage.
 
 We have to replace names at multiple level.
 
-Let's start with refactoring the name of the package ([plugin_blueprint/](plugin_blueprint)).
+Let's start with refactoring the name of the package ([plugin_blueprint/](bikeability)).
 Rename it to the project name you have defined above in your `pyproject.toml`.
 This directory is also copied to the Docker container we use for deployment.
 Therefore, you have to change the name also in the [Dockerfile](Dockerfile) and the [Dockerfile.Kaniko](Dockerfile.Kaniko).
 
 Next there is one class that should be name-related to your plugin:
-The `OperatorBlueprint` in [plugin.py](plugin_blueprint/plugin.py).
+The `OperatorBlueprint` in [plugin.py](bikeability/plugin.py).
 Refactor-rename this class with reasonable names related to your idea.
 
 **Make these changes your first MR** and add your CA-team contact as reviewer.
@@ -76,8 +76,8 @@ Refactor-rename this class with reasonable names related to your idea.
 We have seperated the code into multiple files by their functionality.
 Three files are relevant for you:
 
-1. The [operator_worker.py](plugin_blueprint/operator_worker.py) that defines your operator logic,
-2. the [input.py](plugin_blueprint/input.py) that defines the user inputs required to run your plugin and
+1. The [operator_worker.py](bikeability/operator_worker.py) that defines your operator logic,
+2. the [input.py](bikeability/input.py) that defines the user inputs required to run your plugin and
 3. [test_plugin.py](test/test_plugin.py) where you define the unit tests for your plugin.
 
 We will go through these files step by step.
@@ -104,7 +104,7 @@ simply declare an `Info` element.
 Have a look at the classes source code to see all required attributes.
 Make sure you add the referenced files to your repository.
 The list of concerns is limited on purpose to have a curated set of keywords.
-If you feel that your plugin would benefit from an extension of that list, feel free to contact the CA team or create a MR in the [climatoology](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/climatoology) repository.
+If you feel that your plugin would benefit from an extension of that list, feel free to contact the CA team or create a MR in the [climatoology](https://gitlab.heigit.org/climate-action/climatoology) repository.
 
  2. For now, you can leave the `expected_compute_input` as is.
 It is better to update it, once you have made the first changes to the actual working code later.
@@ -132,7 +132,7 @@ The CA team can help you implement these setups, when the need arises.
 
 But let's create some code first:
 
-#### Operator in [operator_worker.py](plugin_blueprint/operator_worker.py)
+#### Operator in [operator_worker.py](bikeability/operator_worker.py)
 
 ##### Info Function
 
@@ -149,11 +149,11 @@ You are free to create additional classes or methods as needed or write a single
 
 You will probably also use external services like [ohsome-py](https://github.com/GIScience/ohsome-py).
 In addition, you can use the provided utilities of the CA team.
-A list of utilities can be found in the [climatoology](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/climatoology) repository, but we also provide examples for their usage in this repository.
+A list of utilities can be found in the [climatoology](https://gitlab.heigit.org/climate-action/climatoology) repository, but we also provide examples for their usage in this repository.
 
 The only requirement is to return a (potentially empty) list of Artifacts i.e. results.
 
-#### Input parameters in [input.py](plugin_blueprint/input.py)
+#### Input parameters in [input.py](bikeability/input.py)
 
 Keep in mind to update the input parameter class and the tests while you are coding away.
 
@@ -174,7 +174,7 @@ Nothing more.
 
 To accomplish this goal, first go through the existing code and remove all methods, tests and dependencies that are not required for this dummy.
 Reduce the code and documentation (like *this* README) to a bare minimum.
-Don't worry, you can later go back to the [plugin blueprint](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/plugin-blueprint) repository and recover methods that you deleted earlier, if you need them.
+Don't worry, you can later go back to the [plugin blueprint](https://gitlab.heigit.org/climate-action/plugin-blueprint) repository and recover methods that you deleted earlier, if you need them.
 
 Next, hand-craft your dummy in the code and return it as an artifact.
 Don't forget to adapt the tests and update the documentation.
@@ -211,7 +211,7 @@ Because you are doing rigorous testing we can have trust in the code and be sure
 Yet, you may still want to run your plugin locally.
 Unfortunately, running you plugin locally takes a bit more setup:
 
-1. Set up the [infrastructure](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/infrastructure) locally in `dev` mode
+1. Set up the [infrastructure](https://gitlab.heigit.org/climate-action/infrastructure) locally in `dev` mode
 2. Copy [.env_template](.env_template) to `.env` and update it
 
 You now have two options:
@@ -262,7 +262,7 @@ docker run -v ./:/workspace \
     --no-push
 ```
 
-Don't forget to add the plugin to the [infrastructure](https://gitlab.gistools.geog.uni-heidelberg.de/climate-action/infrastructure) and deploy it, once ready.
+Don't forget to add the plugin to the [infrastructure](https://gitlab.heigit.org/climate-action/infrastructure) and deploy it, once ready.
 
 ## Forking this repository (for admins)
 
