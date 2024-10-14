@@ -13,19 +13,19 @@ def test_get_paths(operator, expected_compute_input, ohsome_api):
 
     expected_lines = gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.DESIGNATED],
-            'rating': [1.0],
+            'category': [PathCategory.NOT_BIKEABLE],
+            'rating': [0.0],
             'geometry': [line_geom],
-            '@other_tags': [{'bicycle': 'designated'}],
+            '@other_tags': [{'bicycle': 'no'}],
         },
         crs='EPSG:4326',
     )
     expected_polygons = gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.DESIGNATED],
-            'rating': [1.0],
+            'category': [PathCategory.NOT_BIKEABLE],
+            'rating': [0.0],
             'geometry': [polygon_geom],
-            '@other_tags': [{'bicycle': 'designated'}],
+            '@other_tags': [{'bicycle': 'no'}],
         },
         crs='EPSG:4326',
     )
