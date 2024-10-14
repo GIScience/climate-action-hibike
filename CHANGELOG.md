@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...dummy?from_project_id=914&straight=false)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
+
+### Changed
+- First full set of bikeable path categories based on the share with other road users ([#7](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/7), [#17](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/17), [#20](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/20), [#25](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/25))
+
+### Added
+- Description of the plugin and path category indicator ([#9](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/9), [#15](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/15))
+
+
+
+## [Dummy](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/tree/e125efcd136567c554ee7bbf6f67c8366aae9a55) 2024-10-02
 
 ### Changed
 

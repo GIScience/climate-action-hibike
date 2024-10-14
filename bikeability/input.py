@@ -25,27 +25,81 @@ class AoiProperties(BaseModel):
 
 
 class PathRating(BaseModel):
-    designated: float = Field(
-        title='Designated cycling paths',
-        description='',
+    designated_exclusive: float = Field(
+        title='Designated Exclusive Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are designated for cycling and not shared with pedestrians.',
         ge=0,
         le=1,
         examples=[1.0],
         default=1.0,
     )
 
-    forbidden: float = Field(
-        title='Path where cycling is forbidden',
-        description='',
+    designated_shared_with_pedestrians: float = Field(
+        title='Designated Shared with Pedestrians Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are designated for cycling and shared with pedestrians.',
+        ge=0,
+        le=1,
+        examples=[0.8],
+        default=0.8,
+    )
+
+    shared_with_motorised_traffic_walking_speed: float = Field(
+        title='Shared with Motorised Traffic Walking Speed Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are shared with motorised traffic with speed limits of roughly walking speed (<=15 km/h).',
+        ge=0,
+        le=1,
+        examples=[0.8],
+        default=0.8,
+    )
+
+    shared_with_motorised_traffic_low_speed: float = Field(
+        title='Shared with Motorised Traffic Low Speed Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are shared with motorised traffic with max speed limits of 30 km/h.',
+        ge=0,
+        le=1,
+        examples=[0.6],
+        default=0.6,
+    )
+
+    shared_with_motorised_traffic_medium_speed: float = Field(
+        title='Shared with Motorised Traffic Medium Speed Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are shared with motorised traffic with max speed limits of 50 km/h.',
+        ge=0,
+        le=1,
+        examples=[0.4],
+        default=0.4,
+    )
+
+    shared_with_motorised_traffic_high_speed: float = Field(
+        title='Shared with Motorised Traffic High Speed Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are shared with motorised traffic with max speed limits of 100 km/h.',
+        ge=0,
+        le=1,
+        examples=[0.1],
+        default=0.1,
+    )
+
+    requires_dismounting: float = Field(
+        title='Requires Dismounting Path Rating',
+        description='Qualitative rating (between 0..1) of paths where cyclists must dismount.',
+        ge=0,
+        le=1,
+        examples=[0.05],
+        default=0.05,
+    )
+
+    not_bikeable: float = Field(
+        title='Not Bikeable Path Rating',
+        description='Qualitative rating (between 0..1) of paths that are not bikeable.',
         ge=0,
         le=1,
         examples=[0.0],
         default=0.0,
     )
 
-    not_categorised: float = Field(
-        title='Path which does not fit in any other category',
-        description='',
+    unknown: float = Field(
+        title='Unknown Path Rating',
+        description='Qualitative (between 0..1) rating of paths that are in principle bikeable but are could not be categorised (default -9999, which is out of scale)',
         ge=0,
         le=1,
         examples=[0.0],
@@ -54,7 +108,18 @@ class PathRating(BaseModel):
 
     @model_validator(mode='after')
     def check_order(self) -> Self:
-        assert self.forbidden <= self.designated, 'Qualitative rating must respect semantic order of categories!'
+        assert (
+            0
+            <= self.not_bikeable
+            <= self.requires_dismounting
+            <= self.shared_with_motorised_traffic_high_speed
+            <= self.shared_with_motorised_traffic_medium_speed
+            <= self.shared_with_motorised_traffic_low_speed
+            <= self.shared_with_motorised_traffic_walking_speed
+            <= self.designated_shared_with_pedestrians
+            <= self.designated_exclusive
+            <= 1
+        ), 'Qualitative rating must respect semantic order of categories!'
         return self
 
 

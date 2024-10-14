@@ -28,7 +28,7 @@
       "properties": {
         "@osmId": "way/171574582",
         "@snapshotTimestamp": "2017-01-01T00:00:00Z",
-        "bicycle": "designated"
+        "bicycle": "no"
       }
     },
     {
@@ -59,7 +59,7 @@
       "properties": {
         "@osmId": "way/171574583",
         "@snapshotTimestamp": "2017-01-01T00:00:00Z",
-        "bicycle" : "designated"
+        "bicycle" : "no"
       }
     }
   ]

@@ -7,83 +7,181 @@ import geopandas as gpd
 import matplotlib
 import pandas as pd
 import shapely
-from shapely import LineString
 from matplotlib.colors import to_hex, Normalize
 from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
 from requests import PreparedRequest
+from shapely import LineString
 
 log = logging.getLogger(__name__)
 
 
 class PathCategory(Enum):
-    DESIGNATED = 'designated'
-    FORBIDDEN = 'forbidden'
-    NOT_CATEGORISED = 'not_categorised'
+    DESIGNATED_EXCLUSIVE = 'designated_exclusive'
+    DESIGNATED_SHARED_WITH_PEDESTRIANS = 'designated_shared_with_pedestrians'
+    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'shared_with_motorised_traffic_walking_speed'
+    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED = 'shared_with_motorised_traffic_low_speed'
+    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED = 'shared_with_motorised_traffic_medium_speed'
+    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'shared_with_motorised_traffic_high_speed'
+    REQUIRES_DISMOUNTING = 'requires_dismounting'
+    NOT_BIKEABLE = 'not_bikeable'
+    UNKNOWN = 'unknown'
 
 
-def construct_filters() -> Dict[PathCategory, Callable[..., Any]]:
-    def designated(d: Dict) -> bool:
-        return d.get('bicycle') == 'designated'
+class PathCategoryFilters:
+    def __init__(self):
+        self.potential_bikeable_highway_values = (
+            'primary',
+            'primary_link',
+            'secondary',
+            'secondary_link',
+            'tertiary',
+            'tertiary_link',
+            'road',
+            'unclassified',
+            'residential',
+            'track',
+            'living_street',
+            'service',
+        )
 
-    def forbidden(d: Dict) -> bool:
-        return d.get('bicycle') == 'no'
+    def not_bikeable(self, d: Dict) -> bool:
+        return (
+            d.get('highway')
+            not in [*self.potential_bikeable_highway_values, 'pedestrian', 'path', 'cycleway', 'footway', 'steps']
+            or d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
+            or d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
+            or (
+                d.get('highway') in ['footway', 'pedestrian']
+                and d.get('bicycle') not in ['yes', 'designated', 'dismount']
+            )
+            or d.get('motorroad') == 'yes'
+        )
 
-    def not_categorised(d: Dict) -> bool:
-        return True
+    def _shared_with_pedestrians(self, d: Dict) -> bool:
+        return (d.get('foot') in ['yes', 'designated'] and d.get('segregated') != 'yes') or (
+            d.get('highway') in ['footway', 'pedestrian'] and d.get('foot') is None
+        )
 
-    return {
-        PathCategory.DESIGNATED: designated,
-        PathCategory.FORBIDDEN: forbidden,
-        PathCategory.NOT_CATEGORISED: not_categorised,
-    }
+    def designated_shared_with_pedestrians(self, d: Dict) -> bool:
+        return (
+            d.get('highway') in ['cycleway', 'path', 'footway', 'pedestrian'] and self._shared_with_pedestrians(d)
+        ) or d.get('highway') == 'track'
+
+    def designated_exclusive(self, d: Dict) -> bool:
+        return d.get('highway') in ['cycleway', 'path', 'footway', 'pedestrian'] and not self._shared_with_pedestrians(
+            d
+        )
+
+    def shared_with_motorised_traffic_walking_speed(self, d: Dict) -> bool:
+        return d.get('highway') in ['living_street', 'service'] or d.get('maxspeed') in [
+            '5',
+            '6',
+            '7',
+            '8',
+            '10',
+            '15',
+            'walk',
+        ]
+
+    def shared_with_motorised_traffic_low_speed(self, d: Dict) -> bool:
+        return d.get('maxspeed') in ['20', '25', '30'] or d.get('zone:maxspeed') in ['DE:30', '30']
+
+    def shared_with_motorised_traffic_medium_speed(self, d: Dict) -> bool:
+        return (
+            d.get('maxspeed') in ['35', '40', '45', '50', 'DE:urban', 'AT:urban']
+            or d.get('maxspeed:forward') in ['35', '40', '45', '50', 'DE:urban', 'AT:urban']
+            or d.get('maxspeed:type') == ['DE:urban', 'AT:urban']
+            or d.get('zone:maxspeed') == ['DE:urban', 'AT:urban']
+            or d.get('highway') == 'residential'
+        )
+
+    def shared_with_motorised_traffic_high_speed(self, d: Dict) -> bool:
+        return (
+            d.get('maxspeed') in ['60', '70', '80', '90', '100', 'DE:rural', 'AT:rural']
+            or d.get('maxspeed:forward') in ['60', '70', '80', '90', '100', 'DE:rural', 'AT:rural']
+            or d.get('maxspeed:type') == ['DE:rural', 'AT:rural']
+            or d.get('zone:maxspeed') == ['DE:rural', 'AT:rural']
+        ) or d.get('highway') == 'unclassified'
+
+    def requires_dismounting(self, d: Dict) -> bool:
+        return (
+            d.get('bicycle') == 'dismount'
+            or '1012-32' in d.get('traffic_sign', 'no')
+            or (
+                d.get('highway') == 'steps'
+                and (
+                    d.get('ramp:bicycle') == 'yes' or d.get('ramp') == 'yes' or d.get('ramp:wheelchair') == 'yes',
+                    d.get('ramp:stroller') == 'yes',
+                )
+            )
+            or d.get('railway') == 'platform'
+            or d.get('ford') is not None
+        )
 
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
     elements = ohsome.elements.geometry.post(
         bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
     ).as_dataframe()
-    if elements.empty:
-        return gpd.GeoDataFrame(
-            crs='epsg:4326', columns=['geometry', '@other_tags']
-        )  # TODO: remove once https://github.com/GIScience/ohsome-py/pull/165 is resolved
     elements = elements.reset_index(drop=True)
     return elements[['geometry', '@other_tags']]
 
 
-def apply_path_category_filters(row: gpd.GeoSeries, filters):
-    for category, filter_func in filters:
-        if filter_func(row['@other_tags']):
-            return category
-    return None
+def apply_path_category_filters(row: pd.Series):
+    filters = PathCategoryFilters()
+
+    match row['@other_tags']:
+        case x if filters.requires_dismounting(x):
+            return PathCategory.REQUIRES_DISMOUNTING
+        case x if filters.not_bikeable(x):
+            return PathCategory.NOT_BIKEABLE
+        case x if filters.designated_exclusive(x):
+            return PathCategory.DESIGNATED_EXCLUSIVE
+        case x if filters.designated_shared_with_pedestrians(x):
+            return PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS
+        case x if filters.shared_with_motorised_traffic_walking_speed(x):
+            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED
+        case x if filters.shared_with_motorised_traffic_low_speed(x):
+            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED
+        case x if filters.shared_with_motorised_traffic_medium_speed(x):
+            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED
+        case x if filters.shared_with_motorised_traffic_high_speed(x):
+            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED
+        case _:
+            return PathCategory.UNKNOWN
 
 
 def boost_route_members(
     aoi: shapely.MultiPolygon,
     paths_line: gpd.GeoDataFrame,
     ohsome: OhsomeClient,
-    boost_to: PathCategory = PathCategory.DESIGNATED,
+    boost_to: PathCategory = PathCategory.DESIGNATED_EXCLUSIVE,
 ) -> pd.Series:
+    def boost(row):
+        if pd.notna(row.index_trail):
+            return boost_to
+        else:
+            return row.category
+
     trails = fetch_osm_data(aoi, 'route in (bicycle)', ohsome)
     trails.geometry = trails.geometry.apply(lambda geom: fix_geometry_collection(geom))
 
-    paths_line = paths_line.copy()
-    paths_line = gpd.sjoin(
-        paths_line,
+    paths_line_unknown = paths_line[paths_line['category'] == PathCategory.UNKNOWN]
+
+    paths_line_unknown = gpd.sjoin(
+        paths_line_unknown,
         trails,
         lsuffix='path',
         rsuffix='trail',
         how='left',
         predicate='within',
     )
-    paths_line = paths_line[~paths_line.index.duplicated(keep='first')]
+    paths_line_unknown = paths_line_unknown[~paths_line_unknown.index.duplicated(keep='first')]
+    paths_line_unknown['category'] = paths_line_unknown.apply(boost, axis=1)
+    paths_line.loc[paths_line_unknown.index, 'category'] = paths_line_unknown['category']
 
-    return paths_line.apply(
-        lambda row: boost_to
-        if not pd.isna(row.index_trail) and row.category in (PathCategory.FORBIDDEN, PathCategory.DESIGNATED)
-        else row.category,
-        axis=1,
-    )
+    return paths_line['category']
 
 
 def fix_geometry_collection(
@@ -101,6 +199,19 @@ def fix_geometry_collection(
         return geom
     else:
         return LineString()
+
+
+def get_qualitative_color(category: PathCategory, cmap_name: str) -> pd.Series:
+    norm = Normalize(0, 1)
+    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
+    cmap.set_under('#808080')
+
+    category_norm = {name: idx / (len(PathCategory) - 1) for idx, name in enumerate(PathCategory)}
+
+    if category == PathCategory.UNKNOWN:
+        return Color(to_hex(cmap(-9999)))
+    else:
+        return Color(to_hex(cmap(category_norm[category])))
 
 
 def get_color(values: pd.Series, cmap_name: str = 'RdYlGn') -> pd.Series:
@@ -131,3 +242,22 @@ def filter_start_matcher(filter_start: str) -> Callable[..., Any]:
             return (True, '') if valid else (False, f'The filter parameter does not start with {filter_start}')
 
     return match
+
+
+def ohsome_filter(geometry_type: str) -> str:
+    return str(
+        f'geometry:{geometry_type} and '
+        '(highway=* or railway=platform) and not '
+        '(cycleway=separate or cycleway:both=separate or '
+        '(cycleway:right=separate and cycleway:left=separate) or'
+        '(highway in (footway,pedestrian) and not (bicycle in (yes,designated,dismount) or bicycle:conditional=*)) or'
+        'access in (no,private,permit,military,delivery,customers,emergency))'
+    )
+
+
+pathratings_legend_fix = {
+    'shared_with_motorised_traffic_walking_speed': 'shared_with_motorised_traffic_walking_speed_(<=15_km/h)',
+    'shared_with_motorised_traffic_low_speed': 'shared_with_motorised_traffic_low_speed_(<=30_km/h)',
+    'shared_with_motorised_traffic_medium_speed': 'shared_with_motorised_traffic_medium_speed_(<=50_km/h)',
+    'shared_with_motorised_traffic_high_speed': 'shared_with_motorised_traffic_high_speed_(<=100_km/h)',
+}
