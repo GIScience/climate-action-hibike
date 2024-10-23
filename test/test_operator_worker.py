@@ -47,3 +47,9 @@ def test_get_paths(operator, expected_compute_input, ohsome_api):
         check_geom_type=True,
         check_less_precise=True,
     )
+
+
+def test_input_categories_match_PathCategories(expected_compute_input):
+    input_categories = expected_compute_input.get_path_rating_mapping()
+
+    assert set(input_categories.keys()) == set(PathCategory)
