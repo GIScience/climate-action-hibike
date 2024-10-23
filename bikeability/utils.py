@@ -25,7 +25,17 @@ class PathCategory(Enum):
     SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'shared_with_motorised_traffic_high_speed'
     REQUIRES_DISMOUNTING = 'requires_dismounting'
     NOT_BIKEABLE = 'not_bikeable'
+    PEDESTRIAN_EXCLUSIVE = 'pedestrian_exclusive'
+    RESTRICTED_ACCESS = 'restricted_access'
     UNKNOWN = 'unknown'
+
+    @classmethod
+    def get_hidden(cls):
+        return [cls.PEDESTRIAN_EXCLUSIVE, cls.RESTRICTED_ACCESS]
+
+    @classmethod
+    def get_visible(cls):
+        return [category for category in cls if category not in cls.get_hidden()]
 
 
 class PathCategoryFilters:
@@ -49,12 +59,7 @@ class PathCategoryFilters:
         return (
             d.get('highway')
             not in [*self.potential_bikeable_highway_values, 'pedestrian', 'path', 'cycleway', 'footway', 'steps']
-            or d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
             or d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
-            or (
-                d.get('highway') in ['footway', 'pedestrian']
-                and d.get('bicycle') not in ['yes', 'designated', 'dismount']
-            )
             or d.get('motorroad') == 'yes'
         )
 
@@ -119,6 +124,20 @@ class PathCategoryFilters:
             or d.get('ford') is not None
         )
 
+    def pedestrian_exclusive(self, d: Dict) -> bool:
+        return d.get('highway') in ['footway', 'pedestrian'] and (
+            d.get('bicycle')
+            not in [
+                'yes',
+                'designated',
+                'dismount',
+            ]
+            or d.get('bicycle:conditional') is not None
+        )
+
+    def restricted_access(self, d: Dict) -> bool:
+        return d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
+
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
     elements = ohsome.elements.geometry.post(
@@ -132,6 +151,10 @@ def apply_path_category_filters(row: pd.Series):
     filters = PathCategoryFilters()
 
     match row['@other_tags']:
+        case x if filters.restricted_access(x):
+            return PathCategory.RESTRICTED_ACCESS
+        case x if filters.pedestrian_exclusive(x):
+            return PathCategory.PEDESTRIAN_EXCLUSIVE
         case x if filters.requires_dismounting(x):
             return PathCategory.REQUIRES_DISMOUNTING
         case x if filters.not_bikeable(x):
@@ -201,12 +224,14 @@ def fix_geometry_collection(
         return LineString()
 
 
-def get_qualitative_color(category: PathCategory, cmap_name: str) -> pd.Series:
+def get_qualitative_color(category: PathCategory, cmap_name: str) -> Color:
     norm = Normalize(0, 1)
     cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
     cmap.set_under('#808080')
 
-    category_norm = {name: idx / (len(PathCategory) - 1) for idx, name in enumerate(PathCategory)}
+    category_norm = {
+        name: idx / (len(PathCategory.get_visible()) - 1) for idx, name in enumerate(PathCategory.get_visible())
+    }
 
     if category == PathCategory.UNKNOWN:
         return Color(to_hex(cmap(-9999)))
@@ -249,9 +274,7 @@ def ohsome_filter(geometry_type: str) -> str:
         f'geometry:{geometry_type} and '
         '(highway=* or railway=platform) and not '
         '(cycleway=separate or cycleway:both=separate or '
-        '(cycleway:right=separate and cycleway:left=separate) or'
-        '(highway in (footway,pedestrian) and not (bicycle in (yes,designated,dismount) or bicycle:conditional=*)) or'
-        'access in (no,private,permit,military,delivery,customers,emergency))'
+        '(cycleway:right=separate and cycleway:left=separate))'
     )
 
 

@@ -92,6 +92,14 @@ validation_objects = {
     # https://www.openstreetmap.org/way/24968605 highway=steps and ramp=yes and ramp:stroller=yes
     # https://www.openstreetmap.org/way/27797958 railway=platform
     # https://www.openstreetmap.org/way/87956068 highway=track and ford=yes
+    PathCategory.PEDESTRIAN_EXCLUSIVE: {'way/26028197', 'way/870757384', 'way/694458151'},
+    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no
+    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no
+    # https://www.openstreetmap.org/way/694458151 footway=yes
+    PathCategory.RESTRICTED_ACCESS: {'way/320034117', 'way/849049867', 'way/25805786'},
+    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes
+    # https://www.openstreetmap.org/way/25805786 highway=service and access=private
+    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private
     PathCategory.UNKNOWN: set(),
 }
 
