@@ -106,6 +106,24 @@ class PathRating(BaseModel):
         default=-9999,
     )
 
+    pedestrian_exclusive: float = Field(
+        title='Pedestrian Exclusive Path Rating',
+        description='Shadow category (not used in Bikeable Path Category Indicator)',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=-9999,
+    )
+
+    restricted_access: float = Field(
+        title='Restricted Access Path Rating',
+        description='Shadow category (not used in Bikeable Path Category Indicator)',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=-9999,
+    )
+
     @model_validator(mode='after')
     def check_order(self) -> Self:
         assert (
