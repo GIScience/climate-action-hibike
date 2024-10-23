@@ -1,1 +1,1 @@
-geometry:line and (highway=* or railway=platform) and not (cycleway=separate or cycleway:both=separate or (cycleway:right=separate and cycleway:left=separate) or(highway in (footway,pedestrian) and not (bicycle in (yes,designated,dismount) or bicycle:conditional=*)) oraccess in (no,private,permit,military,delivery,customers,emergency))
+geometry:line and (highway=* or railway=platform) and not (cycleway=separate or cycleway:both=separate or (cycleway:right=separate and cycleway:left=separate))

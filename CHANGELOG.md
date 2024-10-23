@@ -8,6 +8,14 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
 
 ### Changed
+- Modified ohsome filters to keep information on ways with restricted access and footpaths without designated bike access ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19))
+
+### Added
+- Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).
+
+## [Demo](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
+
+### Changed
 - First full set of bikeable path categories based on the share with other road users ([#7](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/7), [#17](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/17), [#20](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/20), [#25](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/25))
 
 ### Added
