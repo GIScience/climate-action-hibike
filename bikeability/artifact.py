@@ -32,7 +32,7 @@ def build_paths_artifact(
     )
     return create_geojson_artifact(
         features=paths_without_restriction.geometry,
-        layer_name='Cycling infrastructure path categories',
+        layer_name='Bikeable Path Categories',
         caption=Path('resources/info/path_categories/caption.md').read_text(),
         description=Path('resources/info/path_categories/description.md').read_text(),
         label=paths_without_restriction.category.apply(lambda r: r.name).to_list(),
