@@ -175,38 +175,6 @@ def apply_path_category_filters(row: pd.Series):
             return PathCategory.UNKNOWN
 
 
-def boost_route_members(
-    aoi: shapely.MultiPolygon,
-    paths_line: gpd.GeoDataFrame,
-    ohsome: OhsomeClient,
-    boost_to: PathCategory = PathCategory.DESIGNATED_EXCLUSIVE,
-) -> pd.Series:
-    def boost(row):
-        if pd.notna(row.index_trail):
-            return boost_to
-        else:
-            return row.category
-
-    trails = fetch_osm_data(aoi, 'route in (bicycle)', ohsome)
-    trails.geometry = trails.geometry.apply(lambda geom: fix_geometry_collection(geom))
-
-    paths_line_unknown = paths_line[paths_line['category'] == PathCategory.UNKNOWN]
-
-    paths_line_unknown = gpd.sjoin(
-        paths_line_unknown,
-        trails,
-        lsuffix='path',
-        rsuffix='trail',
-        how='left',
-        predicate='within',
-    )
-    paths_line_unknown = paths_line_unknown[~paths_line_unknown.index.duplicated(keep='first')]
-    paths_line_unknown['category'] = paths_line_unknown.apply(boost, axis=1)
-    paths_line.loc[paths_line_unknown.index, 'category'] = paths_line_unknown['category']
-
-    return paths_line['category']
-
-
 def fix_geometry_collection(
     geom: shapely.Geometry,
 ) -> Union[shapely.LineString, shapely.MultiLineString]:

@@ -17,7 +17,6 @@ from bikeability.utils import (
     fetch_osm_data,
     get_color,
     apply_path_category_filters,
-    boost_route_members,
     fix_geometry_collection,
     ohsome_filter,
 )
@@ -181,62 +180,6 @@ def test_fetch_osm_data(expected_compute_input, responses_mock):
     )
     computed_osm_data = fetch_osm_data(expected_compute_input.get_aoi_geom(), 'dummy=yes', OhsomeClient())
     geopandas.testing.assert_geodataframe_equal(computed_osm_data, expected_osm_data, check_like=True)
-
-
-def test_boost_route_members(expected_compute_input, responses_mock):
-    """Testing the correct behavior of the boosting."""
-    with open('resources/test/ohsome_line_response.geojson', 'rb') as vector:
-        responses_mock.post(
-            'https://api.ohsome.org/v1/elements/geometry',
-            body=vector.read(),
-        )
-
-    paths_input = gpd.GeoDataFrame(
-        data={
-            'category': [
-                PathCategory.NOT_BIKEABLE,  # overlapping, but not in boostable categories -> should stay
-                PathCategory.UNKNOWN,  # not overlapping, but in boostable categories -> should stay
-                PathCategory.UNKNOWN,  # overlapping and in boostable categories -> should be boosted
-            ]
-        },
-        geometry=[
-            shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)]),
-            shapely.LineString([(12.3, 48.22), (12.3005, 48.2208), (12.3010, 48.22)]),
-            shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)]),
-        ],
-        crs=4326,
-    )
-
-    expected_output = pd.Series(
-        data=[PathCategory.NOT_BIKEABLE, PathCategory.UNKNOWN, PathCategory.DESIGNATED_EXCLUSIVE], name='category'
-    )
-
-    computed_output = boost_route_members(expected_compute_input.get_aoi_geom(), paths_input, OhsomeClient())
-    pd.testing.assert_series_equal(computed_output, expected_output)
-
-
-def test_boost_route_members_overlapping_routes(expected_compute_input, responses_mock):
-    """
-    Testing the case if routes are overlapping themselves (i.e. two identical lines in the response of the route query).
-    """
-    with open('resources/test/ohsome_route_response.geojson', 'rb') as vector:
-        responses_mock.post(
-            'https://api.ohsome.org/v1/elements/geometry',
-            body=vector.read(),
-        )
-
-    paths_input = gpd.GeoDataFrame(
-        data={'category': [PathCategory.UNKNOWN]},
-        geometry=[
-            shapely.LineString([(0, 0), (1, 1)]),
-        ],
-        crs=4326,
-    )
-
-    expected_output = pd.Series(data=[PathCategory.DESIGNATED_EXCLUSIVE], name='category')
-
-    computed_output = boost_route_members(expected_compute_input.get_aoi_geom(), paths_input, OhsomeClient())
-    pd.testing.assert_series_equal(computed_output, expected_output)
 
 
 def test_fix_geometry_collection():
