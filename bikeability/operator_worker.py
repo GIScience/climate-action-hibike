@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 import geopandas as gpd
 import shapely
@@ -11,12 +11,10 @@ from semver import Version
 from bikeability.artifact import (
     build_paths_artifact,
 )
+from bikeability.indicators.path_categories import categorize_paths
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
     fetch_osm_data,
-    PathCategory,
-    apply_path_category_filters,
-    boost_route_members,
     ohsome_filter,
 )
 
@@ -57,26 +55,18 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
     def compute(self, resources: ComputationResources, params: ComputeInputBikeability) -> List[_Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
-        line_paths, polygon_paths = self.get_paths(params.get_buffered_aoi(), params.get_path_rating_mapping())
+        line_paths, polygon_paths = self.get_paths(params.get_buffered_aoi())
+        line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths, params.get_path_rating_mapping())
         paths_artifact = build_paths_artifact(
             line_paths, polygon_paths, params.path_rating, params.get_aoi_geom(), resources
         )
 
         return [paths_artifact]
 
-    def get_paths(
-        self, aoi: shapely.MultiPolygon, rating_map: Dict[PathCategory, float]
-    ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')
 
         paths_line = fetch_osm_data(aoi, ohsome_filter('line'), self.ohsome)
-        paths_line['category'] = paths_line.apply(apply_path_category_filters, axis=1)
-        paths_line['category'] = boost_route_members(aoi=aoi, paths_line=paths_line, ohsome=self.ohsome)
-
         paths_polygon = fetch_osm_data(aoi, ohsome_filter('polygon'), self.ohsome)
-        paths_polygon['category'] = paths_polygon.apply(apply_path_category_filters, axis=1)
-
-        paths_line['rating'] = paths_line.category.apply(lambda category: rating_map[category])
-        paths_polygon['rating'] = paths_polygon.category.apply(lambda category: rating_map[category])
 
         return paths_line, paths_polygon

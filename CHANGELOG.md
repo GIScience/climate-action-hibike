@@ -9,6 +9,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 - Modified ohsome filters to keep information on ways with restricted access and footpaths without designated bike access ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19))
+- Removed legacy feature "boost_route_members" ([#37](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/37))
+- Refactored operator_worker.py to outsource the functions for calculating indicators [(!26)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/26)
 
 ### Added
 - Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).

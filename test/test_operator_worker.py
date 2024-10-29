@@ -13,8 +13,6 @@ def test_get_paths(operator, expected_compute_input, ohsome_api):
 
     expected_lines = gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.NOT_BIKEABLE],
-            'rating': [0.0],
             'geometry': [line_geom],
             '@other_tags': [{'bicycle': 'no'}],
         },
@@ -22,16 +20,12 @@ def test_get_paths(operator, expected_compute_input, ohsome_api):
     )
     expected_polygons = gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.NOT_BIKEABLE],
-            'rating': [0.0],
             'geometry': [polygon_geom],
             '@other_tags': [{'bicycle': 'no'}],
         },
         crs='EPSG:4326',
     )
-    computed_lines, computed_polygons = operator.get_paths(
-        expected_compute_input.get_aoi_geom(), expected_compute_input.get_path_rating_mapping()
-    )
+    computed_lines, computed_polygons = operator.get_paths(expected_compute_input.get_aoi_geom())
 
     testing.assert_geodataframe_equal(
         computed_lines,
