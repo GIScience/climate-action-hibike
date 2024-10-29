@@ -69,7 +69,7 @@ def expected_info_output() -> Info:
 @pytest.fixture
 def expected_compute_output(compute_resources) -> List[_Artifact]:
     paths_artifact = _Artifact(
-        name='Cycling infrastructure path categories',
+        name='Bikeable Path Categories',
         modality=ArtifactModality.MAP_LAYER_GEOJSON,
         file_path=Path(compute_resources.computation_dir / 'cycling_infrastructure_path_categories.geojson'),
         summary=Path('resources/info/path_categories/caption.md').read_text(),
