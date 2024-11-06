@@ -139,6 +139,40 @@ class PathCategoryFilters:
         return d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
 
 
+class SmoothnessCategory(Enum):
+    EXCELLENT = 'excellent'
+    GOOD = 'good'
+    INTERMEDIATE = 'intermediate'
+    BAD = 'bad'
+    TOO_BUMPY_TO_RIDE = 'too_bumpy_to_ride'
+    UNKNOWN = 'unknown'
+
+    @classmethod
+    def get_hidden(cls):
+        return []
+
+    @classmethod
+    def get_visible(cls):
+        return [category for category in cls if category not in cls.get_hidden()]
+
+
+class PathSmoothnessFilters:
+    def too_bumpy_to_ride(self, d: Dict) -> bool:
+        return d.get('smoothness') in ['very_bad', 'horrible', 'very_horrible', 'impassable']
+
+    def bad(self, d: Dict) -> bool:
+        return d.get('smoothness') == 'bad'
+
+    def intermediate(self, d: Dict) -> bool:
+        return d.get('smoothness') == 'intermediate'
+
+    def good(self, d: Dict) -> bool:
+        return d.get('smoothness') == 'good'
+
+    def excellent(self, d: Dict) -> bool:
+        return d.get('smoothness') == 'excellent'
+
+
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
     elements = ohsome.elements.geometry.post(
         bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
@@ -175,6 +209,24 @@ def apply_path_category_filters(row: pd.Series):
             return PathCategory.UNKNOWN
 
 
+def apply_path_smoothness_filters(row: pd.Series):
+    filters = PathSmoothnessFilters()
+
+    match row['@other_tags']:
+        case x if filters.too_bumpy_to_ride(x):
+            return SmoothnessCategory.TOO_BUMPY_TO_RIDE
+        case x if filters.bad(x):
+            return SmoothnessCategory.BAD
+        case x if filters.intermediate(x):
+            return SmoothnessCategory.INTERMEDIATE
+        case x if filters.good(x):
+            return SmoothnessCategory.GOOD
+        case x if filters.excellent(x):
+            return SmoothnessCategory.EXCELLENT
+        case _:
+            return SmoothnessCategory.UNKNOWN
+
+
 def fix_geometry_collection(
     geom: shapely.Geometry,
 ) -> Union[shapely.LineString, shapely.MultiLineString]:
@@ -192,16 +244,14 @@ def fix_geometry_collection(
         return LineString()
 
 
-def get_qualitative_color(category: PathCategory, cmap_name: str) -> Color:
+def get_qualitative_color(category: Union[PathCategory, SmoothnessCategory], cmap_name: str) -> Color:
     norm = Normalize(0, 1)
     cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
     cmap.set_under('#808080')
 
-    category_norm = {
-        name: idx / (len(PathCategory.get_visible()) - 1) for idx, name in enumerate(PathCategory.get_visible())
-    }
+    category_norm = {name: idx / (len(category.get_visible()) - 1) for idx, name in enumerate(category.get_visible())}
 
-    if category == PathCategory.UNKNOWN:
+    if category == PathCategory.UNKNOWN or category == SmoothnessCategory.UNKNOWN:
         return Color(to_hex(cmap(-9999)))
     else:
         return Color(to_hex(cmap(category_norm[category])))

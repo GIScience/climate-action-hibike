@@ -91,7 +91,27 @@ def expected_compute_output(compute_resources) -> List[_Artifact]:
         },
     )
 
-    return [paths_artifact]
+    smoothness_artifact = _Artifact(
+        name='Path Smoothness Categories',
+        modality=ArtifactModality.MAP_LAYER_GEOJSON,
+        file_path=Path(compute_resources.computation_dir / 'cycling_infrastructure_path_smoothness.geojson'),
+        summary=Path('resources/info/path_smoothness/caption.md').read_text(),
+        description=Path('resources/info/path_smoothness/description.md').read_text(),
+        attachments={
+            AttachmentType.LEGEND: Legend(
+                legend_data={
+                    'excellent': Color('#313695'),
+                    'good': Color('#74add1'),
+                    'intermediate': Color('#e0f3f8'),
+                    'bad': Color('#fee090'),
+                    'too_bumpy_to_ride': Color('#f46d43'),
+                    'unknown': Color('grey'),
+                }
+            )
+        },
+    )
+
+    return [paths_artifact, smoothness_artifact]
 
 
 # The following fixtures can be ignored on plugin setup
