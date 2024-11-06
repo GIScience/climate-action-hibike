@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from pyproj import CRS, Transformer
 from shapely.ops import transform
 
-from bikeability.utils import PathCategory
+from bikeability.utils import PathCategory, SmoothnessCategory
 
 
 class AoiProperties(BaseModel):
@@ -141,6 +141,69 @@ class PathRating(BaseModel):
         return self
 
 
+class PathSmoothnessRating(BaseModel):
+    excellent: float = Field(
+        title='Excellent Smoothness Rating',
+        description='Qualitative rating (between 0..1) of paths with excellent smoothness.',
+        ge=0,
+        le=1,
+        examples=[1.0],
+        default=1.0,
+    )
+
+    good: float = Field(
+        title='Good Smoothness Rating',
+        description='Qualitative rating (between 0..1) of paths with good smoothness.',
+        ge=0,
+        le=1,
+        examples=[0.75],
+        default=0.75,
+    )
+
+    intermediate: float = Field(
+        title='Intermediate Smoothness Rating',
+        description='Qualitative rating (between 0..1) of paths with intermediate smoothness.',
+        ge=0,
+        le=1,
+        examples=[0.5],
+        default=0.5,
+    )
+
+    bad: float = Field(
+        title='Bad Smoothness Rating',
+        description='Qualitative rating (between 0..1) of paths with bad smoothness.',
+        ge=0,
+        le=1,
+        examples=[0.25],
+        default=0.25,
+    )
+
+    too_bumpy_to_ride: float = Field(
+        title='Too Bumpy to Ride Smoothness Rating',
+        description='Qualitative rating (between 0..1) of paths with very bad or worse smoothness.',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=0.0,
+    )
+
+    unknown: float = Field(
+        title='Unknown Smoothness Rating',
+        description='Qualitative (between 0..1) rating of paths that could not be categorised (default -9999, which is out of scale)',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=-9999,
+    )
+
+    @model_validator(mode='after')
+    def check_order(self) -> Self:
+        assert (
+            0 <= self.too_bumpy_to_ride <= self.bad <= self.intermediate <= self.good <= self.excellent <= 1
+        ), 'Qualitative rating must respect semantic order of categories!'
+        return self
+
+
 class ComputeInputBikeability(BaseModel):
     aoi: geojson_pydantic.Feature[geojson_pydantic.MultiPolygon, AoiProperties] = Field(
         title='Area of Interest Input',
@@ -175,6 +238,13 @@ class ComputeInputBikeability(BaseModel):
         default=PathRating(),
     )
 
+    smoothness_rating: Optional[PathSmoothnessRating] = Field(
+        title='Path Smoothness Mapping',
+        description='Qualitative rating for each available smoothness category',
+        examples=[PathSmoothnessRating()],
+        default=PathSmoothnessRating(),
+    )
+
     @classmethod
     @field_validator('aoi')
     def assert_aoi_properties_not_null(cls, aoi: geojson_pydantic.Feature) -> geojson_pydantic.Feature:
@@ -205,3 +275,7 @@ class ComputeInputBikeability(BaseModel):
     def get_path_rating_mapping(self) -> Dict[PathCategory, float]:
         mapping = self.path_rating.model_dump()
         return {PathCategory(k): v for k, v in mapping.items()}
+
+    def get_path_smoothness_mapping(self) -> Dict[PathCategory, float]:
+        mapping = self.smoothness_rating.model_dump()
+        return {SmoothnessCategory(k): v for k, v in mapping.items()}

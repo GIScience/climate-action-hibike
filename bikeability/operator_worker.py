@@ -10,7 +10,9 @@ from semver import Version
 
 from bikeability.artifact import (
     build_paths_artifact,
+    build_smoothness_artifact,
 )
+from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.path_categories import categorize_paths
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
@@ -61,7 +63,12 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
             line_paths, polygon_paths, params.path_rating, params.get_aoi_geom(), resources
         )
 
-        return [paths_artifact]
+        path_smoothness = get_smoothness(line_paths, params.get_path_smoothness_mapping())
+        smoothness_artifact = build_smoothness_artifact(
+            path_smoothness, params.smoothness_rating, params.get_aoi_geom(), resources
+        )
+
+        return [paths_artifact, smoothness_artifact]
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')

@@ -14,6 +14,8 @@ from urllib3 import Retry
 
 from bikeability.utils import (
     PathCategory,
+    SmoothnessCategory,
+    apply_path_smoothness_filters,
     fetch_osm_data,
     get_color,
     apply_path_category_filters,
@@ -21,7 +23,7 @@ from bikeability.utils import (
     ohsome_filter,
 )
 
-validation_objects = {
+category_validation_objects = {
     PathCategory.NOT_BIKEABLE: {'way/4084008', 'way/24635973', 'way/343029968'},
     # https://www.openstreetmap.org/way/4084008 highway=trunk
     # https://www.openstreetmap.org/way/24635973 highway=secondary and bicycle=no
@@ -102,6 +104,23 @@ validation_objects = {
     PathCategory.UNKNOWN: set(),
 }
 
+smoothness_validation_objects = {
+    SmoothnessCategory.EXCELLENT: {'way/28660531'},
+    # https://www.openstreetmap.org/way/28660531 smoothness=excellent
+    SmoothnessCategory.GOOD: {'way/27342468'},
+    # https://www.openstreetmap.org/way/27342468 smoothness=good
+    SmoothnessCategory.INTERMEDIATE: {'way/282619573'},
+    # https://www.openstreetmap.org/way/282619573 smoothness=intermediate
+    SmoothnessCategory.BAD: {'way/32277268'},
+    # https://www.openstreetmap.org/way/32277268 smoothness=bad
+    SmoothnessCategory.TOO_BUMPY_TO_RIDE: {'way/1132948390', 'way/175444345', 'way/32277580', 'way/27753943'},
+    # https://www.openstreetmap.org/way/1132948390 smoothness=impassable
+    # https://www.openstreetmap.org/way/175444345 smoothness=very_horrible
+    # https://www.openstreetmap.org/way/32277580 smoothness=horrible
+    # https://www.openstreetmap.org/way/27753943 smoothness=very_bad
+    SmoothnessCategory.UNKNOWN: set(),
+}
+
 
 @pytest.fixture(scope='module')
 def bpolys():
@@ -135,10 +154,18 @@ def request_ohsome(bpolys):
     )
 
 
+# I would prefer to make this fixture return different filters depending on a parameter
 @pytest.fixture(scope='module')
 def id_filter() -> str:
     """Optimization to make the ohsome API request time faster."""
-    full_ids = set().union(*validation_objects.values())
+    full_ids = set().union(*category_validation_objects.values())
+    return f'id:({",".join(full_ids)})'
+
+
+@pytest.fixture(scope='module')
+def id_filter_smoothness() -> str:
+    """Optimization to make the ohsome API request time faster."""
+    full_ids = set().union(*smoothness_validation_objects.values())
     return f'id:({",".join(full_ids)})'
 
 
@@ -157,11 +184,30 @@ def osm_return_data(request_ohsome: partial[OhsomeResponse], id_filter: str) -> 
     return pd.concat([osm_line_data, osm_polygon_data])
 
 
-@pytest.mark.parametrize('category', validation_objects)
+@pytest.fixture(scope='module')
+def osm_smoothness_return_data(request_ohsome: partial[OhsomeResponse], id_filter_smoothness: str) -> pd.DataFrame:
+    osm_line_data = request_ohsome(filter=f'({ohsome_filter("line")})  and ({id_filter_smoothness})').as_dataframe(
+        multi_index=False
+    )
+    osm_line_data['smoothness_category'] = osm_line_data.apply(apply_path_smoothness_filters, axis=1)
+
+    return osm_line_data
+
+
+@pytest.mark.parametrize('category', category_validation_objects)
 def test_construct_filter_validate(osm_return_data: pd.DataFrame, category: PathCategory):
     osm_return_data = osm_return_data[osm_return_data['category'] == category]
 
-    assert set(osm_return_data['@osmId']) == validation_objects[category]
+    assert set(osm_return_data['@osmId']) == category_validation_objects[category]
+
+
+@pytest.mark.parametrize('category', smoothness_validation_objects)
+def test_construct_smoothness_validate(osm_smoothness_return_data: pd.DataFrame, category: SmoothnessCategory):
+    osm_smoothness_return_data = osm_smoothness_return_data[
+        osm_smoothness_return_data['smoothness_category'] == category
+    ]
+
+    assert set(osm_smoothness_return_data['@osmId']) == smoothness_validation_objects[category]
 
 
 def test_fetch_osm_data(expected_compute_input, responses_mock):
