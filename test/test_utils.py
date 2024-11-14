@@ -145,7 +145,7 @@ def bpolys():
 def request_ohsome(bpolys):
     return partial(
         OhsomeClient(
-            user_agent='HeiGIT Climate Action Walkability Tester', retry=Retry(total=1)
+            user_agent='HeiGIT Climate Action Bikeability Tester', retry=Retry(total=1)
         ).elements.geometry.post,
         bpolys=bpolys,
         properties='tags',

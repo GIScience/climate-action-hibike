@@ -9,11 +9,11 @@ from ohsome import OhsomeClient
 from semver import Version
 
 from bikeability.artifact import (
-    build_paths_artifact,
+    build_path_categories_artifact,
     build_smoothness_artifact,
+    build_surface_types_artifact,
 )
-from bikeability.indicators.smoothness import get_smoothness
-from bikeability.indicators.path_categories import categorize_paths
+from bikeability.indicators import categorize_paths, get_surface_types, get_smoothness
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
     fetch_osm_data,
@@ -59,7 +59,7 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
 
         line_paths, polygon_paths = self.get_paths(params.get_buffered_aoi())
         line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths, params.get_path_rating_mapping())
-        paths_artifact = build_paths_artifact(
+        path_categories_artifact = build_path_categories_artifact(
             line_paths, polygon_paths, params.path_rating, params.get_aoi_geom(), resources
         )
 
@@ -68,7 +68,10 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
             path_smoothness, params.smoothness_rating, params.get_aoi_geom(), resources
         )
 
-        return [paths_artifact, smoothness_artifact]
+        line_paths = get_surface_types(line_paths)
+        surface_types_artifact = build_surface_types_artifact(line_paths, params.get_aoi_geom(), resources)
+
+        return [path_categories_artifact, smoothness_artifact, surface_types_artifact]
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')

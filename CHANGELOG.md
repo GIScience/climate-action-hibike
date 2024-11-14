@@ -15,6 +15,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Added
 - Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).
 - Added smoothness indicator ([#35](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/35))
+- Added surface type indicator ([#34](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/34))
 
 ## [Demo](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
 
