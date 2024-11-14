@@ -38,6 +38,30 @@ class PathCategory(Enum):
         return [category for category in cls if category not in cls.get_hidden()]
 
 
+class SurfaceType(Enum):
+    ASPHALT = 'asphalt'
+    CONCRETE = 'concrete'
+    PAVING_STONES = 'paving_stones'
+    COMPACTED = 'compacted'
+    FINE_GRAVEL = 'fine_gravel'
+    GRAVEL = 'gravel'
+    COBBLESTONE = 'cobblestone'
+    PAVED = 'paved_(unspecified)'
+    OTHER_PAVED = 'other_paved_surfaces'
+    UNPAVED = 'unpaved_(unspecified)'
+    OTHER_UNPAVED = 'other_unpaved_surfaces'
+    NO_DATA = 'no_data'
+    UNCATEGORISED = 'other_uncategorised_surface_type'
+
+    @classmethod
+    def get_hidden(cls):
+        return []
+
+    @classmethod
+    def get_visible(cls):
+        return [category for category in cls if category not in cls.get_hidden()]
+
+
 class PathCategoryFilters:
     def __init__(self):
         self.potential_bikeable_highway_values = (
@@ -244,14 +268,18 @@ def fix_geometry_collection(
         return LineString()
 
 
-def get_qualitative_color(category: Union[PathCategory, SmoothnessCategory], cmap_name: str) -> Color:
+def get_qualitative_color(category: Union[PathCategory, SmoothnessCategory, SurfaceType], cmap_name: str) -> Color:
     norm = Normalize(0, 1)
     cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
     cmap.set_under('#808080')
 
     category_norm = {name: idx / (len(category.get_visible()) - 1) for idx, name in enumerate(category.get_visible())}
 
-    if category == PathCategory.UNKNOWN or category == SmoothnessCategory.UNKNOWN:
+    if (
+        category == PathCategory.UNKNOWN
+        or category == SmoothnessCategory.UNKNOWN
+        or category == SurfaceType.UNCATEGORISED
+    ):
         return Color(to_hex(cmap(-9999)))
     else:
         return Color(to_hex(cmap(category_norm[category])))

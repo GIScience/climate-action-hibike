@@ -2,8 +2,10 @@ import uuid
 from pathlib import Path
 from typing import List
 
+import geopandas as gpd
 import pytest
 import responses
+import shapely
 from climatoology.base.artifact import ArtifactModality, AttachmentType, Legend
 from climatoology.base.computation import ComputationScope
 from climatoology.base.operator import Concern, Info, PluginAuthor, _Artifact
@@ -12,7 +14,7 @@ from semver import Version
 
 from bikeability.input import ComputeInputBikeability
 from bikeability.operator_worker import OperatorBikeability
-from bikeability.utils import filter_start_matcher
+from bikeability.utils import filter_start_matcher, PathCategory
 
 
 @pytest.fixture
@@ -111,7 +113,34 @@ def expected_compute_output(compute_resources) -> List[_Artifact]:
         },
     )
 
-    return [paths_artifact, smoothness_artifact]
+    surface_types_artifact = _Artifact(
+        name='Surface Types',
+        modality=ArtifactModality.MAP_LAYER_GEOJSON,
+        file_path=Path(compute_resources.computation_dir / 'surface_types.geojson'),
+        summary=Path('resources/info/surface_types/caption.md').read_text(),
+        description=Path('resources/info/surface_types/description.md').read_text(),
+        attachments={
+            AttachmentType.LEGEND: Legend(
+                legend_data={
+                    'asphalt': Color('#5e4fa2'),
+                    'concrete': Color('#3a7eb8'),
+                    'paving_stones': Color('#54aead'),
+                    'compacted': Color('#89d0a4'),
+                    'fine_gravel': Color('#bfe5a0'),
+                    'gravel': Color('#eaf79e'),
+                    'cobblestone': Color('#fffebe'),
+                    'paved_(unspecified)': Color('#fee593'),
+                    'other_paved_surfaces': Color('#fdbf6f'),
+                    'unpaved_(unspecified)': Color('#f88c51'),
+                    'other_unpaved_surfaces': Color('#e95c47'),
+                    'no_data': Color('#cb334d'),
+                    'other_uncategorised_surface_type': Color('grey'),
+                }
+            )
+        },
+    )
+
+    return [paths_artifact, smoothness_artifact, surface_types_artifact]
 
 
 # The following fixtures can be ignored on plugin setup
@@ -151,3 +180,31 @@ def ohsome_api(responses_mock):
         match=[filter_start_matcher('geometry:polygon')],
     )
     return responses_mock
+
+
+@pytest.fixture
+def test_line() -> gpd.GeoDataFrame:
+    line_geom = shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)])
+    return gpd.GeoDataFrame(
+        data={
+            'category': [PathCategory.NOT_BIKEABLE],
+            'rating': [0.0],
+            'geometry': [line_geom],
+            '@other_tags': [{'bicycle': 'no'}],
+        },
+        crs='EPSG:4326',
+    )
+
+
+@pytest.fixture
+def test_polygon() -> gpd.GeoDataFrame:
+    polygon_geom = shapely.Polygon(((12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22), (12.3, 48.22)))
+    return gpd.GeoDataFrame(
+        data={
+            'category': [PathCategory.NOT_BIKEABLE],
+            'rating': [0.0],
+            'geometry': [polygon_geom],
+            '@other_tags': [{'bicycle': 'no'}],
+        },
+        crs='EPSG:4326',
+    )

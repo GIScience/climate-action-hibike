@@ -9,11 +9,12 @@ from climatoology.base.artifact import (
 )
 from climatoology.base.computation import ComputationResources
 
+from bikeability.indicators import SurfaceType
 from bikeability.input import PathRating, PathSmoothnessRating
 from bikeability.utils import PathCategory, SmoothnessCategory, pathratings_legend_fix, get_qualitative_color
 
 
-def build_paths_artifact(
+def build_path_categories_artifact(
     paths_line: gpd.GeoDataFrame,
     paths_polygon: gpd.GeoDataFrame,
     ratings: PathRating,
@@ -69,4 +70,28 @@ def build_smoothness_artifact(
         },
         resources=resources,
         filename='cycling_infrastructure_path_smoothness',
+    )
+
+
+def build_surface_types_artifact(
+    paths_line: gpd.GeoDataFrame,
+    clip_aoi: shapely.MultiPolygon,
+    resources: ComputationResources,
+    cmap_name: str = 'Spectral_r',
+) -> _Artifact:
+    paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
+    paths_line['color'] = paths_line.surface_type.apply(get_qualitative_color, cmap_name=cmap_name)
+    return create_geojson_artifact(
+        features=paths_line.geometry,
+        layer_name='Surface Types',
+        caption=Path('resources/info/surface_types/caption.md').read_text(),
+        description=Path('resources/info/surface_types/description.md').read_text(),
+        label=paths_line.surface_type.apply(lambda r: r.name).to_list(),
+        color=paths_line.color.to_list(),
+        legend_data={
+            surface_type.value: get_qualitative_color(surface_type, cmap_name)
+            for surface_type in SurfaceType.get_visible()
+        },
+        resources=resources,
+        filename='surface_types',
     )
