@@ -12,9 +12,10 @@ from climatoology.base.operator import Concern, Info, PluginAuthor, _Artifact
 from pydantic_extra_types.color import Color
 from semver import Version
 
+from bikeability.indicators.path_categories import PathCategory
 from bikeability.input import ComputeInputBikeability
 from bikeability.operator_worker import OperatorBikeability
-from bikeability.utils import filter_start_matcher, PathCategory
+from bikeability.utils import filter_start_matcher
 
 
 @pytest.fixture
@@ -134,13 +135,30 @@ def expected_compute_output(compute_resources) -> List[_Artifact]:
                     'unpaved_(unspecified)': Color('#f88c51'),
                     'other_unpaved_surfaces': Color('#e95c47'),
                     'no_data': Color('#cb334d'),
-                    'other_uncategorised_surface_type': Color('grey'),
+                    'unknown': Color('grey'),
                 }
             )
         },
     )
 
-    return [paths_artifact, smoothness_artifact, surface_types_artifact]
+    dooring_artifact = _Artifact(
+        name='Dooring Risk',
+        modality=ArtifactModality.MAP_LAYER_GEOJSON,
+        file_path=Path(compute_resources.computation_dir / 'cycling_infrastructure_dooring_risk.geojson'),
+        summary=Path('resources/info/dooring_risk/caption.md').read_text(),
+        description=Path('resources/info/dooring_risk/description.md').read_text(),
+        attachments={
+            AttachmentType.LEGEND: Legend(
+                legend_data={
+                    'risk_of_dooring': Color('#f00000'),
+                    'safe_route': Color('#313695'),
+                    'unknown': Color('grey'),
+                }
+            )
+        },
+    )
+
+    return [paths_artifact, smoothness_artifact, surface_types_artifact, dooring_artifact]
 
 
 # The following fixtures can be ignored on plugin setup
@@ -187,10 +205,20 @@ def test_line() -> gpd.GeoDataFrame:
     line_geom = shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)])
     return gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.NOT_BIKEABLE],
-            'rating': [0.0],
-            'geometry': [line_geom],
-            '@other_tags': [{'bicycle': 'no'}],
+            '@osmId': ['way/171574582', 'way/171574582'],
+            'category': [PathCategory.NOT_BIKEABLE, PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS],
+            'rating': [0.0, 0.8],
+            'geometry': [line_geom, line_geom],
+            '@other_tags': [
+                {'bicycle': 'no'},
+                {
+                    'highway': 'track',
+                    'bicycle': 'yes',
+                    'smoothness': 'intermediate',
+                    'surface': 'fine_gravel',
+                    'parking:both': 'no',
+                },
+            ],
         },
         crs='EPSG:4326',
     )
@@ -201,6 +229,7 @@ def test_polygon() -> gpd.GeoDataFrame:
     polygon_geom = shapely.Polygon(((12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22), (12.3, 48.22)))
     return gpd.GeoDataFrame(
         data={
+            '@osmId': ['way/171574582'],
             'category': [PathCategory.NOT_BIKEABLE],
             'rating': [0.0],
             'geometry': [polygon_geom],

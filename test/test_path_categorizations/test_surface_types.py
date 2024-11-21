@@ -7,7 +7,8 @@ import shapely
 from ohsome import OhsomeResponse, OhsomeClient
 from urllib3 import Retry
 
-from bikeability.indicators.surface_types import get_surface_types, SurfaceType
+from bikeability.indicators.surface_types import SurfaceType, get_surface_types
+
 from bikeability.utils import ohsome_filter
 
 
@@ -75,7 +76,7 @@ validation_objects = {
         ('gravel', SurfaceType.GRAVEL),
         ('unpaved', SurfaceType.UNPAVED),
         ('shells', SurfaceType.OTHER_UNPAVED),
-        ('unknown', SurfaceType.UNCATEGORISED),
+        ('unknown', SurfaceType.UNKNOWN),
     ],
 )
 def test_get_surface_types(test_line, input_surface, expected_output):

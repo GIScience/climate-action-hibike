@@ -8,7 +8,9 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from pyproj import CRS, Transformer
 from shapely.ops import transform
 
-from bikeability.utils import PathCategory, SmoothnessCategory
+from bikeability.indicators.path_categories import PathCategory
+from bikeability.indicators.smoothness import SmoothnessCategory
+from bikeability.indicators.dooring_risk import DooringRiskCategory
 
 
 class AoiProperties(BaseModel):
@@ -204,6 +206,42 @@ class PathSmoothnessRating(BaseModel):
         return self
 
 
+class PathDooringRiskRating(BaseModel):
+    safe_route: float = Field(
+        title='Safe Route Dooring Risk Rating',
+        description='Qualitative rating (between 0..1) of paths with no or significantly less risk of dooring.',
+        ge=0,
+        le=1,
+        examples=[1.0],
+        default=1.0,
+    )
+
+    risk_of_dooring: float = Field(
+        title='Risk of Dooring Risk Rating',
+        description='Qualitative rating (between 0..1) of paths with a high risk of dooring.',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=0.0,
+    )
+
+    unknown: float = Field(
+        title='Unknown Dooring Risk Rating',
+        description='Qualitative (between 0..1) rating of paths whose dooring risk could not be determined (default -9999, which is out of scale)',
+        ge=0,
+        le=1,
+        examples=[0.0],
+        default=-9999,
+    )
+
+    @model_validator(mode='after')
+    def check_order(self) -> Self:
+        assert (
+            0 <= self.risk_of_dooring <= self.safe_route <= 1
+        ), 'Qualitative rating must respect semantic order of categories!'
+        return self
+
+
 class ComputeInputBikeability(BaseModel):
     aoi: geojson_pydantic.Feature[geojson_pydantic.MultiPolygon, AoiProperties] = Field(
         title='Area of Interest Input',
@@ -245,6 +283,13 @@ class ComputeInputBikeability(BaseModel):
         default=PathSmoothnessRating(),
     )
 
+    dooring_risk_rating: Optional[PathDooringRiskRating] = Field(
+        title='Path Dooring Risk Rating',
+        description='Qualitative rating for dooring risk',
+        examples=[PathDooringRiskRating()],
+        default=PathDooringRiskRating(),
+    )
+
     @classmethod
     @field_validator('aoi')
     def assert_aoi_properties_not_null(cls, aoi: geojson_pydantic.Feature) -> geojson_pydantic.Feature:
@@ -276,6 +321,10 @@ class ComputeInputBikeability(BaseModel):
         mapping = self.path_rating.model_dump()
         return {PathCategory(k): v for k, v in mapping.items()}
 
-    def get_path_smoothness_mapping(self) -> Dict[PathCategory, float]:
+    def get_path_smoothness_mapping(self) -> Dict[SmoothnessCategory, float]:
         mapping = self.smoothness_rating.model_dump()
         return {SmoothnessCategory(k): v for k, v in mapping.items()}
+
+    def get_path_dooring_mapping(self) -> Dict[DooringRiskCategory, float]:
+        mapping = self.dooring_risk_rating.model_dump()
+        return {DooringRiskCategory(k): v for k, v in mapping.items()}

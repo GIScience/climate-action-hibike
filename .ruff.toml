@@ -3,10 +3,5 @@ line-length = 120
 [format]
 quote-style = "single"
 
-[lint.per-file-ignores]
-# Ignore `E402` (import violations) in all `__init__.py` files
-# Ignore `F403` (undetected imports) in all `__init__.py` files
-"__init__.py" = ["E402", "F403"]
-
 
 

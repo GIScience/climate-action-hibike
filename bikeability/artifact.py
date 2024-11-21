@@ -3,15 +3,21 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import shapely
+from pydantic_extra_types.color import Color
 from climatoology.base.artifact import (
     _Artifact,
     create_geojson_artifact,
 )
 from climatoology.base.computation import ComputationResources
 
-from bikeability.indicators import SurfaceType
-from bikeability.input import PathRating, PathSmoothnessRating
-from bikeability.utils import PathCategory, SmoothnessCategory, pathratings_legend_fix, get_qualitative_color
+from bikeability.indicators.dooring_risk import DooringRiskCategory
+from bikeability.indicators.smoothness import SmoothnessCategory
+from bikeability.indicators.surface_types import SurfaceType
+from bikeability.indicators.path_categories import PathCategory, pathratings_legend_fix
+from bikeability.input import PathRating, PathSmoothnessRating, PathDooringRiskRating
+from bikeability.utils import (
+    get_qualitative_color,
+)
 
 
 def build_path_categories_artifact(
@@ -94,4 +100,36 @@ def build_surface_types_artifact(
         },
         resources=resources,
         filename='surface_types',
+    )
+
+
+def build_dooring_artifact(
+    paths_line: gpd.GeoDataFrame,
+    ratings: PathDooringRiskRating,
+    clip_aoi: shapely.MultiPolygon,
+    resources: ComputationResources,
+    cmap_name: str = 'RdYlBu_r',
+) -> _Artifact:
+    paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
+    legend = {
+        DooringRiskCategory.DOORING_SAFE.value: Color('#313695'),
+        DooringRiskCategory.DOORING_RISK.value: Color('#f00000'),
+        DooringRiskCategory.UNKNOWN.value: Color('grey'),
+    }
+
+    def get_dooring_colors(category: DooringRiskCategory, legend: dict[str:SmoothnessCategory]) -> Color:
+        return legend[category.value]
+
+    paths_line['color'] = paths_line.dooring_category.apply(get_dooring_colors, legend=legend)
+
+    return create_geojson_artifact(
+        features=paths_line.geometry,
+        layer_name='Dooring Risk',
+        caption=Path('resources/info/dooring_risk/caption.md').read_text(),
+        description=Path('resources/info/dooring_risk/description.md').read_text(),
+        label=paths_line.dooring_category.apply(lambda r: r.name).to_list(),
+        color=paths_line.color.to_list(),
+        legend_data=legend,
+        resources=resources,
+        filename='cycling_infrastructure_dooring_risk',
     )
