@@ -1,0 +1,1 @@
+geometry:line and amenity=parking and orientation=parallel

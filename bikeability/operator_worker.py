@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
+import pandas as pd
 import geopandas as gpd
 import shapely
 from climatoology.base.operator import ComputationResources, Concern, Info, Operator, PluginAuthor, _Artifact
@@ -9,11 +10,16 @@ from ohsome import OhsomeClient
 from semver import Version
 
 from bikeability.artifact import (
+    build_dooring_artifact,
     build_path_categories_artifact,
     build_smoothness_artifact,
     build_surface_types_artifact,
 )
-from bikeability.indicators import categorize_paths, get_surface_types, get_smoothness
+from bikeability.indicators.path_categories import categorize_paths
+from bikeability.indicators.surface_types import get_surface_types
+from bikeability.indicators.smoothness import get_smoothness
+from bikeability.indicators.dooring_risk import get_dooring_risk, parking_filter
+
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
     fetch_osm_data,
@@ -71,7 +77,12 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
         line_paths = get_surface_types(line_paths)
         surface_types_artifact = build_surface_types_artifact(line_paths, params.get_aoi_geom(), resources)
 
-        return [path_categories_artifact, smoothness_artifact, surface_types_artifact]
+        parallel_car_parking = self.get_parallel_parking(params.get_buffered_aoi())
+        path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking, params.get_path_dooring_mapping())
+        dooring_risk_artifact = build_dooring_artifact(
+            path_dooring_risk, params.dooring_risk_rating, params.get_aoi_geom(), resources
+        )
+        return [path_categories_artifact, smoothness_artifact, surface_types_artifact, dooring_risk_artifact]
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')
@@ -80,3 +91,10 @@ class OperatorBikeability(Operator[ComputeInputBikeability]):
         paths_polygon = fetch_osm_data(aoi, ohsome_filter('polygon'), self.ohsome)
 
         return paths_line, paths_polygon
+
+    def get_parallel_parking(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
+        log.debug('Extracting parallel car parking')
+        parking_paths = fetch_osm_data(aoi, parking_filter('line'), self.ohsome)
+        parking_polygons = fetch_osm_data(aoi, parking_filter('polygon'), self.ohsome)
+
+        return pd.concat([parking_paths, parking_polygons])

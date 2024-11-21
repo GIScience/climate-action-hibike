@@ -1,11 +1,36 @@
+from enum import Enum
 import logging
 
 import geopandas as gpd
 import pandas as pd
 
-from bikeability.utils import SurfaceType, PathCategory
+from bikeability.indicators.path_categories import PathCategory
 
 log = logging.getLogger(__name__)
+
+
+class SurfaceType(Enum):
+    ASPHALT = 'asphalt'
+    CONCRETE = 'concrete'
+    PAVING_STONES = 'paving_stones'
+    COMPACTED = 'compacted'
+    FINE_GRAVEL = 'fine_gravel'
+    GRAVEL = 'gravel'
+    COBBLESTONE = 'cobblestone'
+    PAVED = 'paved_(unspecified)'
+    OTHER_PAVED = 'other_paved_surfaces'
+    UNPAVED = 'unpaved_(unspecified)'
+    OTHER_UNPAVED = 'other_unpaved_surfaces'
+    NO_DATA = 'no_data'
+    UNKNOWN = 'unknown'
+
+    @classmethod
+    def get_hidden(cls):
+        return []
+
+    @classmethod
+    def get_visible(cls):
+        return [category for category in cls if category not in cls.get_hidden()]
 
 
 def categorise_surface(row: pd.Series) -> SurfaceType:
@@ -59,7 +84,7 @@ def categorise_surface(row: pd.Series) -> SurfaceType:
         ]:
             return SurfaceType.OTHER_UNPAVED
         case _:
-            return SurfaceType.UNCATEGORISED
+            return SurfaceType.UNKNOWN
 
 
 def get_surface_types(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

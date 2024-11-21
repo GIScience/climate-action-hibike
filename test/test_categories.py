@@ -1,13 +1,18 @@
 from geopandas import testing
 
-from bikeability.indicators.path_categories import categorize_paths
-from bikeability.utils import PathCategory
+from bikeability.indicators.path_categories import PathCategory, categorize_paths
+from bikeability.indicators.smoothness import SmoothnessCategory
+from bikeability.indicators.dooring_risk import DooringRiskCategory
 
 
-def test_input_categories_match_PathCategories(expected_compute_input):
-    input_categories = expected_compute_input.get_path_rating_mapping()
+def test_input_categories_match_pydantic_categories(expected_compute_input):
+    input_path_rating = expected_compute_input.get_path_rating_mapping()
+    input_smoothness_rating = expected_compute_input.get_path_smoothness_mapping()
+    input_dooring_rating = expected_compute_input.get_path_dooring_mapping()
 
-    assert set(input_categories.keys()) == set(PathCategory)
+    assert set(input_path_rating.keys()) == set(PathCategory)
+    assert set(input_smoothness_rating.keys()) == set(SmoothnessCategory)
+    assert set(input_dooring_rating.keys()) == set(DooringRiskCategory)
 
 
 def test_categorize_paths(test_line, test_polygon, expected_compute_input):
