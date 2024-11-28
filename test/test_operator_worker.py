@@ -1,10 +1,10 @@
 from geopandas import testing
 
 
-def test_get_paths(operator, expected_compute_input, ohsome_api, test_line, test_polygon):
+def test_get_paths(operator, expected_compute_input, default_aoi, ohsome_api, test_line, test_polygon):
     expected_lines = test_line.drop(['category', 'rating'], axis=1)
     expected_polygons = test_polygon.drop(['category', 'rating'], axis=1)
-    computed_lines, computed_polygons = operator.get_paths(expected_compute_input.get_aoi_geom())
+    computed_lines, computed_polygons = operator.get_paths(default_aoi)
 
     testing.assert_geodataframe_equal(
         computed_lines,

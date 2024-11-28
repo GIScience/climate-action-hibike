@@ -5,12 +5,14 @@ from urllib.parse import parse_qsl
 import geopandas as gpd
 import matplotlib
 import pandas as pd
+from pyproj import CRS, Transformer
 import shapely
 from matplotlib.colors import to_hex, Normalize
 from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
 from requests import PreparedRequest
 from shapely import LineString
+from shapely.ops import transform
 
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.surface_types import SurfaceType
@@ -97,3 +99,19 @@ def ohsome_filter(geometry_type: str) -> str:
         '(cycleway=separate or cycleway:both=separate or '
         '(cycleway:right=separate and cycleway:left=separate))'
     )
+
+
+def get_utm_zone(aoi: shapely.MultiPolygon) -> CRS:
+    return gpd.GeoSeries(data=aoi, crs='EPSG:4326').estimate_utm_crs()
+
+
+def get_buffered_aoi(aoi: shapely.MultiPolygon) -> shapely.MultiPolygon:
+    wgs84 = CRS('EPSG:4326')
+    utm = get_utm_zone(aoi)
+
+    geographic_projection_function = Transformer.from_crs(wgs84, utm, always_xy=True).transform
+    wgs84_projection_function = Transformer.from_crs(utm, wgs84, always_xy=True).transform
+    projected_aoi = transform(geographic_projection_function, aoi)
+    # changed the distance to a fixed value of 5 km.
+    buffered_aoi = projected_aoi.buffer(5000)
+    return transform(wgs84_projection_function, buffered_aoi)

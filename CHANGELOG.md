@@ -13,6 +13,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Refactored operator_worker.py to outsource the functions for calculating indicators [(!26)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/26)
 - Refactored utils.py to outsource classes and functions for specific indicators to indicator files [(!28)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/28)
 - `get_qualitative_color()` is now category agnostic, as long as the unknown/missing data category has the value `'unknown'` [(!28)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/28)
+- Updated to climatoology 6.0.0
 
 ### Added
 - Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).
