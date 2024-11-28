@@ -18,7 +18,7 @@ from bikeability.utils import (
 )
 
 
-def test_fetch_osm_data(expected_compute_input, responses_mock):
+def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
     with open('resources/test/ohsome_line_response.geojson', 'rb') as vector:
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/geometry',
@@ -45,7 +45,7 @@ def test_fetch_osm_data(expected_compute_input, responses_mock):
         ],
         crs=4326,
     )
-    computed_osm_data = fetch_osm_data(expected_compute_input.get_aoi_geom(), 'dummy=yes', OhsomeClient())
+    computed_osm_data = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
     geopandas.testing.assert_geodataframe_equal(computed_osm_data, expected_osm_data, check_like=True)
 
 
