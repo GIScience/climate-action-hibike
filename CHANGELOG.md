@@ -5,21 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.0.0...main)
+
+## [1.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.0.0)
+
+### Removed
+
+- Removed legacy feature "boost_route_members" ([#37](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/37))
 
 ### Changed
+
 - Modified ohsome filters to keep information on ways with restricted access and footpaths without designated bike access ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19))
-- Removed legacy feature "boost_route_members" ([#37](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/37))
+
+
 - Refactored operator_worker.py to outsource the functions for calculating indicators [(!26)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/26)
 - Refactored utils.py to outsource classes and functions for specific indicators to indicator files [(!28)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/28)
 - `get_qualitative_color()` is now category agnostic, as long as the unknown/missing data category has the value `'unknown'` [(!28)](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/merge_requests/28)
 - Updated to climatoology 6.0.2
 
 ### Added
-- Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).
+
 - Added smoothness indicator ([#35](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/35))
 - Added surface type indicator ([#34](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/34))
 - Added dooring risk indicator ([#32](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/32))
+- Added shadow PathCategories and mechanisms to ignore these categories for artifact building ([#19](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/19)).
 
 ## [Demo](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/main...demo?from_project_id=914&straight=true)
 
