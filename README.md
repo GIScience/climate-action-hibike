@@ -40,11 +40,11 @@ This will make debugging easier at a later stage.
 
 ## Docker (for admins and interested devs)
 
-If the infrastructure is reachable you can copy [.env_template](.env_template) to `.env` and then run
+If the infrastructure is reachable you can copy [.env.base_template](.env.base_template) to `.env.base` and then run
 
 ```shell
 DOCKER_BUILDKIT=1 docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
-docker run --env-file .env --network=host heigit/{bikeability}:devel
+docker run --env-file .env.base --network=host heigit/{bikeability}:devel
 ```
 
 Make sure the cone-token is copied to the text-file named `CI_JOB_TOKEN` that is mounted to the container build process as secret.

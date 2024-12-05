@@ -1,32 +1,31 @@
+import importlib
 import logging
 from pathlib import Path
 from typing import List, Tuple
 
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
 import shapely
-from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
-from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
-from ohsome import OhsomeClient
-from semver import Version
-
 from bikeability.artifact import (
     build_dooring_artifact,
     build_path_categories_artifact,
     build_smoothness_artifact,
     build_surface_types_artifact,
 )
-from bikeability.indicators.path_categories import categorize_paths
-from bikeability.indicators.surface_types import get_surface_types
-from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.dooring_risk import get_dooring_risk, parking_filter
-
+from bikeability.indicators.path_categories import categorize_paths
+from bikeability.indicators.smoothness import get_smoothness
+from bikeability.indicators.surface_types import get_surface_types
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
     fetch_osm_data,
     get_buffered_aoi,
     ohsome_filter,
 )
+from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
+from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
+from ohsome import OhsomeClient
+from semver import Version
 
 log = logging.getLogger(__name__)
 
@@ -53,8 +52,8 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                     website='https://heigit.org/heigit-team/',
                 ),
             ],
-            version=str(Version(0, 0, 1)),
-            concerns=[Concern.MOBILITY_CYCLING],
+            version=Version.parse(importlib.metadata.version('Bikeability')),
+            concerns={Concern.MOBILITY_CYCLING},
             purpose=Path('resources/info/purpose.md'),
             methodology=Path('resources/info/methodology.md'),
             sources=Path('resources/literature.bib'),
