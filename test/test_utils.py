@@ -9,12 +9,13 @@ from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
 from shapely.testing import assert_geometries_equal
 
-from bikeability.indicators.dooring_risk import parking_filter
 from bikeability.utils import (
     fetch_osm_data,
     get_color,
     fix_geometry_collection,
     ohsome_filter,
+    zebra_crossings_filter,
+    parallel_parking_filter,
 )
 
 
@@ -86,4 +87,8 @@ def test_ohsome_filter(geometry_type):
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_parking_filter(geometry_type):
-    verify(parking_filter(geometry_type), options=NamerFactory.with_parameters(geometry_type))
+    verify(parallel_parking_filter(geometry_type), options=NamerFactory.with_parameters(geometry_type))
+
+
+def test_crossings_filter():
+    verify(zebra_crossings_filter())

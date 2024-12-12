@@ -6,14 +6,22 @@ from typing import List, Tuple
 import geopandas as gpd
 import pandas as pd
 import shapely
+from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
+from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
+from ohsome import OhsomeClient
+from semver import Version
+
 from bikeability.artifact import (
     build_dooring_artifact,
     build_path_categories_artifact,
     build_smoothness_artifact,
     build_surface_types_artifact,
 )
-from bikeability.indicators.dooring_risk import get_dooring_risk, parking_filter
-from bikeability.indicators.path_categories import categorize_paths
+from bikeability.indicators.dooring_risk import get_dooring_risk
+from bikeability.indicators.path_categories import (
+    categorize_paths,
+    recategorise_zebra_crossings,
+)
 from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.surface_types import get_surface_types
 from bikeability.input import ComputeInputBikeability
@@ -21,11 +29,9 @@ from bikeability.utils import (
     fetch_osm_data,
     get_buffered_aoi,
     ohsome_filter,
+    zebra_crossings_filter,
+    parallel_parking_filter,
 )
-from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
-from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
-from ohsome import OhsomeClient
-from semver import Version
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +79,10 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
         line_paths, polygon_paths = self.get_paths(get_buffered_aoi(aoi))
         line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths, params.get_path_rating_mapping())
+
+        zebra_crossing_nodes = self.get_zebra_crossing_nodes(get_buffered_aoi(aoi))
+        line_paths = recategorise_zebra_crossings(line_paths, zebra_crossing_nodes)
+
         path_categories_artifact = build_path_categories_artifact(
             line_paths, polygon_paths, params.path_rating, aoi, resources
         )
@@ -98,7 +108,13 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
     def get_parallel_parking(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
         log.debug('Extracting parallel car parking')
-        parking_paths = fetch_osm_data(aoi, parking_filter('line'), self.ohsome)
-        parking_polygons = fetch_osm_data(aoi, parking_filter('polygon'), self.ohsome)
+        parking_paths = fetch_osm_data(aoi, parallel_parking_filter('line'), self.ohsome)
+        parking_polygons = fetch_osm_data(aoi, parallel_parking_filter('polygon'), self.ohsome)
 
         return pd.concat([parking_paths, parking_polygons])
+
+    def get_zebra_crossing_nodes(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
+        log.debug('Getting crossing nodes')
+        nodes = fetch_osm_data(aoi, zebra_crossings_filter(), self.ohsome)
+
+        return nodes

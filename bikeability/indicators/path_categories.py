@@ -1,11 +1,12 @@
-from enum import Enum
 import logging
+from enum import Enum
 from typing import Dict, Tuple
 
 import geopandas as gpd
-
 import pandas as pd
-
+from shapely import intersects
+from shapely.geometry.multipoint import MultiPoint
+from shapely.ops import split
 
 log = logging.getLogger(__name__)
 
@@ -181,6 +182,58 @@ def categorize_paths(
     paths_polygon['rating'] = paths_polygon.category.apply(lambda category: rating_map[category])
 
     return paths_line, paths_polygon
+
+
+def _aggregate_multiple_crossings_on_one_path(df: pd.DataFrame) -> pd.DataFrame:
+    agg = df.iloc[0].copy()
+    if len(df) > 1:
+        agg.geometry = MultiPoint(list(df.geometry))
+    return agg
+
+
+def _split_paths_around_crossing(
+    match_entry: pd.Series, paths_line: gpd.GeoDataFrame, buffer_m: float = 3
+) -> pd.DataFrame:
+    buffered_crossing_polygon = match_entry.geometry.buffer(buffer_m)
+    split_geometry = split(paths_line.loc[match_entry['index_paths']].geometry, buffered_crossing_polygon)
+    split_paths = pd.concat(
+        [paths_line.loc[match_entry['index_paths']]] * len(split_geometry.geoms), ignore_index=True, axis=1
+    ).T
+    split_paths['geometry'] = split_geometry.geoms
+    split_paths.loc[
+        intersects(split_paths.geometry, match_entry.geometry),
+        'category',
+    ] = PathCategory.REQUIRES_DISMOUNTING
+    return split_paths
+
+
+def recategorise_zebra_crossings(
+    paths_line: gpd.GeoDataFrame, zebra_crossing_nodes: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    utm_crs = paths_line.estimate_utm_crs()
+    paths_line, zebra_crossing_nodes = paths_line.to_crs(utm_crs), zebra_crossing_nodes.to_crs(utm_crs)
+    matches = zebra_crossing_nodes.sjoin(
+        paths_line[
+            paths_line['category'].isin(
+                [PathCategory.DESIGNATED_EXCLUSIVE, PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS]
+            )
+        ],
+        how='inner',
+        lsuffix='zebra_crossings',
+        rsuffix='paths',
+    ).reset_index()
+
+    if len(matches) > 0:
+        matches = matches.groupby('index_paths').apply(_aggregate_multiple_crossings_on_one_path)
+        split_paths_all = pd.concat(
+            matches.apply(_split_paths_around_crossing, paths_line=paths_line, buffer_m=3, axis=1).to_list()
+        )
+        # drop original path:
+        paths_line = paths_line.drop(matches['index_paths'], axis=0)
+        paths_line = gpd.GeoDataFrame(pd.concat([paths_line, split_paths_all], ignore_index=True))
+    paths_line = paths_line.set_crs(utm_crs, allow_override=True)
+    paths_line = paths_line.to_crs('EPSG:4326')
+    return paths_line
 
 
 pathratings_legend_fix = {

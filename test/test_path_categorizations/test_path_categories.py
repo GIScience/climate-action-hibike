@@ -1,13 +1,18 @@
 from functools import partial
+
 import geopandas as gpd
-from ohsome import OhsomeClient, OhsomeResponse
 import pandas as pd
 import pytest
 import shapely
+from ohsome import OhsomeClient, OhsomeResponse
 from urllib3 import Retry
 
-from bikeability.indicators.path_categories import PathCategory, apply_path_category_filters
-from bikeability.utils import ohsome_filter
+from bikeability.indicators.path_categories import (
+    PathCategory,
+    apply_path_category_filters,
+    recategorise_zebra_crossings,
+)
+from bikeability.utils import ohsome_filter, zebra_crossings_filter
 
 
 @pytest.fixture(scope='module')
@@ -50,10 +55,16 @@ validation_objects = {
     PathCategory.DESIGNATED_EXCLUSIVE: {'way/246387137', 'way/118975501'},
     # https://www.openstreetmap.org/way/246387137 highway=cycleway and foot=no
     # https://www.openstreetmap.org/way/118975501 highway=path and foot=yes and segregated=yes
-    PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS: {'way/587937936', 'way/27620739', 'way/406929620'},
+    PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS: {
+        'way/587937936',
+        'way/27620739',
+        'way/406929620',
+        'way/208162626',
+    },
     # https://www.openstreetmap.org/way/587937936 highway=path and bicycle=designated and foot=designated and segregated=no
     # https://www.openstreetmap.org/way/27620739 highway=footway and bicycle=yes but no foot tag
     # https://www.openstreetmap.org/way/406929620 highway=track
+    # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> part not recategorised
     PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED: {
         'way/34386123',
         'way/27342468',
@@ -106,12 +117,14 @@ validation_objects = {
         'way/24968605',
         'way/27797958',
         'way/87956068',
+        'way/208162626',
     },
     # https://www.openstreetmap.org/way/810025053 highway=footway and bicycle=dismount
     # https://www.openstreetmap.org/way/131478149 highway=steps and ramp:bicycle=yes
     # https://www.openstreetmap.org/way/24968605 highway=steps and ramp=yes and ramp:stroller=yes
     # https://www.openstreetmap.org/way/27797958 railway=platform
     # https://www.openstreetmap.org/way/87956068 highway=track and ford=yes
+    # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> recategorised
     PathCategory.PEDESTRIAN_EXCLUSIVE: {'way/26028197', 'way/870757384', 'way/694458151'},
     # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no
     # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no
@@ -138,6 +151,9 @@ def osm_return_data(request_ohsome: partial[OhsomeResponse], id_filter: str) -> 
         multi_index=False
     )
     osm_line_data['category'] = osm_line_data.apply(apply_path_category_filters, axis=1)
+
+    osm_zebra_crossing_data = request_ohsome(filter=zebra_crossings_filter()).as_dataframe(multi_index=False)
+    osm_line_data = recategorise_zebra_crossings(osm_line_data, osm_zebra_crossing_data)
 
     osm_polygon_data = request_ohsome(filter=f'({ohsome_filter("polygon")})  and ({id_filter})').as_dataframe(
         multi_index=False
