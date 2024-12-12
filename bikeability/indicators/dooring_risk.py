@@ -1,12 +1,11 @@
-from enum import Enum
 import logging
-
-import pandas as pd
-from bikeability.indicators.path_categories import PathCategory
-
+from enum import Enum
+from typing import Dict
 
 import geopandas as gpd
-from typing import Dict
+import pandas as pd
+
+from bikeability.indicators.path_categories import PathCategory
 
 log = logging.getLogger(__name__)
 
@@ -117,7 +116,3 @@ def find_nearest_parking(line_paths, parking):
     line_paths = line_paths[['geometry', '@osmId', '@other_tags', 'parking', 'category']]
 
     return line_paths
-
-
-def parking_filter(geometry_type) -> str:
-    return str(f'geometry:{geometry_type} and amenity=parking and orientation=parallel')

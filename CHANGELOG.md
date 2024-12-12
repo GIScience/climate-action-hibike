@@ -7,6 +7,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.0.0...main)
 
+### Added
+- Added functionality to recategorise geometries that match with zebra crossing nodes to require
+  dismounting([#22](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/22))
+
 ## [1.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.0.0)
 
 ### Removed

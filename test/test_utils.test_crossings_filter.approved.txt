@@ -1,0 +1,1 @@
+geometry:point and type:node and (crossing=zebra or crossing:markings=zebra or crossing_ref=zebra)

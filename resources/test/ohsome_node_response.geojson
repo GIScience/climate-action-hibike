@@ -1,0 +1,21 @@
+{
+  "attribution" : {
+    "url" : "https://ohsome.org/copyrights",
+    "text" : "© OpenStreetMap contributors"
+  },
+  "apiVersion" : "1.10.1",
+  "type" : "FeatureCollection",
+  "features" : [{
+    "type" : "Feature",
+    "geometry" : {
+      "type" : "Point",
+      "coordinates" :
+        [8.6928656, 49.4133677]
+    },
+    "properties" : {
+      "@osmId" : "node/1125158222",
+      "@snapshotTimestamp" : "2017-01-01T00:00:00Z",
+      "crossing": "uncontrolled",
+      "crossing:markings": "zebra"
+    }}]
+}

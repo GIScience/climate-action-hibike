@@ -1,21 +1,22 @@
-import pandas as pd
-import shapely
+from functools import partial
+
 import geopandas as gpd
+import pandas as pd
 import pytest
+import shapely
+from ohsome import OhsomeClient, OhsomeResponse
+from urllib3 import Retry
 
 from bikeability.indicators.dooring_risk import (
     DooringRiskCategory,
     apply_dooring_filters,
     find_nearest_parking,
-    parking_filter,
 )
 from bikeability.indicators.path_categories import apply_path_category_filters
 from bikeability.utils import (
     ohsome_filter,
+    parallel_parking_filter,
 )
-from ohsome import OhsomeClient, OhsomeResponse
-from functools import partial
-from urllib3 import Retry
 
 
 @pytest.fixture(scope='module')
@@ -100,7 +101,7 @@ def id_filter_dooring() -> str:
 
 @pytest.fixture(scope='module')
 def osm_parking_data(request_ohsome: partial[OhsomeResponse]) -> pd.DataFrame:
-    return request_ohsome(filter=f'({parking_filter("polygon")})').as_dataframe()
+    return request_ohsome(filter=f'({parallel_parking_filter("polygon")})').as_dataframe()
 
 
 @pytest.fixture(scope='module')

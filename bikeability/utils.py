@@ -5,19 +5,19 @@ from urllib.parse import parse_qsl
 import geopandas as gpd
 import matplotlib
 import pandas as pd
-from pyproj import CRS, Transformer
 import shapely
 from matplotlib.colors import to_hex, Normalize
 from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
+from pyproj import CRS, Transformer
 from requests import PreparedRequest
 from shapely import LineString
 from shapely.ops import transform
 
-from bikeability.indicators.path_categories import PathCategory
-from bikeability.indicators.surface_types import SurfaceType
 from bikeability.indicators.dooring_risk import DooringRiskCategory
+from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
+from bikeability.indicators.surface_types import SurfaceType
 
 log = logging.getLogger(__name__)
 
@@ -115,3 +115,11 @@ def get_buffered_aoi(aoi: shapely.MultiPolygon) -> shapely.MultiPolygon:
     # changed the distance to a fixed value of 5 km.
     buffered_aoi = projected_aoi.buffer(5000)
     return transform(wgs84_projection_function, buffered_aoi)
+
+
+def zebra_crossings_filter() -> str:
+    return str('geometry:point and type:node and (crossing=zebra or crossing:markings=zebra or crossing_ref=zebra)')
+
+
+def parallel_parking_filter(geometry_type) -> str:
+    return str(f'geometry:{geometry_type} and amenity=parking and orientation=parallel')
