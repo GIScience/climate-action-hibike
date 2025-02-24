@@ -1,10 +1,10 @@
-from typing import Optional, Self, Dict
+from typing import Self, Dict
 
 from pydantic import BaseModel, Field, model_validator
 
+from bikeability.indicators.dooring_risk import DooringRiskCategory
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
-from bikeability.indicators.dooring_risk import DooringRiskCategory
 
 
 class PathRating(BaseModel):
@@ -224,21 +224,21 @@ class PathDooringRiskRating(BaseModel):
 
 
 class ComputeInputBikeability(BaseModel):
-    path_rating: Optional[PathRating] = Field(
+    path_rating: PathRating = Field(
         title='Path Rating Mapping',
         description='Qualitative rating for each of the available path categories.',
         examples=[PathRating()],
         default=PathRating(),
     )
 
-    smoothness_rating: Optional[PathSmoothnessRating] = Field(
+    smoothness_rating: PathSmoothnessRating = Field(
         title='Path Smoothness Mapping',
         description='Qualitative rating for each available smoothness category',
         examples=[PathSmoothnessRating()],
         default=PathSmoothnessRating(),
     )
 
-    dooring_risk_rating: Optional[PathDooringRiskRating] = Field(
+    dooring_risk_rating: PathDooringRiskRating = Field(
         title='Path Dooring Risk Rating',
         description='Qualitative rating for dooring risk',
         examples=[PathDooringRiskRating()],
