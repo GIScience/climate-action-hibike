@@ -99,8 +99,8 @@ class PathCategoryFilters:
         return (
             d.get('maxspeed') in ['35', '40', '45', '50', 'DE:urban', 'AT:urban']
             or d.get('maxspeed:forward') in ['35', '40', '45', '50', 'DE:urban', 'AT:urban']
-            or d.get('maxspeed:type') == ['DE:urban', 'AT:urban']
-            or d.get('zone:maxspeed') == ['DE:urban', 'AT:urban']
+            or d.get('maxspeed:type') in ['DE:urban', 'AT:urban']
+            or d.get('zone:maxspeed') in ['DE:urban', 'AT:urban']
             or d.get('highway') == 'residential'
         )
 
@@ -108,8 +108,8 @@ class PathCategoryFilters:
         return (
             d.get('maxspeed') in ['60', '70', '80', '90', '100', 'DE:rural', 'AT:rural']
             or d.get('maxspeed:forward') in ['60', '70', '80', '90', '100', 'DE:rural', 'AT:rural']
-            or d.get('maxspeed:type') == ['DE:rural', 'AT:rural']
-            or d.get('zone:maxspeed') == ['DE:rural', 'AT:rural']
+            or d.get('maxspeed:type') in ['DE:rural', 'AT:rural']
+            or d.get('zone:maxspeed') in ['DE:rural', 'AT:rural']
         ) or d.get('highway') == 'unclassified'
 
     def requires_dismounting(self, d: Dict) -> bool:
