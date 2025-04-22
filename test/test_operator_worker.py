@@ -4,8 +4,8 @@ from bikeability.utils import filter_start_matcher
 
 
 def test_get_paths(operator, expected_compute_input, default_aoi, test_line, test_polygon, responses_mock):
-    expected_lines = test_line.drop(['category', 'rating'], axis=1)
-    expected_polygons = test_polygon.drop(['category', 'rating'], axis=1)
+    expected_lines = test_line.drop(['category'], axis=1)
+    expected_polygons = test_polygon.drop(['category'], axis=1)
 
     with open('resources/test/ohsome_line_response.geojson', 'rb') as vector, open(
         'resources/test/ohsome_polygon_response.geojson', 'rb'

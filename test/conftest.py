@@ -95,7 +95,6 @@ def test_line() -> gpd.GeoDataFrame:
         data={
             '@osmId': ['way/171574582', 'way/171574582'],
             'category': [PathCategory.NOT_BIKEABLE, PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS],
-            'rating': [0.0, 0.8],
             'geometry': [line_geom, line_geom],
             '@other_tags': [
                 {'bicycle': 'no'},
@@ -119,7 +118,6 @@ def test_polygon() -> gpd.GeoDataFrame:
         data={
             '@osmId': ['way/171574582'],
             'category': [PathCategory.NOT_BIKEABLE],
-            'rating': [0.0],
             'geometry': [polygon_geom],
             '@other_tags': [{'bicycle': 'no'}],
         },

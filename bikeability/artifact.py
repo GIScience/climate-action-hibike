@@ -13,8 +13,7 @@ from climatoology.base.computation import ComputationResources
 from bikeability.indicators.dooring_risk import DooringRiskCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
-from bikeability.indicators.path_categories import PathCategory, pathratings_legend_fix
-from bikeability.input import PathRating, PathSmoothnessRating, PathDooringRiskRating
+from bikeability.indicators.path_categories import PathCategory, path_ratings_legend_fix
 from bikeability.utils import (
     get_qualitative_color,
 )
@@ -23,7 +22,6 @@ from bikeability.utils import (
 def build_path_categories_artifact(
     paths_line: gpd.GeoDataFrame,
     paths_polygon: gpd.GeoDataFrame,
-    ratings: PathRating,
     clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
     cmap_name: str = 'RdYlBu_r',
@@ -45,7 +43,7 @@ def build_path_categories_artifact(
         label=paths_without_restriction.category.apply(lambda r: r.name).to_list(),
         color=paths_without_restriction.color.to_list(),
         legend_data={
-            pathratings_legend_fix.get(category.value, category.value): get_qualitative_color(category, cmap_name)
+            path_ratings_legend_fix.get(category.value, category.value): get_qualitative_color(category, cmap_name)
             for category in PathCategory.get_visible()
         },
         resources=resources,
@@ -55,7 +53,6 @@ def build_path_categories_artifact(
 
 def build_smoothness_artifact(
     paths_line: gpd.GeoDataFrame,
-    ratings: PathSmoothnessRating,
     clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
     cmap_name: str = 'RdYlBu_r',
@@ -105,10 +102,8 @@ def build_surface_types_artifact(
 
 def build_dooring_artifact(
     paths_line: gpd.GeoDataFrame,
-    ratings: PathDooringRiskRating,
     clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
-    cmap_name: str = 'RdYlBu_r',
 ) -> _Artifact:
     paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
     legend = {
