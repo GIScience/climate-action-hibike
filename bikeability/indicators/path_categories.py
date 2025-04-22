@@ -171,15 +171,12 @@ def apply_path_category_filters(row: pd.Series) -> PathCategory:
 
 
 def categorize_paths(
-    paths_line: gpd.GeoDataFrame, paths_polygon: gpd.GeoDataFrame, rating_map: Dict[PathCategory, float]
+    paths_line: gpd.GeoDataFrame, paths_polygon: gpd.GeoDataFrame
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     log.debug('Categorizing and rating paths')
 
     paths_line['category'] = paths_line.apply(apply_path_category_filters, axis=1)
     paths_polygon['category'] = paths_polygon.apply(apply_path_category_filters, axis=1)
-
-    paths_line['rating'] = paths_line.category.apply(lambda category: rating_map[category])
-    paths_polygon['rating'] = paths_polygon.category.apply(lambda category: rating_map[category])
 
     return paths_line, paths_polygon
 
@@ -236,7 +233,7 @@ def recategorise_zebra_crossings(
     return paths_line
 
 
-pathratings_legend_fix = {
+path_ratings_legend_fix = {
     'shared_with_motorised_traffic_walking_speed': 'shared_with_motorised_traffic_walking_speed_(<=15_km/h)',
     'shared_with_motorised_traffic_low_speed': 'shared_with_motorised_traffic_low_speed_(<=30_km/h)',
     'shared_with_motorised_traffic_medium_speed': 'shared_with_motorised_traffic_medium_speed_(<=50_km/h)',

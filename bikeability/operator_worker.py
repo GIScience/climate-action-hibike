@@ -78,24 +78,22 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         line_paths, polygon_paths = self.get_paths(get_buffered_aoi(aoi))
-        line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths, params.get_path_rating_mapping())
+        line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths)
 
         zebra_crossing_nodes = self.get_zebra_crossing_nodes(get_buffered_aoi(aoi))
         line_paths = recategorise_zebra_crossings(line_paths, zebra_crossing_nodes)
 
-        path_categories_artifact = build_path_categories_artifact(
-            line_paths, polygon_paths, params.path_rating, aoi, resources
-        )
+        path_categories_artifact = build_path_categories_artifact(line_paths, polygon_paths, aoi, resources)
 
-        path_smoothness = get_smoothness(line_paths, params.get_path_smoothness_mapping())
-        smoothness_artifact = build_smoothness_artifact(path_smoothness, params.smoothness_rating, aoi, resources)
+        path_smoothness = get_smoothness(line_paths)
+        smoothness_artifact = build_smoothness_artifact(path_smoothness, aoi, resources)
 
         line_paths = get_surface_types(line_paths)
         surface_types_artifact = build_surface_types_artifact(line_paths, aoi, resources)
 
         parallel_car_parking = self.get_parallel_parking(get_buffered_aoi(aoi))
-        path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking, params.get_path_dooring_mapping())
-        dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, params.dooring_risk_rating, aoi, resources)
+        path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking)
+        dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, aoi, resources)
         return [path_categories_artifact, smoothness_artifact, surface_types_artifact, dooring_risk_artifact]
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:

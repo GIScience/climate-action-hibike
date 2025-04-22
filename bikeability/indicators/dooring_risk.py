@@ -85,9 +85,7 @@ def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
             return DooringRiskCategory.UNKNOWN
 
 
-def get_dooring_risk(
-    line_paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame, rating_map: Dict[DooringRiskCategory, float]
-) -> gpd.GeoDataFrame:
+def get_dooring_risk(line_paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Applying dooring risk rating')
 
     line_paths = line_paths[line_paths.category.isin(PathCategory.get_bikeable())]
@@ -95,10 +93,6 @@ def get_dooring_risk(
     line_paths_with_parking = find_nearest_parking(line_paths, parking)
 
     line_paths_with_parking['dooring_category'] = line_paths_with_parking.apply(apply_dooring_filters, axis=1)
-    line_paths_with_parking['dooring_category_rating'] = line_paths_with_parking.dooring_category.apply(
-        lambda smoothness: rating_map[smoothness]
-    )
-
     return line_paths_with_parking
 
 
