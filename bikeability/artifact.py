@@ -63,7 +63,7 @@ def build_smoothness_artifact(
 
     return create_geojson_artifact(
         features=paths_line.geometry,
-        layer_name='Path Smoothness Categories',
+        layer_name='Path Smoothness',
         caption=Path('resources/info/path_smoothness/caption.md').read_text(),
         description=Path('resources/info/path_smoothness/description.md').read_text(),
         label=paths_line.smoothness.apply(lambda r: r.name).to_list(),
