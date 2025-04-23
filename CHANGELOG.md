@@ -53,5 +53,6 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 - Complete revision of repository to create a dummy based on the walkability functionality.
 - Changing the description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
+- Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
 
 
