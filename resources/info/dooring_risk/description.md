@@ -1,6 +1,7 @@
-Explanation of the different categories (from good to bad):
-* Risk of dooring: This path features streetside parallel parking.
-* Safe route: This path features no streetside parallel parking.
-* Unknown: Paths that have no information about parking.
+Dooring, i.e. when a cyclist is hit by an opening door of a parked car, is a frequent and serious safety problem. This map displays paths' risk of dooring based on street-side parallel parking information:
 
-Data come from OpenStreetMap (OSM) and the categorisation is based on OSM parking tags and nearby amenities.
+- Safe route: Path without street-side parallel parking.
+- Risk of dooring: Path with street-side parallel parking.
+- Unknown: Path without parking information.
+
+Data come from OpenStreetMap (OSM) and the categorisation is based on OSM parking tags and nearby road amenities.
