@@ -21,7 +21,6 @@ class SurfaceType(Enum):
     OTHER_PAVED = 'other_paved_surfaces'
     UNPAVED = 'unpaved_(unspecified)'
     OTHER_UNPAVED = 'other_unpaved_surfaces'
-    NO_DATA = 'no_data'
     UNKNOWN = 'unknown'
 
     @classmethod
@@ -36,7 +35,7 @@ class SurfaceType(Enum):
 def categorise_surface(row: pd.Series) -> SurfaceType:
     match row['@other_tags']:
         case x if x.get('surface') is None:
-            return SurfaceType.NO_DATA
+            return SurfaceType.UNKNOWN
         case x if x.get('surface') == 'asphalt':
             return SurfaceType.ASPHALT
         case x if x.get('surface') in ['concrete', 'concrete:lanes', 'concrete:plates']:
