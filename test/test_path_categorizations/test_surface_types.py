@@ -62,7 +62,7 @@ validation_objects = {
 @pytest.mark.parametrize(
     'input_surface,expected_output',
     [
-        (None, SurfaceType.NO_DATA),
+        (None, SurfaceType.UNKNOWN),
         ('asphalt', SurfaceType.ASPHALT),
         ('concrete', SurfaceType.CONCRETE),
         ('concrete:lanes', SurfaceType.CONCRETE),
