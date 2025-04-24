@@ -7,6 +7,11 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.0.0...main)
 
+### Changed
+- Changing the description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
+- Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
+- Classify paths with restricted access and for exclusive pedestrian use as "not bikeable" so that all paths are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))
+
 ### Added
 - Added functionality to re-categorise geometries that match with zebra crossing nodes to require
   dismounting([#22](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/22))
@@ -52,7 +57,4 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 
 - Complete revision of repository to create a dummy based on the walkability functionality.
-- Changing the description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
-- Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
-
 

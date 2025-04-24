@@ -48,10 +48,26 @@ def request_ohsome(bpolys):
 
 
 validation_objects = {
-    PathCategory.NOT_BIKEABLE: {'way/4084008', 'way/24635973', 'way/343029968'},
+    PathCategory.NOT_BIKEABLE: {
+        'way/4084008',
+        'way/24635973',
+        'way/343029968',
+        'way/694458151',
+        'way/26028197',
+        'way/870757384',
+        'way/320034117',
+        'way/849049867',
+        'way/25805786',
+    },
     # https://www.openstreetmap.org/way/4084008 highway=trunk
     # https://www.openstreetmap.org/way/24635973 highway=secondary and bicycle=no
     # https://www.openstreetmap.org/way/343029968 highway=primary and motorroad=yes
+    # https://www.openstreetmap.org/way/694458151 highway=footway and footway=sidewalk (EXCLUSIVE PEDESTRIAN)
+    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no (EXCLUSIVE PEDESTRIAN)
+    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no (EXCLUSIVE PEDESTRIAN)
+    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes (RESTRICTED ACCESS)
+    # https://www.openstreetmap.org/way/25805786 highway=service and access=private (RESTRICTED ACCESS)
+    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private (RESTRICTED ACCESS)
     PathCategory.DESIGNATED_EXCLUSIVE: {'way/246387137', 'way/118975501'},
     # https://www.openstreetmap.org/way/246387137 highway=cycleway and foot=no
     # https://www.openstreetmap.org/way/118975501 highway=path and foot=yes and segregated=yes
@@ -60,7 +76,9 @@ validation_objects = {
         'way/27620739',
         'way/406929620',
         'way/208162626',
+        'way/156194371',
     },
+    # https://www.openstreetmap.org/way/156194371 highway=path and nothing else (except surface tags)
     # https://www.openstreetmap.org/way/587937936 highway=path and bicycle=designated and foot=designated and segregated=no
     # https://www.openstreetmap.org/way/27620739 highway=footway and bicycle=yes but no foot tag
     # https://www.openstreetmap.org/way/406929620 highway=track
@@ -125,14 +143,8 @@ validation_objects = {
     # https://www.openstreetmap.org/way/27797958 railway=platform
     # https://www.openstreetmap.org/way/87956068 highway=track and ford=yes
     # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> recategorised
-    PathCategory.PEDESTRIAN_EXCLUSIVE: {'way/26028197', 'way/870757384', 'way/694458151'},
-    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no
-    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no
-    # https://www.openstreetmap.org/way/694458151 footway=yes
-    PathCategory.RESTRICTED_ACCESS: {'way/320034117', 'way/849049867', 'way/25805786'},
-    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes
-    # https://www.openstreetmap.org/way/25805786 highway=service and access=private
-    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private
+    PathCategory.PEDESTRIAN_EXCLUSIVE: set(),
+    PathCategory.RESTRICTED_ACCESS: set(),
     PathCategory.UNKNOWN: set(),
 }
 
