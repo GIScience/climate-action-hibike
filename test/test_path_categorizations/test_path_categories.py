@@ -52,9 +52,6 @@ validation_objects = {
         'way/4084008',
         'way/24635973',
         'way/343029968',
-        'way/694458151',
-        'way/26028197',
-        'way/870757384',
         'way/320034117',
         'way/849049867',
         'way/25805786',
@@ -62,9 +59,6 @@ validation_objects = {
     # https://www.openstreetmap.org/way/4084008 highway=trunk
     # https://www.openstreetmap.org/way/24635973 highway=secondary and bicycle=no
     # https://www.openstreetmap.org/way/343029968 highway=primary and motorroad=yes
-    # https://www.openstreetmap.org/way/694458151 highway=footway and footway=sidewalk (EXCLUSIVE PEDESTRIAN)
-    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no (EXCLUSIVE PEDESTRIAN)
-    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no (EXCLUSIVE PEDESTRIAN)
     # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes (RESTRICTED ACCESS)
     # https://www.openstreetmap.org/way/25805786 highway=service and access=private (RESTRICTED ACCESS)
     # https://www.openstreetmap.org/way/320034117 highway=footway and access=private (RESTRICTED ACCESS)
@@ -143,7 +137,14 @@ validation_objects = {
     # https://www.openstreetmap.org/way/27797958 railway=platform
     # https://www.openstreetmap.org/way/87956068 highway=track and ford=yes
     # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> recategorised
-    PathCategory.PEDESTRIAN_EXCLUSIVE: set(),
+    PathCategory.PEDESTRIAN_EXCLUSIVE: {
+        'way/694458151',
+        'way/26028197',
+        'way/870757384',
+    },
+    # https://www.openstreetmap.org/way/694458151 highway=footway and footway=sidewalk (EXCLUSIVE PEDESTRIAN)
+    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no (EXCLUSIVE PEDESTRIAN)
+    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no (EXCLUSIVE PEDESTRIAN)
     PathCategory.RESTRICTED_ACCESS: set(),
     PathCategory.UNKNOWN: set(),
 }

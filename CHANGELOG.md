@@ -10,7 +10,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 - Changing the description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
 - Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
-- Classify paths with restricted access and for exclusive pedestrian use as "not bikeable" so that all paths are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))
+- Classify paths with restricted access as "not bikeable" so that they are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))
+- Updated Climatoology to 6.3.1
 
 ### Added
 - Added functionality to re-categorise geometries that match with zebra crossing nodes to require

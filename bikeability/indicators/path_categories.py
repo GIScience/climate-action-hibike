@@ -131,14 +131,18 @@ class PathCategoryFilters:
         )
 
     def pedestrian_exclusive(self, d: Dict) -> bool:
-        return d.get('highway') in ['footway', 'pedestrian'] and (
-            d.get('bicycle')
-            not in [
-                'yes',
-                'designated',
-                'dismount',
-            ]
-            or d.get('bicycle:conditional') is not None
+        return (
+            d.get('highway') in ['footway', 'pedestrian']
+            and (
+                d.get('bicycle')
+                not in [
+                    'yes',
+                    'designated',
+                    'dismount',
+                ]
+                or d.get('bicycle:conditional') is not None
+            )
+            and (d.get('access') not in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency'])
         )
 
     def restricted_access(self, d: Dict) -> bool:
@@ -151,12 +155,12 @@ def apply_path_category_filters(row: pd.Series) -> PathCategory:
     match row['@other_tags']:
         case x if filters.requires_dismounting(x):
             return PathCategory.REQUIRES_DISMOUNTING
+        case x if filters.pedestrian_exclusive(x):
+            return PathCategory.PEDESTRIAN_EXCLUSIVE
         case x if filters.not_bikeable(x):
             return PathCategory.NOT_BIKEABLE
         case x if filters.restricted_access(x):
             return PathCategory.RESTRICTED_ACCESS
-        case x if filters.pedestrian_exclusive(x):
-            return PathCategory.PEDESTRIAN_EXCLUSIVE
         case x if filters.designated_exclusive(x):
             return PathCategory.DESIGNATED_EXCLUSIVE
         case x if filters.designated_shared_with_pedestrians(x):
