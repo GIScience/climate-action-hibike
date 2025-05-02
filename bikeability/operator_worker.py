@@ -8,6 +8,7 @@ import pandas as pd
 import shapely
 from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
 from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
+from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from semver import Version
 
@@ -78,6 +79,13 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         line_paths, polygon_paths = self.get_paths(get_buffered_aoi(aoi))
+
+        number_of_paths = len(line_paths)
+        if number_of_paths > 500000:
+            raise ClimatoologyUserError(
+                f'There are too many path segments in the selected area: {number_of_paths} path segments. Currently, only areas with a maximum of 500,000 path segments are allowed. Please select a smaller area or a sub-region of your selected area.'
+            )
+
         line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths)
 
         zebra_crossing_nodes = self.get_zebra_crossing_nodes(get_buffered_aoi(aoi))

@@ -16,6 +16,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Added
 - Added functionality to re-categorise geometries that match with zebra crossing nodes to require
   dismounting([#22](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/22))
+- Added check to ensure that the number of path segments in the AOI does not exceed 500,000 ([#67](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/67))
 
 ### Removed
 - Removed unused user input parameters ([#48](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/48))
