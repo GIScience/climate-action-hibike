@@ -64,9 +64,9 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             purpose=Path('resources/info/purpose.md'),
             methodology=Path('resources/info/methodology.md'),
             sources=Path('resources/literature.bib'),
+            demo_input_parameters=ComputeInputBikeability(),
         )
         log.info(f'Return info {info.model_dump()}')
-
         return info
 
     def compute(
