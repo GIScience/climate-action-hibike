@@ -12,6 +12,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
 - Classify paths with restricted access as "not bikeable" so that they are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))
 - Updated Climatoology to 6.3.1
+- Include demo_input_parameters in operator worker file
+
 
 ### Added
 - Added functionality to re-categorise geometries that match with zebra crossing nodes to require
