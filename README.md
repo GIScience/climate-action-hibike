@@ -1,6 +1,6 @@
-# <img src="resources/gitlabicon.png" width="5%"> Bikeability
+# <img src="resources/gitlabicon.png" width="5%"> hiBike
 
-The Bikeability plugin, created in cooperation with [Radlobby](https://www.radlobby.at/).
+The hiBike plugin, created in cooperation with [Radlobby](https://www.radlobby.at/).
 
 ## Contributing
 
