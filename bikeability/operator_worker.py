@@ -45,7 +45,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
     def info(self) -> _Info:
         info = generate_plugin_info(
-            name='Bikeability',
+            name='hiBike',
             icon=Path('resources/info/icon.jpeg'),
             authors=[
                 PluginAuthor(
