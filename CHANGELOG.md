@@ -5,24 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.0.0...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.0...main)
+
+## [1.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.0)
 
 ### Changed
-- Changing the plugin name from 'Bikeability' to 'hiBike' ([#65](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/65))
-- Changing the description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
-- Changing the description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
+- Plugin name from 'Bikeability' to 'hiBike' ([#65](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/65))
+- Description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
+- Description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
 - Classify paths with restricted access as "not bikeable" so that they are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))
-- Updated Climatoology to 6.3.1
+
+- Updated Climatoology to 6.4.0
 - Include demo_input_parameters in operator worker file
 
 
 ### Added
-- Added functionality to re-categorise geometries that match with zebra crossing nodes to require
+- Functionality to re-categorise geometries that match with zebra crossing nodes to require
   dismounting([#22](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/22))
-- Added check to ensure that the number of path segments in the AOI does not exceed 500,000 ([#67](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/67))
+- Check to ensure that the number of path segments in the AOI does not exceed 500,000 ([#67](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/67))
 
 ### Removed
-- Removed unused user input parameters ([#48](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/48))
+- Unused user input parameters ([#48](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/48))
 
 ## [1.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.0.0)
 
