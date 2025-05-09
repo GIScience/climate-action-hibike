@@ -11,6 +11,7 @@ from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin
 from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from semver import Version
+from datetime import timedelta
 
 from bikeability.artifact import (
     build_dooring_artifact,
@@ -65,6 +66,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             methodology=Path('resources/info/methodology.md'),
             sources=Path('resources/literature.bib'),
             demo_input_parameters=ComputeInputBikeability(),
+            computation_shelf_life=timedelta(weeks=24),
         )
         log.info(f'Return info {info.model_dump()}')
         return info
