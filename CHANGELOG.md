@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.0...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.3...main)
+
+## [1.1.3](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.3)
+
+### Changed
+- New icon simplified icon
+- More concise description of the assessment tool
 
 ## [1.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.0)
 
 ### Changed
-- New icon simplified icon
 - Tool name from 'Bikeability' to 'hiBike' ([#65](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/65))
 - Description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
 - Description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
