@@ -10,7 +10,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ## [1.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.0)
 
 ### Changed
-- Plugin name from 'Bikeability' to 'hiBike' ([#65](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/65))
+- New icon simplified icon
+- Tool name from 'Bikeability' to 'hiBike' ([#65](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/65))
 - Description of the dooring risk ([#58](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/58))
 - Description of the surface types ([#62](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/62))
 - Classify paths with restricted access as "not bikeable" so that they are displayed in the map of bikeable path categories ([#63](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/63))

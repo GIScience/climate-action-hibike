@@ -47,15 +47,10 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
     def info(self) -> _Info:
         info = generate_plugin_info(
             name='hiBike',
-            icon=Path('resources/info/icon.jpeg'),
+            icon=Path('resources/info/bike-lane.jpeg'),
             authors=[
                 PluginAuthor(
-                    name='Jonas Kemmer',
-                    affiliation='HeiGIT gGmbH',
-                    website='https://heigit.org/heigit-team/',
-                ),
-                PluginAuthor(
-                    name='Moritz Schott',
+                    name='Climate Action Team',
                     affiliation='HeiGIT gGmbH',
                     website='https://heigit.org/heigit-team/',
                 ),
