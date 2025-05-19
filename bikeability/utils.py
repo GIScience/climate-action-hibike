@@ -97,7 +97,8 @@ def ohsome_filter(geometry_type: str) -> str:
         f'geometry:{geometry_type} and '
         '(highway=* or railway=platform) and not '
         '(cycleway=separate or cycleway:both=separate or '
-        '(cycleway:right=separate and cycleway:left=separate))'
+        '(cycleway:right=separate and cycleway:left=separate) or '
+        'indoor=yes or indoor=corridor)'
     )
 
 

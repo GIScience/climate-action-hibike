@@ -52,16 +52,10 @@ validation_objects = {
         'way/4084008',
         'way/24635973',
         'way/343029968',
-        'way/320034117',
-        'way/849049867',
-        'way/25805786',
     },
     # https://www.openstreetmap.org/way/4084008 highway=trunk
     # https://www.openstreetmap.org/way/24635973 highway=secondary and bicycle=no
     # https://www.openstreetmap.org/way/343029968 highway=primary and motorroad=yes
-    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes (RESTRICTED ACCESS)
-    # https://www.openstreetmap.org/way/25805786 highway=service and access=private (RESTRICTED ACCESS)
-    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private (RESTRICTED ACCESS)
     PathCategory.DESIGNATED_EXCLUSIVE: {'way/246387137', 'way/118975501'},
     # https://www.openstreetmap.org/way/246387137 highway=cycleway and foot=no
     # https://www.openstreetmap.org/way/118975501 highway=path and foot=yes and segregated=yes
@@ -145,7 +139,14 @@ validation_objects = {
     # https://www.openstreetmap.org/way/694458151 highway=footway and footway=sidewalk (EXCLUSIVE PEDESTRIAN)
     # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no (EXCLUSIVE PEDESTRIAN)
     # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no (EXCLUSIVE PEDESTRIAN)
-    PathCategory.RESTRICTED_ACCESS: set(),
+    PathCategory.RESTRICTED_ACCESS: {
+        'way/320034117',
+        'way/849049867',
+        'way/25805786',
+    },
+    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes (RESTRICTED ACCESS)
+    # https://www.openstreetmap.org/way/25805786 highway=service and access=private (RESTRICTED ACCESS)
+    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private (RESTRICTED ACCESS)
     PathCategory.UNKNOWN: set(),
 }
 

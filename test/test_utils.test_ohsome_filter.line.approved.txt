@@ -1,1 +1,1 @@
-geometry:line and (highway=* or railway=platform) and not (cycleway=separate or cycleway:both=separate or (cycleway:right=separate and cycleway:left=separate))
+geometry:line and (highway=* or railway=platform) and not (cycleway=separate or cycleway:both=separate or (cycleway:right=separate and cycleway:left=separate) or indoor=yes or indoor=corridor)
