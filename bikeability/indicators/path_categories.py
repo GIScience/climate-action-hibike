@@ -190,8 +190,10 @@ def categorize_paths(
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     log.debug('Categorizing and rating paths')
 
-    paths_line['category'] = paths_line.apply(apply_path_category_filters, axis=1)
-    paths_polygon['category'] = paths_polygon.apply(apply_path_category_filters, axis=1)
+    if len(paths_line) > 0:
+        paths_line['category'] = paths_line.apply(apply_path_category_filters, axis=1)
+    if len(paths_polygon) > 0:
+        paths_polygon['category'] = paths_polygon.apply(apply_path_category_filters, axis=1)
 
     return paths_line, paths_polygon
 

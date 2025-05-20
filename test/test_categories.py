@@ -71,6 +71,31 @@ def test_categorize_paths(test_line, test_polygon, expected_compute_input):
     )
 
 
+def test_categorize_paths_no_polygon_paths(test_line, test_polygon_empty, expected_compute_input):
+    input_line = test_line.drop(['category'], axis=1)
+    input_polygon = test_polygon_empty
+
+    expected_lines = test_line
+    expected_polygons = test_polygon_empty
+
+    computed_lines, computed_polygons = categorize_paths(input_line, input_polygon)
+
+    testing.assert_geodataframe_equal(
+        computed_lines,
+        expected_lines,
+        check_like=True,
+        check_geom_type=True,
+        check_less_precise=True,
+    )
+    testing.assert_geodataframe_equal(
+        computed_polygons,
+        expected_polygons,
+        check_like=True,
+        check_geom_type=True,
+        check_less_precise=True,
+    )
+
+
 def test_split_paths_around_crossing_single_crossing(test_line_with_crossing, test_crossing_nodes):
     computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes.drop(1))
     assert len(computed_lines) == 3
