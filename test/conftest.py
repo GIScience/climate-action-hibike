@@ -123,3 +123,15 @@ def test_polygon() -> gpd.GeoDataFrame:
         },
         crs='EPSG:4326',
     )
+
+
+@pytest.fixture
+def test_polygon_empty() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame(
+        data={
+            '@osmId': [],
+            'geometry': [],
+            '@other_tags': [],
+        },
+        crs='EPSG:4326',
+    )
