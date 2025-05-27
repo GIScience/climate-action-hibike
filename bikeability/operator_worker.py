@@ -11,6 +11,7 @@ from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin
 from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from semver import Version
+from shapely import make_valid
 from datetime import timedelta
 
 from bikeability.artifact import (
@@ -106,6 +107,13 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
         paths_line = fetch_osm_data(aoi, ohsome_filter('line'), self.ohsome)
         paths_polygon = fetch_osm_data(aoi, ohsome_filter('polygon'), self.ohsome)
+
+        invalid_line = ~paths_line.is_valid
+        paths_line.loc[invalid_line, 'geometry'] = paths_line.loc[invalid_line, 'geometry'].apply(make_valid)
+        invalid_polygon = ~paths_polygon.is_valid
+        paths_polygon.loc[invalid_polygon, 'geometry'] = paths_polygon.loc[invalid_polygon, 'geometry'].apply(
+            make_valid
+        )
 
         return paths_line, paths_polygon
 

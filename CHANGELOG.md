@@ -13,6 +13,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Fixed
 - Computation now also works if there are no polygon paths in the area ([#77](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/77))
+- Fix invalid path geometries ([#84](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/84))
 
 ## [1.1.3](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.3)
 
