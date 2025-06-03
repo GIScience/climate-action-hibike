@@ -80,7 +80,7 @@ validation_objects = {
     ],
 )
 def test_get_surface_types(test_line, input_surface, expected_output):
-    test_line['@other_tags'][0].update({'surface': input_surface})
-    computed_line = get_surface_types(test_line)
+    test_line['@other_tags'][1].update({'surface': input_surface})
+    computed_line = get_surface_types(test_line).reset_index(drop=True)
 
-    assert computed_line['surface_type'][0] == expected_output
+    assert computed_line.loc[0, 'surface_type'] == expected_output

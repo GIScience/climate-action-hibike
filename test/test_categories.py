@@ -23,7 +23,7 @@ def test_line_with_crossing() -> gpd.GeoDataFrame:
     )
     return gpd.GeoDataFrame(
         data={
-            'category': [PathCategory.DESIGNATED_EXCLUSIVE],
+            'category': [PathCategory.EXCLUSIVE],
             'rating': [1.0],
             'geometry': [line_geom],
             '@other_tags': [{'highway': 'cycleway', 'bicycle': 'yes'}],

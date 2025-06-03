@@ -10,6 +10,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 - Now public transport platforms are consistently categorized as "Requires dismounting" ([#74](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/74))
 - To avoid cluttering map display and distracting from gaps in the public cycling path network, hiBike now excludes indoor paths from data requested from OSM and hides from view all paths with restricted public access ((#73)[https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/73])
+- Change color maps for legends ([#75](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/75))
+- Make path category labeling more consistent with hiWalk
 
 ### Fixed
 - Computation now also works if there are no polygon paths in the area ([#77](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/77))

@@ -7,9 +7,10 @@ def test_get_paths(operator, expected_compute_input, default_aoi, test_line, tes
     expected_lines = test_line.drop(['category'], axis=1)
     expected_polygons = test_polygon.drop(['category'], axis=1)
 
-    with open('resources/test/ohsome_line_response.geojson', 'rb') as vector, open(
-        'resources/test/ohsome_polygon_response.geojson', 'rb'
-    ) as polygon:
+    with (
+        open('resources/test/ohsome_line_response.geojson', 'rb') as vector,
+        open('resources/test/ohsome_polygon_response.geojson', 'rb') as polygon,
+    ):
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/geometry',
             body=vector.read(),
