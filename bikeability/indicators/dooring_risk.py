@@ -63,8 +63,8 @@ class DooringRiskFilters:
 
 def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
     if row['category'] in [
-        PathCategory.DESIGNATED_EXCLUSIVE,
-        PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS,
+        PathCategory.EXCLUSIVE,
+        PathCategory.SHARED_WITH_PEDESTRIANS,
         PathCategory.REQUIRES_DISMOUNTING,
     ]:
         # Treat Paths that are not shared with motorised traffic as safe from dooring

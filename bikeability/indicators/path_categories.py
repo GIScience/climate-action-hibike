@@ -12,21 +12,20 @@ log = logging.getLogger(__name__)
 
 
 class PathCategory(Enum):
-    DESIGNATED_EXCLUSIVE = 'designated_exclusive'
-    DESIGNATED_SHARED_WITH_PEDESTRIANS = 'designated_shared_with_pedestrians'
-    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'shared_with_motorised_traffic_walking_speed'
-    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED = 'shared_with_motorised_traffic_low_speed'
-    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED = 'shared_with_motorised_traffic_medium_speed'
-    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'shared_with_motorised_traffic_high_speed'
+    EXCLUSIVE = 'exclusive'
+    SHARED_WITH_PEDESTRIANS = 'shared_with_pedestrians'
+    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'shared_with_cars_up_to_15_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED = 'shared_with_cars_up_to_30_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED = 'shared_with_cars_up_to_50_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'shared_with_cars_above_50_km/h'
     REQUIRES_DISMOUNTING = 'requires_dismounting'
-    NOT_BIKEABLE = 'not_bikeable'
     PEDESTRIAN_EXCLUSIVE = 'pedestrian_exclusive'
-    RESTRICTED_ACCESS = 'restricted_access'
+    NO_ACCESS = 'no_access'
     UNKNOWN = 'unknown'
 
     @classmethod
     def get_hidden(cls):
-        return [cls.PEDESTRIAN_EXCLUSIVE, cls.RESTRICTED_ACCESS]
+        return [cls.PEDESTRIAN_EXCLUSIVE, cls.NO_ACCESS]
 
     @classmethod
     def get_visible(cls):
@@ -34,7 +33,7 @@ class PathCategory(Enum):
 
     @classmethod
     def get_not_bikeable(cls):
-        return [cls.NOT_BIKEABLE, cls.PEDESTRIAN_EXCLUSIVE, cls.RESTRICTED_ACCESS]
+        return [cls.PEDESTRIAN_EXCLUSIVE, cls.NO_ACCESS]
 
     @classmethod
     def get_bikeable(cls):
@@ -56,24 +55,6 @@ class PathCategoryFilters:
             'track',
             'living_street',
             'service',
-        )
-
-    def not_bikeable(self, d: Dict) -> bool:
-        return (
-            d.get('highway')
-            not in [
-                *self.potential_bikeable_highway_values,
-                'pedestrian',
-                'path',
-                'cycleway',
-                'footway',
-                'steps',
-                'platform',
-            ]
-            or d.get('highway') == 'footway'
-            and (d.get('bicycle') not in ['yes', 'designated', 'permissive'])
-            or d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
-            or d.get('motorroad') == 'yes'
         )
 
     def _shared_with_pedestrians(self, d: Dict) -> bool:
@@ -153,8 +134,25 @@ class PathCategoryFilters:
             and (d.get('access') not in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency'])
         )
 
+    ###############or d.get('highway') == 'footway'
+    ##############and (d.get('bicycle') not in ['yes', 'designated', 'permissive'])        #### this one shoul dbe added?
+
     def restricted_access(self, d: Dict) -> bool:
-        return d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
+        return (
+            d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
+            or d.get('motorroad') == 'yes'
+            or d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
+            or d.get('highway')
+            not in [
+                *self.potential_bikeable_highway_values,
+                'pedestrian',
+                'path',
+                'cycleway',
+                'footway',
+                'steps',
+                'platform',
+            ]
+        )
 
 
 def apply_path_category_filters(row: pd.Series) -> PathCategory:
@@ -163,16 +161,14 @@ def apply_path_category_filters(row: pd.Series) -> PathCategory:
     match row['@other_tags']:
         case x if filters.requires_dismounting(x):
             return PathCategory.REQUIRES_DISMOUNTING
-        case x if filters.restricted_access(x):
-            return PathCategory.RESTRICTED_ACCESS
         case x if filters.pedestrian_exclusive(x):
             return PathCategory.PEDESTRIAN_EXCLUSIVE
-        case x if filters.not_bikeable(x):
-            return PathCategory.NOT_BIKEABLE
+        case x if filters.restricted_access(x):
+            return PathCategory.NO_ACCESS
         case x if filters.designated_exclusive(x):
-            return PathCategory.DESIGNATED_EXCLUSIVE
+            return PathCategory.EXCLUSIVE
         case x if filters.designated_shared_with_pedestrians(x):
-            return PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS
+            return PathCategory.SHARED_WITH_PEDESTRIANS
         case x if filters.shared_with_motorised_traffic_walking_speed(x):
             return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED
         case x if filters.shared_with_motorised_traffic_low_speed(x):
@@ -227,11 +223,7 @@ def recategorise_zebra_crossings(
     utm_crs = paths_line.estimate_utm_crs()
     paths_line, zebra_crossing_nodes = paths_line.to_crs(utm_crs), zebra_crossing_nodes.to_crs(utm_crs)
     matches = zebra_crossing_nodes.sjoin(
-        paths_line[
-            paths_line['category'].isin(
-                [PathCategory.DESIGNATED_EXCLUSIVE, PathCategory.DESIGNATED_SHARED_WITH_PEDESTRIANS]
-            )
-        ],
+        paths_line[paths_line['category'].isin([PathCategory.EXCLUSIVE, PathCategory.SHARED_WITH_PEDESTRIANS])],
         how='inner',
         lsuffix='zebra_crossings',
         rsuffix='paths',
@@ -248,11 +240,3 @@ def recategorise_zebra_crossings(
     paths_line = paths_line.set_crs(utm_crs, allow_override=True)
     paths_line = paths_line.to_crs('EPSG:4326')
     return paths_line
-
-
-path_ratings_legend_fix = {
-    'shared_with_motorised_traffic_walking_speed': 'shared_with_motorised_traffic_walking_speed_(<=15_km/h)',
-    'shared_with_motorised_traffic_low_speed': 'shared_with_motorised_traffic_low_speed_(<=30_km/h)',
-    'shared_with_motorised_traffic_medium_speed': 'shared_with_motorised_traffic_medium_speed_(<=50_km/h)',
-    'shared_with_motorised_traffic_high_speed': 'shared_with_motorised_traffic_high_speed_(<=100_km/h)',
-}

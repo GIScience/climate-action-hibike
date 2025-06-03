@@ -13,7 +13,7 @@ from climatoology.base.computation import ComputationResources
 from bikeability.indicators.dooring_risk import DooringRiskCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
-from bikeability.indicators.path_categories import PathCategory, path_ratings_legend_fix
+from bikeability.indicators.path_categories import PathCategory
 from bikeability.utils import (
     get_qualitative_color,
 )
@@ -24,7 +24,7 @@ def build_path_categories_artifact(
     paths_polygon: gpd.GeoDataFrame,
     clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
-    cmap_name: str = 'RdYlBu_r',
+    cmap_name: str = 'coolwarm',
 ) -> _Artifact:
     paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
     paths_polygon = paths_polygon.clip(clip_aoi, keep_geom_type=True)
@@ -37,14 +37,13 @@ def build_path_categories_artifact(
     )
     return create_geojson_artifact(
         features=paths_without_restriction.geometry,
-        layer_name='Bikeable Path Categories',
+        layer_name='Path Categories',
         caption=Path('resources/info/path_categories/caption.md').read_text(),
         description=Path('resources/info/path_categories/description.md').read_text(),
         label=paths_without_restriction.category.apply(lambda r: r.name).to_list(),
         color=paths_without_restriction.color.to_list(),
         legend_data={
-            path_ratings_legend_fix.get(category.value, category.value): get_qualitative_color(category, cmap_name)
-            for category in PathCategory.get_visible()
+            category.value: get_qualitative_color(category, cmap_name) for category in PathCategory.get_visible()
         },
         resources=resources,
         filename='cycling_infrastructure_path_categories',
@@ -55,7 +54,7 @@ def build_smoothness_artifact(
     paths_line: gpd.GeoDataFrame,
     clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
-    cmap_name: str = 'RdYlBu_r',
+    cmap_name: str = 'coolwarm',
 ) -> _Artifact:
     paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
 
