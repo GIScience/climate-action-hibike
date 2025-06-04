@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.4...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.5...main)
+
+## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
+
+### Changed
+
+- Updated climatoology to 6.4.2
 
 ## [1.1.4](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.4)
 
