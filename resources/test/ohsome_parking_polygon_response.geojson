@@ -1,0 +1,38 @@
+{
+  "attribution" : {
+    "url" : "https://ohsome.org/copyrights",
+    "text" : "© OpenStreetMap contributors"
+  },
+  "apiVersion" : "1.10.1",
+  "type" : "FeatureCollection",
+  "features" : [{
+    "type" : "Feature",
+    "geometry" : {
+      "type" : "Polygon",
+      "coordinates" : [[
+        [
+          12.300,
+          48.220
+        ],
+        [
+          12.300,
+          48.2205
+        ],
+        [
+          12.3005,
+          48.220
+        ],
+        [
+          12.300,
+          48.220
+        ]
+      ]]
+    },
+    "properties" : {
+		"@osmId": "way/1205391562",
+		"amenity": "parking",
+		"orientation": "parallel",
+		"parking": "street_side"
+    }}]
+}
+

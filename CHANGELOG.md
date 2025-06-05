@@ -7,6 +7,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/1.1.5...main)
 
+### Changed
+
+- Added more tests for separate OSM Parking requests ([#40](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/40))
+
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 
 ### Changed
