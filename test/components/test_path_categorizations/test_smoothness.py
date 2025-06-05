@@ -1,13 +1,14 @@
-import pandas as pd
-import shapely
+from functools import partial
+
 import geopandas as gpd
+import pandas as pd
 import pytest
+import shapely
+from ohsome import OhsomeClient, OhsomeResponse
+from urllib3 import Retry
 
 from bikeability.indicators.smoothness import SmoothnessCategory, apply_path_smoothness_filters
 from bikeability.utils import ohsome_filter
-from ohsome import OhsomeClient, OhsomeResponse
-from functools import partial
-from urllib3 import Retry
 
 
 @pytest.fixture(scope='module')

@@ -10,7 +10,7 @@ from climatoology.base.computation import ComputationScope
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.input import ComputeInputBikeability
 from bikeability.operator_worker import OperatorBikeability
-from bikeability.utils import filter_start_matcher
+from test.utils import filter_start_matcher
 
 
 @pytest.fixture

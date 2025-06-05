@@ -3,17 +3,17 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import shapely
-from pydantic_extra_types.color import Color
 from climatoology.base.artifact import (
     _Artifact,
     create_geojson_artifact,
 )
 from climatoology.base.computation import ComputationResources
+from pydantic_extra_types.color import Color
 
 from bikeability.indicators.dooring_risk import DooringRiskCategory
+from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
-from bikeability.indicators.path_categories import PathCategory
 from bikeability.utils import (
     get_qualitative_color,
 )

@@ -1,17 +1,13 @@
 import logging
-from typing import Callable, Any, Tuple, Union
-from urllib.parse import parse_qsl
+from typing import Union
 
 import geopandas as gpd
 import matplotlib
-import pandas as pd
 import shapely
-from matplotlib.colors import to_hex, Normalize
+from matplotlib.colors import Normalize, to_hex
 from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
 from pyproj import CRS, Transformer
-from requests import PreparedRequest
-from shapely import LineString
 from shapely.ops import transform
 
 from bikeability.indicators.dooring_risk import DooringRiskCategory
@@ -30,23 +26,6 @@ def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeCli
     return elements[['@osmId', 'geometry', '@other_tags']]
 
 
-def fix_geometry_collection(
-    geom: shapely.Geometry,
-) -> Union[shapely.LineString, shapely.MultiLineString]:
-    # Hack due to https://github.com/GIScience/oshdb/issues/463
-    if geom.geom_type == 'GeometryCollection':
-        inner_geoms = []
-        for inner_geom in geom.geoms:
-            if inner_geom.geom_type in ('LineString', 'MultiLineString'):
-                inner_geoms.append(inner_geom)
-        geom = shapely.union_all(inner_geoms)
-
-    if geom.geom_type in ('LineString', 'MultiLineString'):
-        return geom
-    else:
-        return LineString()
-
-
 def get_qualitative_color(
     category: Union[PathCategory, SmoothnessCategory, SurfaceType, DooringRiskCategory], cmap_name: str
 ) -> Color:
@@ -60,36 +39,6 @@ def get_qualitative_color(
         return Color(to_hex(cmap(-9999)))
     else:
         return Color(to_hex(cmap(category_norm[category])))
-
-
-def get_color(values: pd.Series, cmap_name: str = 'RdYlGn') -> pd.Series:
-    norm = Normalize(0, 1)
-    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
-    cmap.set_under('#808080')
-    return values.apply(lambda v: Color(to_hex(cmap(v))))
-
-
-def get_single_color(rating: float, cmap_name: str = 'RdYlGn') -> Color:
-    norm = Normalize(0, 1)
-    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
-    cmap.set_under('#808080')
-    return Color(to_hex(cmap(rating)))
-
-
-def filter_start_matcher(filter_start: str) -> Callable[..., Any]:
-    def match(request: PreparedRequest) -> Tuple[bool, str]:
-        request_body = request.body
-        qsl_body = dict(parse_qsl(request_body, keep_blank_values=False)) if request_body else {}
-
-        if request_body is None:
-            return False, 'The given request has no body'
-        elif qsl_body.get('filter') is None:
-            return False, 'Filter parameter not set'
-        else:
-            valid = qsl_body.get('filter', '').startswith(filter_start)
-            return (True, '') if valid else (False, f'The filter parameter does not start with {filter_start}')
-
-    return match
 
 
 def ohsome_filter(geometry_type: str) -> str:

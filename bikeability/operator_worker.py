@@ -1,18 +1,18 @@
 import importlib
 import logging
+from datetime import timedelta
 from pathlib import Path
 from typing import List, Tuple
 
 import geopandas as gpd
 import pandas as pd
 import shapely
-from climatoology.base.baseoperator import BaseOperator, _Artifact, AoiProperties, ComputationResources
-from climatoology.base.info import Concern, _Info, PluginAuthor, generate_plugin_info
+from climatoology.base.baseoperator import AoiProperties, BaseOperator, ComputationResources, _Artifact
+from climatoology.base.info import Concern, PluginAuthor, _Info, generate_plugin_info
 from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from semver import Version
 from shapely import make_valid
-from datetime import timedelta
 
 from bikeability.artifact import (
     build_dooring_artifact,
@@ -32,8 +32,8 @@ from bikeability.utils import (
     fetch_osm_data,
     get_buffered_aoi,
     ohsome_filter,
-    zebra_crossings_filter,
     parallel_parking_filter,
+    zebra_crossings_filter,
 )
 
 log = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         log.info(f'Return info {info.model_dump()}')
         return info
 
-    def compute(
+    def compute(  # dead: disable
         self,
         resources: ComputationResources,
         aoi: shapely.MultiPolygon,
