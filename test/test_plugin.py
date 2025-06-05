@@ -12,7 +12,9 @@ def test_plugin_compute_request(
     default_aoi,
     default_aoi_properties,
     compute_resources,
-    ohsome_api,
+    ohsome_api_osm,
+    ohsome_api_parking,
+    ohsome_api_zebra,
 ):
     computed_artifacts = operator.compute(
         resources=compute_resources,

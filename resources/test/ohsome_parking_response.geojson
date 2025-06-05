@@ -1,0 +1,28 @@
+{
+    "type": "FeatureCollection",
+    "features": [{
+        "id": "0",
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [8.45979, 49.4326487],
+                    [8.4597687, 49.4326603],
+                    [8.4597353, 49.4326784],
+                    [8.4594568, 49.4324616],
+                    [8.4594874, 49.432445],
+                    [8.4595115, 49.4324319],
+                    [8.4597393, 49.4326092],
+                    [8.45979, 49.4326487]
+                ]
+            ]
+        },
+       "properties": {
+            "@osmId": "way/1205391562",
+            "amenity": "parking",
+            "orientation": "parallel",
+            "parking": "street_side"
+        }
+    }]
+}
