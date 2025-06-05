@@ -1,8 +1,10 @@
-import pandas as pd
-import shapely
+from functools import partial
+
 import geopandas as gpd
 import geopandas.testing
+import pandas as pd
 import pytest
+import shapely
 from ohsome import OhsomeClient, OhsomeResponse
 from urllib3 import Retry
 
@@ -12,13 +14,11 @@ from bikeability.indicators.dooring_risk import (
     find_nearest_parking,
 )
 from bikeability.indicators.path_categories import apply_path_category_filters
-from functools import partial
 from bikeability.utils import (
-    ohsome_filter,
     fetch_osm_data,
+    ohsome_filter,
     parallel_parking_filter,
 )
-
 
 expected_parking_line = gpd.GeoDataFrame(
     data={

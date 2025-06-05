@@ -1,12 +1,11 @@
-from enum import Enum
 import logging
-
-import pandas as pd
-from bikeability.indicators.path_categories import PathCategory
-
+from enum import Enum
+from typing import Dict
 
 import geopandas as gpd
-from typing import Dict
+import pandas as pd
+
+from bikeability.indicators.path_categories import PathCategory
 
 log = logging.getLogger(__name__)
 

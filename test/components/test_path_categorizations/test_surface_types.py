@@ -4,11 +4,10 @@ import geopandas as gpd
 import pandas as pd
 import pytest
 import shapely
-from ohsome import OhsomeResponse, OhsomeClient
+from ohsome import OhsomeClient, OhsomeResponse
 from urllib3 import Retry
 
 from bikeability.indicators.surface_types import SurfaceType, get_surface_types
-
 from bikeability.utils import ohsome_filter
 
 
