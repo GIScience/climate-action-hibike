@@ -31,7 +31,7 @@ pytest-cov = "^6.1.1"
 pre-commit = "^3.6.0"
 
 [tool.coverage.run]
-omit = ["test/*", "plugin_blueprint/core/*"]
+omit = ["test/*", "bikeability/input.py", "bikeability/operator_worker.py"]
 
 [tool.ruff]
 line-length = 120
