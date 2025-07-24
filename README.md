@@ -55,7 +55,7 @@ This will make debugging easier at a later stage.
 If the infrastructure is reachable you can copy [.env.base_template](.env.base_template) to `.env.base` and then run
 
 ```shell
-DOCKER_BUILDKIT=1 docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
+docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
 docker run --env-file .env.base --network=host heigit/{bikeability}:devel
 ```
 
@@ -64,21 +64,9 @@ Make sure the cone-token is copied to the text-file named `CI_JOB_TOKEN` that is
 To deploy this plugin to the central docker repository run
 
 ```shell
-DOCKER_BUILDKIT=1 docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
+docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
 docker image push heigit/{bikeability}:devel
 ```
 
-### Kaniko
-
-To test the docker build from Kaniko run
-
-```shell
-docker run -v ./:/workspace \
-    -v ./CI_JOB_TOKEN:/kaniko/CI_JOB_TOKEN \
-    gcr.io/kaniko-project/executor:v1.14.0-debug \
-    --dockerfile /workspace/Dockerfile.Kaniko \
-    --context dir:///workspace/ \
-    --no-push
-```
-
-Don't forget to add the plugin to the [infrastructure](https://gitlab.heigit.org/climate-action/infrastructure) and deploy it, once ready.
+To mimic the build behaviour of the CI you have to add --build-arg CI_COMMIT_SHORT_SHA=$(git rev-parse --short HEAD)
+to the above command.
