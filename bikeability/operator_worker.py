@@ -59,6 +59,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             version=Version.parse(importlib.metadata.version('Bikeability')),
             concerns={Concern.MOBILITY_CYCLING},
             purpose=Path('resources/info/purpose.md'),
+            teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
             methodology=Path('resources/info/methodology.md'),
             sources=Path('resources/literature.bib'),
             demo_input_parameters=ComputeInputBikeability(),
