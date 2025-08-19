@@ -14,6 +14,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Added pytest-coverage to project and ci ([#82](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/82))
 - Update ruff config and pre-commit-hooks for dev setup ([#54](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/82))
 - Remove Kaniko from build processs ([#95](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/95))
+- Add teaser to plugin
 
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 
