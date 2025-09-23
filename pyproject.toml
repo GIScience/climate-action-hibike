@@ -21,10 +21,12 @@ approvaltests = "^12.2.0"
 pytest-approvaltests = "^0.2.4"
 responses = "^0.24.1"
 pytest-cov = "^6.1.1"
+ohsome-filter-to-sql = {git = "https://github.com/GIScience/ohsome-filter-to-sql.git"}
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
+
 
 [tool.coverage.run]
 omit = ["test/*", "bikeability/input.py", "bikeability/operator_worker.py"]

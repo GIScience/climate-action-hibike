@@ -10,3 +10,4 @@ ohsome_log/
 
 .coverage
 coverage.xml
+.vscode/*

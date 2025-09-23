@@ -1,1 +1,0 @@
-geometry:polygon and amenity=parking and orientation=parallel

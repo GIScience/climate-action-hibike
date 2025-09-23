@@ -15,6 +15,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Update ruff config and pre-commit-hooks for dev setup ([#54](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/82))
 - Remove Kaniko from build processs ([#95](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/95))
 - Add teaser to plugin and restore the previous purpose
+- Tests for ohsome filter functions now rely on validation of their grammar by ohsome-filter-to-sql instead of approving filters in plain text ([#100]((https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/100)))
 
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 
