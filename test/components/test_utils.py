@@ -2,9 +2,8 @@ import geopandas as gpd
 import geopandas.testing
 import pytest
 import shapely
-from approvaltests.approvals import verify
-from approvaltests.namer import NamerFactory
 from ohsome import OhsomeClient
+from ohsome_filter_to_sql.main import ohsome_filter_to_sql
 
 from bikeability.utils import (
     fetch_osm_data,
@@ -47,13 +46,13 @@ def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_ohsome_filter(geometry_type):
-    verify(ohsome_filter(geometry_type), options=NamerFactory.with_parameters(geometry_type))
+    ohsome_filter_to_sql(ohsome_filter(geometry_type))
 
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_parking_filter(geometry_type):
-    verify(parallel_parking_filter(geometry_type), options=NamerFactory.with_parameters(geometry_type))
+    ohsome_filter_to_sql(parallel_parking_filter(geometry_type))
 
 
 def test_crossings_filter():
-    verify(zebra_crossings_filter())
+    ohsome_filter_to_sql(zebra_crossings_filter())

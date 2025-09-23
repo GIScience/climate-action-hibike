@@ -71,6 +71,18 @@ files = [
 ]
 
 [[package]]
+name = "antlr4-python3-runtime"
+version = "4.13.2"
+description = "ANTLR 4.13.2 runtime for Python 3"
+optional = false
+python-versions = "*"
+groups = ["test"]
+files = [
+    {file = "antlr4_python3_runtime-4.13.2-py3-none-any.whl", hash = "sha256:fe3835eb8d33daece0e799090eda89719dbccee7aa39ef94eed3818cafa5a7e8"},
+    {file = "antlr4_python3_runtime-4.13.2.tar.gz", hash = "sha256:909b647e1d2fc2b70180ac586df3933e38919c85f98ccc656a96cd3f25ef3916"},
+]
+
+[[package]]
 name = "approval-utilities"
 version = "12.2.1"
 description = "Utilities for your production code that work well with approvaltests"
@@ -1599,6 +1611,25 @@ requests = ">=2.25.1,<3.0.0"
 urllib3 = ">=2.0.2,<3.0.0"
 
 [[package]]
+name = "ohsome-filter-to-sql"
+version = "2025.9.15"
+description = "Translate ohsome API filter to SQL WHERE clause ready to be used with ohsomeDB"
+optional = false
+python-versions = ">=3.11"
+groups = ["test"]
+files = []
+develop = false
+
+[package.dependencies]
+antlr4-python3-runtime = ">=4.13.2"
+
+[package.source]
+type = "git"
+url = "https://github.com/GIScience/ohsome-filter-to-sql.git"
+reference = "HEAD"
+resolved_reference = "fbfbd8040adfd0097fd626006e8afc256452d023"
+
+[[package]]
 name = "packaging"
 version = "25.0"
 description = "Core utilities for Python packages"
@@ -3048,4 +3079,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.11.5"
-content-hash = "694ce54d79545754afc83e6f6bb28c2e613a0b9e94fbaf0ce0ab5c86841f8b63"
+content-hash = "d89ff96e2fde0397dc9ccaaba5aeb82a87fcd819f9d74350bbfcf6fb8a34dbe3"
