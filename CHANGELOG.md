@@ -16,6 +16,11 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Remove Kaniko from build processs ([#95](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/95))
 - Add teaser to plugin and restore the previous purpose
 - Tests for ohsome filter functions now rely on validation of their grammar by ohsome-filter-to-sql instead of approving filters in plain text ([#100]((https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/100)))
+- Move PathCategoryFilters from a class to a module ([#98](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/98))
+- Harden maxspeed filters and move them to a separate function ([#99](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/99))
+- Handle maxspeed tags in mph ([#103](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/103))
+- Added "shared with cars of unknown speed" category to path categories ([#86](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/86))
+- Added 'maxspeed:backward' tag to maxspeed filters ([#102](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/102))
 
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 
