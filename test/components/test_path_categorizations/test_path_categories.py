@@ -1,182 +1,241 @@
-from functools import partial
-
-import geopandas as gpd
 import pandas as pd
-import pytest
-import shapely
-from ohsome import OhsomeClient, OhsomeResponse
-from urllib3 import Retry
 
 from bikeability.indicators.path_categories import (
     PathCategory,
     apply_path_category_filters,
-    recategorise_zebra_crossings,
 )
-from bikeability.utils import ohsome_filter, zebra_crossings_filter
 
+EXCLUSIVE_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/246387137', 'way/118975501'],
+        '@other_tags': [{'highway': 'cycleway', 'foot': 'no'}, {'highway': 'path', 'foot': 'yes', 'segregated': 'yes'}],
+        'expected_category': [PathCategory.EXCLUSIVE, PathCategory.EXCLUSIVE],
+    }
+)
 
-@pytest.fixture(scope='module')
-def bpolys():
-    """Small bounding boxes."""
-    bpolys = gpd.GeoSeries(
-        data=[
-            # large box around Heidelberg:
-            shapely.box(8.65354, 49.37019, 8.7836, 49.4447),
-            # Lagos: (small box for way/152645928, commented out for speed reasons)
-            # shapely.box(3.354680, 6.444900, 3.369928, 6.455165),
-            # Ford:
-            shapely.box(8.786665, 49.370061, 8.786965, 49.370305),
-            # Motorroad:
-            shapely.box(8.491960, 49.476107, 8.496047, 49.477822),
+SHARED_WITH_PEDESTRIANS_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/587937936', 'way/27620739', 'way/406929620', 'way/208162626', 'way/156194371'],
+        '@other_tags': [
+            {'highway': 'path'},
+            {'highway': 'path', 'bicycle': 'designated', 'foot': 'designated', 'segregated': 'no'},
+            {'highway': 'footway', 'bicycle': 'yes'},
+            {'highway': 'track'},
+            {'highway': 'footway', 'bicycle': 'yes'},
         ],
-        crs='EPSG:4326',
+        'expected_category': [
+            PathCategory.SHARED_WITH_PEDESTRIANS,
+            PathCategory.SHARED_WITH_PEDESTRIANS,
+            PathCategory.SHARED_WITH_PEDESTRIANS,
+            PathCategory.SHARED_WITH_PEDESTRIANS,
+            PathCategory.SHARED_WITH_PEDESTRIANS,
+        ],
+    }
+)
+
+
+SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF = pd.DataFrame(
+    {
+        '@osmId': [
+            'way/34386123',
+            'way/27342468',
+            'way/715905252',
+            'way/35978590',
+            'way/274709010',
+            'way/440466305',
+            'way/83188869',
+            'way/191212309',
+        ],
+        '@other_tags': [
+            {'highway': 'living_street', 'bicycle': 'yes'},
+            {'highway': 'living_street', 'cycleway:both': 'no'},
+            {'highway': 'service', 'bicycle': 'yes'},
+            {'highway': 'service'},
+            {'highway': 'residential', 'maxspeed': '10', 'cycleway:both': 'no'},
+            {'highway': 'living_street', 'maxspeed': 'walk'},
+            {'highway': 'residential', 'maxspeed': '15', 'cycleway:both': 'no'},
+            {'highway': 'residential', 'bicycle': 'designated', 'maxspeed': '15', 'motorvehicle': 'destination'},
+        ],
+        'expected_category': [
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+        ],
+    }
+)
+
+
+SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/37685272', 'way/244287984', 'way/258562283', 'way/28891216', 'way/932097064', 'way/277455037'],
+        '@other_tags': [
+            {
+                'highway': 'residential',
+                'bicycle': 'designated',
+                'bicycle_road': 'yes',
+                'maxspeed': '30',
+                'motor_vehicle': 'yes',
+            },
+            {'highway': 'residential', 'cycleway:both': 'no', 'maxspeed': '20'},
+            {'highway': 'tertiary', 'cycleway:left': 'no', 'cycleway:right': 'lane', 'maxspeed': '30'},
+            {'highway': 'primary', 'cycleway:both': 'lane', 'maxspeed': '30'},
+            {'highway': 'residential', 'maxspeed': '30', 'cycleway:both': 'no'},
+            {'highway': 'tertiary', 'zone:maxspeed': 'DE:30', 'cycleway:right': 'no'},
+        ],
+        'expected_category': [
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+        ],
+    }
+)
+
+
+SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/254010814', 'way/596760204', 'way/26816187'],
+        '@other_tags': [
+            {'highway': 'residential', 'cycleway:both': 'lane', 'maxspeed': '50'},
+            {'highway': 'tertiary', 'cycleway:both': 'no', 'maxspeed': '50'},
+            {'highway': 'residential', 'maxspeed:type': 'DE:urban'},
+        ],
+        'expected_category': [
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+        ],
+    }
+)
+# 'way/152645928', highway=residential # Lagos testcase commented out for speed reasons
+
+
+SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/372602113', 'way/189054375', 'way/155281272'],
+        '@other_tags': [
+            {'highway': 'tertiary', 'maxspeed': '70', 'cycleway:both': 'no'},
+            {'highway': 'unclassified', 'maxspeed:type': 'DE:rural'},
+            {'highway': 'secondary', 'maxspeed': '70', 'cycleway:left': 'no', 'cycleway:right': 'separate'},
+        ],
+        'expected_category': [
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+        ],
+    }
+)
+
+
+SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/25108534', 'way/276155445', 'way/31146043'],
+        '@other_tags': [
+            {'highway': 'primary_link', 'cycleway:both': 'no'},
+            {'highway': 'tertiary'},
+            {'highway': 'tertiary', 'cycleway': 'no'},
+        ],
+        'expected_category': [
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+        ],
+    }
+)
+
+
+REQUIRES_DISMOUNTING_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/810025053', 'way/131478149', 'way/24968605', 'way/27797958', 'way/87956068'],
+        '@other_tags': [
+            {'highway': 'footway', 'bicycle': 'dismount'},
+            {'highway': 'steps', 'ramp:bicycle': 'yes'},
+            {'highway': 'steps', 'ramp': 'yes', 'ramp:stroller': 'yes'},
+            {'railway': 'platform'},
+            {'highway': 'track', 'ford': 'yes'},
+        ],
+        'expected_category': [
+            PathCategory.REQUIRES_DISMOUNTING,
+            PathCategory.REQUIRES_DISMOUNTING,
+            PathCategory.REQUIRES_DISMOUNTING,
+            PathCategory.REQUIRES_DISMOUNTING,
+            PathCategory.REQUIRES_DISMOUNTING,
+        ],
+    }
+)
+# 'way/208162626', 'highway': 'footway', 'bicycle': 'yes' overlaps with crossing --> recategorized?
+
+
+PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/694458151', 'way/26028197', 'way/870757384'],
+        '@other_tags': [
+            {'highway': 'footway', 'footway': 'sidewalk'},
+            {'highway': 'footway', 'bicycle': 'no'},
+            {'highway': 'pedestrian', 'bicycle': 'no'},
+        ],
+        'expected_category': [
+            PathCategory.PEDESTRIAN_EXCLUSIVE,
+            PathCategory.PEDESTRIAN_EXCLUSIVE,
+            PathCategory.PEDESTRIAN_EXCLUSIVE,
+        ],
+    }
+)
+
+
+NO_ACCESS_DF = pd.DataFrame(
+    {
+        '@osmId': ['way/320034117', 'way/849049867', 'way/25805786', 'way/4084008', 'way/24635973', 'way/343029968'],
+        '@other_tags': [
+            {'highway': 'trunk'},
+            {'highway': 'secondary', 'bicycle': 'no'},
+            {'highway': 'primary', 'motorroad': 'yes'},
+            {'highway': 'service', 'access': 'no', 'bus': 'yes'},
+            {'highway': 'service', 'access': 'private'},
+            {'highway': 'footway', 'access': 'private'},
+        ],
+        'expected_category': [
+            PathCategory.NO_ACCESS,
+            PathCategory.NO_ACCESS,
+            PathCategory.NO_ACCESS,
+            PathCategory.NO_ACCESS,
+            PathCategory.NO_ACCESS,
+            PathCategory.NO_ACCESS,
+        ],
+    }
+)
+
+
+FILTER_VALIDATION_OBJECTS = pd.concat(
+    [
+        EXCLUSIVE_DF,
+        SHARED_WITH_PEDESTRIANS_DF,
+        SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF,
+        SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF,
+        SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF,
+        SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF,
+        SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF,
+        REQUIRES_DISMOUNTING_DF,
+        PEDESTRIAN_EXCLUSIVE_DF,
+        NO_ACCESS_DF,
+    ]
+)
+
+
+def test_construct_filter_validate():
+    FILTER_VALIDATION_OBJECTS['received_category'] = FILTER_VALIDATION_OBJECTS.apply(
+        apply_path_category_filters, axis=1
     )
-    return bpolys
 
-
-@pytest.fixture(scope='module')
-def request_ohsome(bpolys):
-    return partial(
-        OhsomeClient(
-            user_agent='HeiGIT Climate Action Bikeability Tester', retry=Retry(total=1)
-        ).elements.geometry.post,
-        bpolys=bpolys,
-        properties='tags',
-        time='2024-01-01',
-        timeout=60,
+    pd.testing.assert_series_equal(
+        FILTER_VALIDATION_OBJECTS['received_category'],
+        FILTER_VALIDATION_OBJECTS['expected_category'],
+        check_names=False,
     )
-
-
-validation_objects = {
-    PathCategory.EXCLUSIVE: {'way/246387137', 'way/118975501'},
-    # https://www.openstreetmap.org/way/246387137 highway=cycleway and foot=no
-    # https://www.openstreetmap.org/way/118975501 highway=path and foot=yes and segregated=yes
-    PathCategory.SHARED_WITH_PEDESTRIANS: {
-        'way/587937936',
-        'way/27620739',
-        'way/406929620',
-        'way/208162626',
-        'way/156194371',
-    },
-    # https://www.openstreetmap.org/way/156194371 highway=path and nothing else (except surface tags)
-    # https://www.openstreetmap.org/way/587937936 highway=path and bicycle=designated and foot=designated and segregated=no
-    # https://www.openstreetmap.org/way/27620739 highway=footway and bicycle=yes but no foot tag
-    # https://www.openstreetmap.org/way/406929620 highway=track
-    # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> part not recategorised
-    PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED: {
-        'way/34386123',
-        'way/27342468',
-        'way/715905252',
-        'way/35978590',
-        'way/274709010',
-        'way/440466305',
-        'way/83188869',
-        'way/191212309',
-    },
-    # https://www.openstreetmap.org/way/34386123 highway=living_street and bicycle=yes
-    # https://www.openstreetmap.org/way/27342468 highway=living_street cycleway:both=no
-    # https://www.openstreetmap.org/way/715905252 highway=service and bicycle=yes
-    # https://www.openstreetmap.org/way/35978590 highway=service and no bicycle tag
-    # https://www.openstreetmap.org/way/274709010 highway=residential and maxspeed=10 and cycleway:both=no
-    # https://www.openstreetmap.org/way/440466305 highway=living_street and maxspeed=walk
-    # https://www.openstreetmap.org/way/83188869 highway=residential and maxspeed=15 and cycleway:both=no
-    # https://www.openstreetmap.org/way/191212309 highway=residential and bicylce=designated ("Fahrradstraße") and maxspeed=15 and motorvehicle=destination
-    PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED: {
-        'way/37685272',
-        'way/244287984',
-        'way/258562283',
-        'way/28891216',
-        'way/932097064',
-        'way/277455037',
-    },
-    # https://www.openstreetmap.org/way/37685272 highway=residential and bicycle=designated and bicycle_road=yes ('Fahrradstraße') and maxspeed=30 and motor_vehicle=yes
-    # https://www.openstreetmap.org/way/244287984 highway=residential and cycleway:both=no and maxspeed=20
-    # https://www.openstreetmap.org/way/258562283 highway=tertiary and cycleway:left=no and cycleway:right=lane and maxspeed=30
-    # https://www.openstreetmap.org/way/28891216 highway=primary cycleway:both=lane and maxspeed=30
-    # https://www.openstreetmap.org/way/932097064 highway=residential and maxspeed=30 and cycleway:both=no
-    # https://www.openstreetmap.org/way/277455037 highway=tertiary and zone:maxspeed=DE:30 and cycleway:right=no
-    PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED: {
-        'way/254010814',
-        'way/596760204',
-        'way/26816187',
-        # 'way/152645928', # Lagos testcase commented out for speed reasons
-    },
-    # https://www.openstreetmap.org/way/254010814 highway=residential and cycleway:both=lane and maxspeed=50
-    # https://www.openstreetmap.org/way/596760204 highway=tertiary and cycleway:both=no and maxspeed=50
-    # https://www.openstreetmap.org/way/26816187 highway=residential and maxspeed:type=DE:urban
-    # https://www.openstreetmap.org/way/152645928 highway=residential (commented out for speed reasons)
-    PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED: {'way/372602113', 'way/189054375', 'way/155281272'},
-    # https://www.openstreetmap.org/way/372602113 highway=tertiary and mayspeed=70 and cycleway:both=no
-    # https://www.openstreetmap.org/way/189054375 highway=unclassified and maxspeed:type=DE:rural
-    # https://www.openstreetmap.org/way/155281272 highway=secondary and maxspeed=70 and cycleway:left=no and cyclewayright=separate
-    PathCategory.REQUIRES_DISMOUNTING: {
-        'way/810025053',
-        'way/131478149',
-        'way/24968605',
-        'way/27797958',
-        'way/87956068',
-        'way/208162626',
-    },
-    # https://www.openstreetmap.org/way/810025053 highway=footway and bicycle=dismount
-    # https://www.openstreetmap.org/way/131478149 highway=steps and ramp:bicycle=yes
-    # https://www.openstreetmap.org/way/24968605 highway=steps and ramp=yes and ramp:stroller=yes
-    # https://www.openstreetmap.org/way/27797958 railway=platform
-    # https://www.openstreetmap.org/way/87956068 highway=track and ford=yes
-    # https://www.openstreetmap.org/way/208162626 highway=footway and bicycle yes, overlaps with crossing -> recategorised
-    PathCategory.PEDESTRIAN_EXCLUSIVE: {
-        'way/694458151',
-        'way/26028197',
-        'way/870757384',
-    },
-    # https://www.openstreetmap.org/way/694458151 highway=footway and footway=sidewalk (EXCLUSIVE PEDESTRIAN)
-    # https://www.openstreetmap.org/way/26028197 highway=footway and bicycle=no (EXCLUSIVE PEDESTRIAN)
-    # https://www.openstreetmap.org/way/870757384 highway=pedestrian and bicycle=no (EXCLUSIVE PEDESTRIAN)
-    PathCategory.NO_ACCESS: {
-        'way/320034117',
-        'way/849049867',
-        'way/25805786',
-        'way/4084008',
-        'way/24635973',
-        'way/343029968',
-    },
-    # https://www.openstreetmap.org/way/4084008 highway=trunk
-    # https://www.openstreetmap.org/way/24635973 highway=secondary and bicycle=no
-    # https://www.openstreetmap.org/way/343029968 highway=primary and motorroad=yes
-    # https://www.openstreetmap.org/way/849049867 highway=service and access=no and bus=yes (RESTRICTED ACCESS)
-    # https://www.openstreetmap.org/way/25805786 highway=service and access=private (RESTRICTED ACCESS)
-    # https://www.openstreetmap.org/way/320034117 highway=footway and access=private (RESTRICTED ACCESS)
-    PathCategory.UNKNOWN: set(),
-}
-
-
-# I would prefer to make this fixture return different filters depending on a parameter
-@pytest.fixture(scope='module')
-def id_filter() -> str:
-    """Optimization to make the ohsome API request time faster."""
-    full_ids = set().union(*validation_objects.values())
-    return f'id:({",".join(full_ids)})'
-
-
-@pytest.fixture(scope='module')
-def osm_return_data(request_ohsome: partial[OhsomeResponse], id_filter: str) -> pd.DataFrame:
-    osm_line_data = request_ohsome(filter=f'({ohsome_filter("line")})  and ({id_filter})').as_dataframe(
-        multi_index=False
-    )
-    osm_line_data['category'] = osm_line_data.apply(apply_path_category_filters, axis=1)
-
-    osm_zebra_crossing_data = request_ohsome(filter=zebra_crossings_filter()).as_dataframe(multi_index=False)
-    osm_line_data = recategorise_zebra_crossings(osm_line_data, osm_zebra_crossing_data)
-
-    osm_polygon_data = request_ohsome(filter=f'({ohsome_filter("polygon")})  and ({id_filter})').as_dataframe(
-        multi_index=False
-    )
-    osm_polygon_data['category'] = osm_polygon_data.apply(apply_path_category_filters, axis=1)
-
-    return pd.concat([osm_line_data, osm_polygon_data])
-
-
-@pytest.mark.parametrize('category', validation_objects)
-def test_construct_filter_validate(osm_return_data: pd.DataFrame, category: PathCategory):
-    osm_return_data = osm_return_data[osm_return_data['category'] == category]
-
-    assert set(osm_return_data['@osmId']) == validation_objects[category]

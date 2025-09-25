@@ -124,7 +124,10 @@ def test_line() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
         data={
             '@osmId': ['way/171574582', 'way/171574582'],
-            'category': [PathCategory.NO_ACCESS, PathCategory.SHARED_WITH_PEDESTRIANS],
+            'category': [
+                PathCategory.NO_ACCESS,
+                PathCategory.SHARED_WITH_PEDESTRIANS,
+            ],
             'geometry': [line_geom, line_geom],
             '@other_tags': [
                 {'bicycle': 'no'},
