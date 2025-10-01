@@ -4,6 +4,7 @@ from typing import Union
 import geopandas as gpd
 import matplotlib
 import shapely
+from climatoology.utility.exception import ClimatoologyUserError
 from matplotlib.colors import Normalize, to_hex
 from ohsome import OhsomeClient
 from pydantic_extra_types.color import Color
@@ -16,6 +17,22 @@ from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
 
 log = logging.getLogger(__name__)
+
+
+def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, count_limit: int) -> None:
+    """
+    Check whether paths count is over than limit. (NOTE: just check path_lines)
+    """
+
+    ohsome_responses = ohsome.elements.count.post(bpolys=aoi, filter=ohsome_filter('line')).data
+    path_lines_count = sum([response['value'] for response in ohsome_responses['result']])
+    log.info(f'There are {path_lines_count} are selected.')
+    if path_lines_count > count_limit:
+        raise ClimatoologyUserError(
+            f'There are too many path segments in the selected area: {path_lines_count} path segments. '
+            f'Currently, only areas with a maximum of 500,000 path segments are allowed. '
+            f'Please select a smaller area or a sub-region of your selected area.'
+        )
 
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeClient) -> gpd.GeoDataFrame:

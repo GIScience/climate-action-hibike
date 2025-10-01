@@ -119,6 +119,19 @@ def ohsome_api_parking(responses_mock):
 
 
 @pytest.fixture
+def ohsome_api_count(responses_mock):
+    with open('resources/test/ohsome_count_response.json', 'rb') as paths_count_file:
+        paths_count_body = paths_count_file.read()
+
+    responses_mock.post(
+        'https://api.ohsome.org/v1/elements/count',
+        body=paths_count_body,
+    )
+
+    return responses_mock
+
+
+@pytest.fixture
 def test_line() -> gpd.GeoDataFrame:
     line_geom = shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)])
     return gpd.GeoDataFrame(

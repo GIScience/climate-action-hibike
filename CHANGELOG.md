@@ -22,6 +22,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Added "shared with cars of unknown speed" category to path categories ([#86](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/86))
 - Added 'maxspeed:backward' tag to maxspeed filters ([#102](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/102))
 - Update the colors of surface types in hiBike to match hiWalk ([#94](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/94))
+- Update result size (paths count) check method and directly request ohsome element count api([#104](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/104))
 
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 

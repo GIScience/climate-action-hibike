@@ -15,6 +15,7 @@ def test_plugin_compute_request(
     ohsome_api_osm,
     ohsome_api_parking,
     ohsome_api_zebra,
+    ohsome_api_count,
 ):
     computed_artifacts = operator.compute(
         resources=compute_resources,

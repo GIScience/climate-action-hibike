@@ -9,7 +9,6 @@ import pandas as pd
 import shapely
 from climatoology.base.baseoperator import AoiProperties, BaseOperator, ComputationResources, _Artifact
 from climatoology.base.info import Concern, PluginAuthor, _Info, generate_plugin_info
-from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from semver import Version
 from shapely import make_valid
@@ -29,6 +28,7 @@ from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.surface_types import get_surface_types
 from bikeability.input import ComputeInputBikeability
 from bikeability.utils import (
+    check_paths_count_limit,
     fetch_osm_data,
     get_buffered_aoi,
     ohsome_filter,
@@ -77,17 +77,16 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
     ) -> List[_Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
-        line_paths, polygon_paths = self.get_paths(get_buffered_aoi(aoi))
+        buffered_aoi = get_buffered_aoi(aoi)
 
-        number_of_paths = len(line_paths)
-        if number_of_paths > 500000:
-            raise ClimatoologyUserError(
-                f'There are too many path segments in the selected area: {number_of_paths} path segments. Currently, only areas with a maximum of 500,000 path segments are allowed. Please select a smaller area or a sub-region of your selected area.'
-            )
+        log.debug('Get the number of the paths (lines & polygons) which will return.')
+        check_paths_count_limit(buffered_aoi, self.ohsome, 500000)
+
+        line_paths, polygon_paths = self.get_paths(buffered_aoi)
 
         line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths)
 
-        zebra_crossing_nodes = self.get_zebra_crossing_nodes(get_buffered_aoi(aoi))
+        zebra_crossing_nodes = self.get_zebra_crossing_nodes(buffered_aoi)
         line_paths = recategorise_zebra_crossings(line_paths, zebra_crossing_nodes)
 
         path_categories_artifact = build_path_categories_artifact(line_paths, polygon_paths, aoi, resources)
@@ -98,7 +97,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         line_paths = get_surface_types(line_paths)
         surface_types_artifact = build_surface_types_artifact(line_paths, aoi, resources)
 
-        parallel_car_parking = self.get_parallel_parking(get_buffered_aoi(aoi))
+        parallel_car_parking = self.get_parallel_parking(buffered_aoi)
         path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking)
         dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, aoi, resources)
         return [path_categories_artifact, smoothness_artifact, surface_types_artifact, dooring_risk_artifact]
