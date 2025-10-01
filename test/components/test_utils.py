@@ -2,15 +2,29 @@ import geopandas as gpd
 import geopandas.testing
 import pytest
 import shapely
+from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from ohsome_filter_to_sql.main import ohsome_filter_to_sql
 
 from bikeability.utils import (
+    check_paths_count_limit,
     fetch_osm_data,
     ohsome_filter,
     parallel_parking_filter,
     zebra_crossings_filter,
 )
+
+
+def test_check_paths_count_limit(default_aoi, expected_compute_input, responses_mock):
+    with open('resources/test/ohsome_count_response.json', 'rb') as paths_count:
+        responses_mock.post(
+            'https://api.ohsome.org/v1/elements/count',
+            body=paths_count.read(),
+        )
+
+    # test false situation
+    with pytest.raises(ClimatoologyUserError):
+        check_paths_count_limit(default_aoi, OhsomeClient(), 5000)
 
 
 def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
