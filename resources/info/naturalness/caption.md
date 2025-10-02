@@ -1,0 +1,1 @@
+How green are this path's surroundings?

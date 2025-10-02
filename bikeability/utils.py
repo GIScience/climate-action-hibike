@@ -3,6 +3,7 @@ from typing import Union
 
 import geopandas as gpd
 import matplotlib
+import pandas as pd
 import shapely
 from climatoology.utility.exception import ClimatoologyUserError
 from matplotlib.colors import Normalize, to_hex
@@ -56,6 +57,14 @@ def get_qualitative_color(
         return Color(to_hex(cmap(-9999)))
     else:
         return Color(to_hex(cmap(category_norm[category])))
+
+
+def get_continous_colors(category: pd.Series, cmap_name: str) -> list[Color]:
+    cmap = matplotlib.colormaps.get(cmap_name)
+    cmap.set_bad('#808080')
+    colors = category.apply(lambda v: Color(to_hex(cmap(v))))
+
+    return colors
 
 
 def ohsome_filter(geometry_type: str) -> str:
