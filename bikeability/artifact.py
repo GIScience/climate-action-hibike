@@ -4,10 +4,12 @@ import geopandas as gpd
 import pandas as pd
 import shapely
 from climatoology.base.artifact import (
+    ContinuousLegendData,
     _Artifact,
     create_geojson_artifact,
 )
 from climatoology.base.computation import ComputationResources
+from climatoology.utility.exception import ClimatoologyUserError
 from pydantic_extra_types.color import Color
 
 from bikeability.indicators.dooring_risk import DooringRiskCategory
@@ -15,6 +17,7 @@ from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
 from bikeability.utils import (
+    get_continous_colors,
     get_qualitative_color,
 )
 
@@ -131,3 +134,51 @@ def build_dooring_artifact(
         resources=resources,
         filename='cycling_infrastructure_dooring_risk',
     )
+
+
+def build_naturalness_artifact(
+    paths_all: gpd.GeoDataFrame,
+    clip_aoi: shapely.MultiPolygon,
+    resources: ComputationResources,
+    cmap_name: str = 'YlGn',
+) -> list[_Artifact]:
+    for path_geom_type in paths_all.geom_type.unique():
+        paths_all[paths_all.geom_type == path_geom_type] = paths_all[paths_all.geom_type == path_geom_type].clip(
+            clip_aoi, keep_geom_type=True
+        )
+
+    # If no good data is returned (e.g. due to an error), return a text artifact with a simple message
+    if paths_all['naturalness'].isna().all():
+        raise ClimatoologyUserError(
+            'here was an error calculating greenness in this computation. '
+            'The returned greenness is empty. '
+            'Contact the developers for more information.'
+        )
+
+    # Set negative values (e.g. water) to 0, and set nan's to -999 to colour grey for unknown
+    paths_all.loc[paths_all['naturalness'] < 0, 'naturalness'] = 0.0
+
+    # Clean data for labels
+    paths_all['naturalness'] = paths_all['naturalness'].round(2)
+
+    # Define colors and legend
+    color = get_continous_colors(paths_all['naturalness'], cmap_name)
+    legend = ContinuousLegendData(
+        cmap_name=cmap_name,
+        ticks={'Low (0)': 0.0, 'High (1)': 1.0},
+    )
+
+    # Build artifact
+    map_artifact = create_geojson_artifact(
+        features=paths_all.geometry,
+        layer_name='Path Greenness',
+        caption=Path('resources/info/naturalness/caption.md').read_text(),
+        description=Path('resources/info/naturalness/description.md').read_text(),
+        label=paths_all.naturalness.to_list(),
+        color=color,
+        legend_data=legend,
+        resources=resources,
+        filename='cycling_infrastructure_path_greenness',
+    )
+
+    return [map_artifact]

@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 import geopandas as gpd
 import pytest
@@ -6,6 +7,7 @@ import responses
 import shapely
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
+from shapely import LineString
 
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.input import ComputeInputBikeability
@@ -54,8 +56,8 @@ def responses_mock():
 
 
 @pytest.fixture
-def operator():
-    return OperatorBikeability()
+def operator(naturalness_utility_mock):
+    return OperatorBikeability(naturalness_utility_mock)
 
 
 @pytest.fixture
@@ -202,3 +204,20 @@ def expected_parking_polygon() -> gpd.GeoDataFrame:
         },
         crs='EPSG:4326',
     )
+
+
+@pytest.fixture
+def naturalness_utility_mock():
+    with patch('climatoology.utility.Naturalness.NaturalnessUtility') as naturalness_utility:
+        vectors = gpd.GeoSeries(
+            index=[1, 2],
+            data=[
+                LineString([[12.4, 48.25], [12.4, 48.30]]),
+                LineString([[12.41, 48.25], [12.41, 48.30]]),
+            ],
+            crs='EPSG:4326',
+        )
+        return_gdf = gpd.GeoDataFrame(index=[1, 2], data={'median': [0.6, 0.6]}, geometry=vectors, crs='EPSG:4326')
+
+        naturalness_utility.compute_vector.return_value = return_gdf
+        yield naturalness_utility

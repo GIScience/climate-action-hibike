@@ -9,24 +9,27 @@ import pandas as pd
 import shapely
 from climatoology.base.baseoperator import AoiProperties, BaseOperator, ComputationResources, _Artifact
 from climatoology.base.info import Concern, PluginAuthor, _Info, generate_plugin_info
+from climatoology.utility.Naturalness import NaturalnessIndex, NaturalnessUtility
 from ohsome import OhsomeClient
 from semver import Version
 from shapely import make_valid
 
 from bikeability.artifact import (
     build_dooring_artifact,
+    build_naturalness_artifact,
     build_path_categories_artifact,
     build_smoothness_artifact,
     build_surface_types_artifact,
 )
 from bikeability.indicators.dooring_risk import get_dooring_risk
+from bikeability.indicators.naturalness import get_naturalness
 from bikeability.indicators.path_categories import (
     categorize_paths,
     recategorise_zebra_crossings,
 )
 from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.surface_types import get_surface_types
-from bikeability.input import ComputeInputBikeability
+from bikeability.input import BikeabilityIndicators, ComputeInputBikeability
 from bikeability.utils import (
     check_paths_count_limit,
     fetch_osm_data,
@@ -40,10 +43,13 @@ log = logging.getLogger(__name__)
 
 
 class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
-    def __init__(self):
+    def __init__(self, naturalness_utility: NaturalnessUtility):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
         log.debug('Initialised bikeability operator with ohsome client')
+
+        self.naturalness_utility = naturalness_utility
+        log.debug('Initialised bikeability operator with naturalness client')
 
     def info(self) -> _Info:
         info = generate_plugin_info(
@@ -100,7 +106,24 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         parallel_car_parking = self.get_parallel_parking(buffered_aoi)
         path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking)
         dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, aoi, resources)
-        return [path_categories_artifact, smoothness_artifact, surface_types_artifact, dooring_risk_artifact]
+
+        return_artifacts = [
+            path_categories_artifact,
+            smoothness_artifact,
+            surface_types_artifact,
+            dooring_risk_artifact,
+        ]
+
+        # naturalness
+        if BikeabilityIndicators.NATURALNESS in params.optional_indicators:
+            with self.catch_exceptions(indicator_name='Greenness', resources=resources):
+                paths_nature = get_naturalness(
+                    line_paths, polygon_paths, self.naturalness_utility, NaturalnessIndex.NDVI
+                )
+                naturalness_artifact = build_naturalness_artifact(paths_nature, aoi, resources)
+                return_artifacts.extend(naturalness_artifact)
+
+        return return_artifacts
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')
