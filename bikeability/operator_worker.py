@@ -15,8 +15,10 @@ from semver import Version
 from shapely import make_valid
 
 from bikeability.artifact import (
+    build_aoi_summary_category_stacked_bar_artifact,
     build_dooring_artifact,
     build_naturalness_artifact,
+    build_naturalness_summary_bar_artifact,
     build_path_categories_artifact,
     build_smoothness_artifact,
     build_surface_types_artifact,
@@ -30,10 +32,12 @@ from bikeability.indicators.path_categories import (
 from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.surface_types import get_surface_types
 from bikeability.input import BikeabilityIndicators, ComputeInputBikeability
+from bikeability.path_summarisation import summarise_aoi, summarise_naturalness
 from bikeability.utils import (
     check_paths_count_limit,
     fetch_osm_data,
     get_buffered_aoi,
+    get_utm_zone,
     ohsome_filter,
     parallel_parking_filter,
     zebra_crossings_filter,
@@ -107,11 +111,17 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking)
         dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, aoi, resources)
 
+        aoi_summary_category_stacked_bar = summarise_aoi(line_paths, get_utm_zone(aoi))
+        aoi_summary_category_stacked_bar_artifact = build_aoi_summary_category_stacked_bar_artifact(
+            aoi_summary_category_stacked_bar, resources
+        )
+
         return_artifacts = [
             path_categories_artifact,
             smoothness_artifact,
             surface_types_artifact,
             dooring_risk_artifact,
+            aoi_summary_category_stacked_bar_artifact,
         ]
 
         # naturalness
@@ -122,6 +132,11 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                 )
                 naturalness_artifact = build_naturalness_artifact(paths_nature, aoi, resources)
                 return_artifacts.extend(naturalness_artifact)
+                naturalness_summary_bar = summarise_naturalness(paths=paths_nature, projected_crs=get_utm_zone(aoi))
+                naturalness_summary_bar_artifact = build_naturalness_summary_bar_artifact(
+                    aoi_aggregate=naturalness_summary_bar, resources=resources
+                )
+                return_artifacts.extend(naturalness_summary_bar_artifact)
 
         return return_artifacts
 

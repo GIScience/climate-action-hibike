@@ -26,7 +26,7 @@ def test_plugin_compute_request_minimal(
         params=expected_compute_input,
     )
 
-    assert len(computed_artifacts) == 4
+    assert len(computed_artifacts) == 5
     for artifact in computed_artifacts:
         assert isinstance(artifact, _Artifact)
 
@@ -52,6 +52,6 @@ def test_plugin_compute_request_all_optionals(
         params=expected_compute_input,
     )
 
-    assert len(computed_artifacts) == 5
+    assert len(computed_artifacts) == 7
     for artifact in computed_artifacts:
         assert isinstance(artifact, _Artifact)

@@ -59,12 +59,12 @@ def get_qualitative_color(
         return Color(to_hex(cmap(category_norm[category])))
 
 
-def get_continous_colors(category: pd.Series, cmap_name: str) -> list[Color]:
+def get_continuous_colors(category: pd.Series, cmap_name: str) -> list[Color]:
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=1)
     cmap = matplotlib.colormaps.get(cmap_name)
     cmap.set_bad('#808080')
-    colors = category.apply(lambda v: Color(to_hex(cmap(v))))
-
-    return colors
+    mapped_colors = [Color(matplotlib.colors.to_hex(col)) for col in cmap(norm(category))]
+    return mapped_colors
 
 
 def ohsome_filter(geometry_type: str) -> str:

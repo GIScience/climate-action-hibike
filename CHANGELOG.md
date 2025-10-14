@@ -27,6 +27,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 - Add greenness(naturalness) indicator into hiBike ([#38](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/38))
+- Add histogram for greenness and summary chart for path categories ([#97](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/97))
 
 ## [1.1.5](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/1.1.5) - 2025-06-04
 
