@@ -221,3 +221,13 @@ def naturalness_utility_mock():
 
         naturalness_utility.compute_vector.return_value = return_gdf
         yield naturalness_utility
+
+
+@pytest.fixture
+def default_path_geometry() -> shapely.LineString:
+    return shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)])
+
+
+@pytest.fixture
+def default_polygon_geometry() -> shapely.Polygon:
+    return shapely.Polygon(((12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22), (12.3, 48.22)))

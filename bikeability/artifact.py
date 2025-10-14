@@ -7,9 +7,11 @@ from climatoology.base.artifact import (
     ContinuousLegendData,
     _Artifact,
     create_geojson_artifact,
+    create_plotly_chart_artifact,
 )
 from climatoology.base.computation import ComputationResources
 from climatoology.utility.exception import ClimatoologyUserError
+from plotly.graph_objects import Figure
 from pydantic_extra_types.color import Color
 
 from bikeability.indicators.dooring_risk import DooringRiskCategory
@@ -17,7 +19,7 @@ from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
 from bikeability.utils import (
-    get_continous_colors,
+    get_continuous_colors,
     get_qualitative_color,
 )
 
@@ -106,6 +108,18 @@ def build_surface_types_artifact(
     )
 
 
+def build_aoi_summary_category_stacked_bar_artifact(
+    aoi_aggregate: Figure, resources: ComputationResources
+) -> _Artifact:
+    return create_plotly_chart_artifact(
+        figure=aoi_aggregate,
+        title='Distribution of Path Categories',
+        caption='How is the total length of paths distributed across the path categories?',
+        resources=resources,
+        filename='aggregation_aoi_category_stacked_bar',
+    )
+
+
 def build_dooring_artifact(
     paths_line: gpd.GeoDataFrame,
     clip_aoi: shapely.MultiPolygon,
@@ -162,7 +176,7 @@ def build_naturalness_artifact(
     paths_all['naturalness'] = paths_all['naturalness'].round(2)
 
     # Define colors and legend
-    color = get_continous_colors(paths_all['naturalness'], cmap_name)
+    color = get_continuous_colors(paths_all['naturalness'], cmap_name)
     legend = ContinuousLegendData(
         cmap_name=cmap_name,
         ticks={'Low (0)': 0.0, 'High (1)': 1.0},
@@ -182,3 +196,15 @@ def build_naturalness_artifact(
     )
 
     return [map_artifact]
+
+
+def build_naturalness_summary_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> list[_Artifact]:
+    chart_artifact = create_plotly_chart_artifact(
+        figure=aoi_aggregate,
+        title='Distribution of Greenness',
+        caption='What length of paths has low, mid, and high NDVI?',
+        resources=resources,
+        filename='aggregation_aoi_naturalness_bar',
+    )
+
+    return [chart_artifact]
