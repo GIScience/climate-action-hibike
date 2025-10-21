@@ -1,8 +1,10 @@
 import pandas as pd
+from ohsome_filter_to_sql.main import ohsome_filter_to_sql
 
-from bikeability.indicators.path_categories import (
+from bikeability.components.path_categories.path_categories import (
     PathCategory,
     apply_path_category_filters,
+    zebra_crossings_filter,
 )
 
 EXCLUSIVE_DF = pd.DataFrame(
@@ -239,3 +241,7 @@ def test_construct_filter_validate():
         FILTER_VALIDATION_OBJECTS['expected_category'],
         check_names=False,
     )
+
+
+def test_crossings_filter():
+    ohsome_filter_to_sql(zebra_crossings_filter())

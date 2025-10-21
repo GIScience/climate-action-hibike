@@ -6,12 +6,10 @@ from climatoology.utility.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
 from ohsome_filter_to_sql.main import ohsome_filter_to_sql
 
-from bikeability.utils import (
+from bikeability.components.utils.utils import (
     check_paths_count_limit,
     fetch_osm_data,
     ohsome_filter,
-    parallel_parking_filter,
-    zebra_crossings_filter,
 )
 
 
@@ -61,12 +59,3 @@ def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_ohsome_filter(geometry_type):
     ohsome_filter_to_sql(ohsome_filter(geometry_type))
-
-
-@pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
-def test_parking_filter(geometry_type):
-    ohsome_filter_to_sql(parallel_parking_filter(geometry_type))
-
-
-def test_crossings_filter():
-    ohsome_filter_to_sql(zebra_crossings_filter())

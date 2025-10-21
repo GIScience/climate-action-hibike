@@ -3,10 +3,14 @@ import logging
 import geopandas as gpd
 import pandas as pd
 import plotly.graph_objects as go
+from climatoology.base.artifact import _Artifact, create_plotly_chart_artifact
+from climatoology.base.computation import ComputationResources
+from plotly.graph_objs import Figure
 from pyproj import CRS
 
-from bikeability.indicators.path_categories import PathCategory
-from bikeability.utils import get_continuous_colors, get_qualitative_color
+from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.utils.colors import get_qualitative_color
+from bikeability.components.utils.utils import Topics, calculate_length
 
 log = logging.getLogger(__name__)
 
@@ -69,55 +73,14 @@ def summarise_aoi(
     return category_fig_stacked_bar
 
 
-def summarise_naturalness(
-    paths: gpd.GeoDataFrame,
-    projected_crs: CRS,
-    length_resolution_m: int = 1000,
-) -> go.Figure:
-    log.info('Summarising naturalness stats')
-    stats = calculate_length(length_resolution_m, paths, projected_crs)
-
-    stats['naturalness_rating'] = stats['naturalness'].apply(lambda x: 0 if x < 0.3 else (0.5 if x < 0.6 else 1))
-
-    naturalness_map = {
-        0: 'Low (< 0.3) ',
-        0.5: 'Medium (0.3 to 0.6)',
-        1: 'High (> 0.6)',
-        -999: 'Unknown greenness',
-    }
-    stats['naturalness_category'] = stats['naturalness_rating'].map(naturalness_map)
-
-    stats = stats.sort_values(
-        by=['naturalness_rating'],
-        ascending=False,
+def build_aoi_summary_category_stacked_bar_artifact(
+    aoi_aggregate: Figure, resources: ComputationResources
+) -> _Artifact:
+    return create_plotly_chart_artifact(
+        figure=aoi_aggregate,
+        title='Distribution of Path Categories',
+        caption='How is the total length of paths distributed across the path categories?',
+        resources=resources,
+        filename='aggregation_aoi_category_stacked_bar',
+        tags={Topics.TRAFFIC, Topics.SUMMARY},
     )
-    summary = stats.groupby(['naturalness_rating', 'naturalness_category'], sort=True)['length'].sum().reset_index()
-
-    bar_colors = get_continuous_colors(summary.naturalness_rating, 'YlGn')
-
-    bar_fig = go.Figure(
-        data=go.Bar(
-            x=summary['naturalness_category'],
-            y=summary['length'],
-            marker_color=[c.as_hex() for c in bar_colors],
-            hovertemplate='%{x}: %{y} km <extra></extra>',
-        )
-    )
-    bar_fig.update_layout(
-        title=dict(
-            subtitle=dict(text='Length (km)', font=dict(size=14)),
-        ),
-        xaxis_title='Length of paths with different greenness levels',
-        yaxis_title=None,
-        margin=dict(t=30, b=60, l=80, r=30),
-    )
-    return bar_fig
-
-
-def calculate_length(length_resolution_m, paths, projected_crs):
-    stats = paths.copy()
-    stats = stats.loc[stats.geometry.geom_type.isin(('MultiLineString', 'LineString'))]
-    stats = stats.to_crs(projected_crs)
-    stats['length'] = stats.length / length_resolution_m
-    stats['length'] = round(stats['length'], 2)
-    return stats

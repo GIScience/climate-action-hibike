@@ -4,7 +4,7 @@ from enum import Enum
 import geopandas as gpd
 import pandas as pd
 
-from bikeability.indicators.path_categories import PathCategory
+from bikeability.components.path_categories.path_categories import PathCategory
 
 log = logging.getLogger(__name__)
 

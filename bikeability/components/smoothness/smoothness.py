@@ -1,11 +1,11 @@
 import logging
 from enum import Enum
-from typing import Dict
 
 import geopandas as gpd
 import pandas as pd
 
-from bikeability.indicators.path_categories import PathCategory
+from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.smoothness import filters
 
 log = logging.getLogger(__name__)
 
@@ -27,25 +27,7 @@ class SmoothnessCategory(Enum):
         return [category for category in cls if category not in cls.get_hidden()]
 
 
-class PathSmoothnessFilters:
-    def too_bumpy_to_ride(self, d: Dict) -> bool:
-        return d.get('smoothness') in ['very_bad', 'horrible', 'very_horrible', 'impassable']
-
-    def bad(self, d: Dict) -> bool:
-        return d.get('smoothness') == 'bad'
-
-    def intermediate(self, d: Dict) -> bool:
-        return d.get('smoothness') == 'intermediate'
-
-    def good(self, d: Dict) -> bool:
-        return d.get('smoothness') == 'good'
-
-    def excellent(self, d: Dict) -> bool:
-        return d.get('smoothness') == 'excellent'
-
-
 def apply_path_smoothness_filters(row: pd.Series) -> SmoothnessCategory:
-    filters = PathSmoothnessFilters()
     match row['@other_tags']:
         case x if filters.too_bumpy_to_ride(x):
             return SmoothnessCategory.TOO_BUMPY_TO_RIDE

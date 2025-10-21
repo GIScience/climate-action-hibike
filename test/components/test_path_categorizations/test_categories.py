@@ -3,7 +3,7 @@ import pytest
 import shapely
 from geopandas import testing
 
-from bikeability.indicators.path_categories import (
+from bikeability.components.path_categories.path_categories import (
     PathCategory,
     categorize_paths,
     recategorise_zebra_crossings,

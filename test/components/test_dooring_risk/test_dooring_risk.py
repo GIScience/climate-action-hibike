@@ -5,18 +5,19 @@ import pytest
 import shapely
 from approvaltests import verify
 from ohsome import OhsomeClient
+from ohsome_filter_to_sql.main import ohsome_filter_to_sql
 from pandas.testing import assert_series_equal
 
-from bikeability.indicators.dooring_risk import (
+from bikeability.components.dooring_risk.dooring_risk import (
     DooringRiskCategory,
     apply_dooring_filters,
     find_nearest_parking,
     get_dooring_risk,
-)
-from bikeability.indicators.path_categories import PathCategory
-from bikeability.utils import (
-    fetch_osm_data,
     parallel_parking_filter,
+)
+from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.utils.utils import (
+    fetch_osm_data,
 )
 
 expected_parking_line = gpd.GeoDataFrame(
@@ -152,6 +153,11 @@ def test_parking_filter(responses_mock, default_aoi, geometry_type, expected_par
 
     geopandas.testing.assert_geodataframe_equal(fetch_parking_data, expected_parking_data, check_like=True)
     assert fetch_parking_data.geom_type[0] == expected_geometry_type
+
+
+@pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
+def test_parking_filter_syntax(geometry_type):
+    ohsome_filter_to_sql(parallel_parking_filter(geometry_type))
 
 
 def test_dooring_filter(dooring_test_cases):

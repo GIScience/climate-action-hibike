@@ -15,37 +15,39 @@ from ohsome import OhsomeClient
 from semver import Version
 from shapely import make_valid
 
-from bikeability.artifact import (
-    build_aoi_summary_category_stacked_bar_artifact,
-    build_dooring_artifact,
-    build_naturalness_artifact,
-    build_naturalness_summary_bar_artifact,
-    build_path_categories_artifact,
-    build_smoothness_artifact,
-    build_surface_types_artifact,
-)
-from bikeability.core.input import BikeabilityIndicators, ComputeInputBikeability
-from bikeability.indicators.detour_factors import (
+from bikeability.components.detour_factors.detour_analysis import (
     detour_factor_analysis,
 )
-from bikeability.indicators.dooring_risk import get_dooring_risk
-from bikeability.indicators.naturalness import get_naturalness
-from bikeability.indicators.path_categories import (
+from bikeability.components.dooring_risk.dooring_artifacts import build_dooring_artifact
+from bikeability.components.dooring_risk.dooring_risk import get_dooring_risk, parallel_parking_filter
+from bikeability.components.naturalness import (
+    build_naturalness_artifact,
+    build_naturalness_summary_bar_artifact,
+    get_naturalness,
+    summarise_naturalness,
+)
+from bikeability.components.path_categories.path_categories import (
     categorize_paths,
     recategorise_zebra_crossings,
+    zebra_crossings_filter,
 )
-from bikeability.indicators.smoothness import get_smoothness
-from bikeability.indicators.surface_types import get_surface_types
-from bikeability.path_summarisation import summarise_aoi, summarise_naturalness
-from bikeability.utils import (
+from bikeability.components.path_categories.path_category_artifacts import build_path_categories_artifact
+from bikeability.components.path_categories.path_summaries import (
+    build_aoi_summary_category_stacked_bar_artifact,
+    summarise_aoi,
+)
+from bikeability.components.smoothness.smoothness import get_smoothness
+from bikeability.components.smoothness.smoothness_artifacts import build_smoothness_artifact
+from bikeability.components.surface_types.surface_types import get_surface_types
+from bikeability.components.surface_types.surface_types_artifacts import build_surface_types_artifact
+from bikeability.components.utils.utils import (
     check_paths_count_limit,
     fetch_osm_data,
     get_buffered_aoi,
     get_utm_zone,
     ohsome_filter,
-    parallel_parking_filter,
-    zebra_crossings_filter,
 )
+from bikeability.core.input import BikeabilityIndicators, ComputeInputBikeability
 
 log = logging.getLogger(__name__)
 

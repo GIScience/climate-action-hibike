@@ -8,7 +8,7 @@ from shapely import intersects
 from shapely.geometry.multipoint import MultiPoint
 from shapely.ops import split
 
-import bikeability.indicators.path_category_filters as filters
+import bikeability.components.path_categories.path_category_filters as filters
 
 log = logging.getLogger(__name__)
 
@@ -130,3 +130,7 @@ def recategorise_zebra_crossings(
     paths_line = paths_line.set_crs(utm_crs, allow_override=True)
     paths_line = paths_line.to_crs('EPSG:4326')
     return paths_line
+
+
+def zebra_crossings_filter() -> str:
+    return str('geometry:point and type:node and (crossing=zebra or crossing:markings=zebra or crossing_ref=zebra)')

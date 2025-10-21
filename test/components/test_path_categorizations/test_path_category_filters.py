@@ -1,7 +1,7 @@
 import pytest
 
-import bikeability.indicators.path_category_filters as filters
-from bikeability.indicators.path_category_filters import SpeedLimitCategory
+import bikeability.components.path_categories.path_category_filters as filters
+from bikeability.components.path_categories.path_category_filters import SpeedLimitCategory
 
 speed_tags = {
     'walk': SpeedLimitCategory.WALKING_SPEED,
