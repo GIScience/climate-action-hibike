@@ -1,4 +1,5 @@
 import logging
+from enum import StrEnum
 from typing import Union
 
 import geopandas as gpd
@@ -12,12 +13,23 @@ from pydantic_extra_types.color import Color
 from pyproj import CRS, Transformer
 from shapely.ops import transform
 
+# from bikeability.indicators.detour_factors import DETOUR_FACTOR_COLOR_MAP
 from bikeability.indicators.dooring_risk import DooringRiskCategory
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
 
 log = logging.getLogger(__name__)
+
+
+class Topics(StrEnum):
+    TRAFFIC = 'traffic'
+    SURFACE = 'surface'
+    SUMMARY = 'summary'
+    CONNECTIVITY = 'connectivity'
+    BARRIERS = 'barriers'
+    SAFETY = 'safety'
+    GREENNESS = 'greenness'
 
 
 def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, count_limit: int) -> None:

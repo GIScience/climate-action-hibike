@@ -2,26 +2,29 @@ import logging.config
 
 from climatoology.app.plugin import start_plugin
 from climatoology.utility.Naturalness import NaturalnessUtility
+from mobility_tools.ors_settings import ORSSettings
 
-from bikeability.operator_worker import OperatorBikeability
-from bikeability.settings import Settings
+from bikeability.core.operator_worker import OperatorBikeability
+from bikeability.core.settings import Settings
 
 log = logging.getLogger(__name__)
 
 
-def init_plugin() -> None:
+def init_plugin(initialized_settings: Settings, initialized_ors_settings: ORSSettings) -> int | None:
     settings = Settings()
     naturalness_utility = NaturalnessUtility(
         host=settings.naturalness_host,
         port=settings.naturalness_port,
         path=settings.naturalness_path,
     )
-    operator = OperatorBikeability(naturalness_utility)
+    operator = OperatorBikeability(naturalness_utility, ors_settings)
 
     log.info(f'Running plugin: {operator.info().name}')
     return start_plugin(operator=operator)
 
 
 if __name__ == '__main__':
-    exit_code = init_plugin()
+    settings = Settings()
+    ors_settings = ORSSettings()
+    exit_code = init_plugin(settings, ors_settings)
     log.info(f'Plugin exited with code {exit_code}')

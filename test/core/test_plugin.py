@@ -1,7 +1,7 @@
 from climatoology.base.artifact import _Artifact
 from climatoology.base.info import _Info
 
-from bikeability.input import BikeabilityIndicators
+from bikeability.core.input import BikeabilityIndicators
 
 
 def test_plugin_info_request(operator):
@@ -41,6 +41,7 @@ def test_plugin_compute_request_all_optionals(
     ohsome_api_parking,
     ohsome_api_zebra,
     ohsome_api_count,
+    detour_factor_mock,
 ):
     expected_compute_input = expected_compute_input.model_copy(deep=True)
     expected_compute_input.optional_indicators = {e for e in BikeabilityIndicators}
@@ -52,6 +53,6 @@ def test_plugin_compute_request_all_optionals(
         params=expected_compute_input,
     )
 
-    assert len(computed_artifacts) == 7
+    assert len(computed_artifacts) == 9
     for artifact in computed_artifacts:
         assert isinstance(artifact, _Artifact)

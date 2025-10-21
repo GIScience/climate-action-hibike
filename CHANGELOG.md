@@ -24,8 +24,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Added 'maxspeed:backward' tag to maxspeed filters ([#102](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/102))
 - Update the colors of surface types in hiBike to match hiWalk ([#94](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/94))
 - Update result size (paths count) check method and directly request ohsome element count api([#104](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/104))
+- Remove network requests from dooring risk tests
 
 ### Added
+- Port Detour Factors from Hiwalk ([#96])(https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/96)
 - Add greenness(naturalness) indicator into hiBike ([#38](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/38))
 - Add histogram for greenness and summary chart for path categories ([#97](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/97))
 
