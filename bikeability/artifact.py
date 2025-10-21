@@ -18,10 +18,7 @@ from bikeability.indicators.dooring_risk import DooringRiskCategory
 from bikeability.indicators.path_categories import PathCategory
 from bikeability.indicators.smoothness import SmoothnessCategory
 from bikeability.indicators.surface_types import SurfaceType
-from bikeability.utils import (
-    get_continuous_colors,
-    get_qualitative_color,
-)
+from bikeability.utils import Topics, get_continuous_colors, get_qualitative_color
 
 
 def build_path_categories_artifact(
@@ -52,6 +49,7 @@ def build_path_categories_artifact(
         },
         resources=resources,
         filename='cycling_infrastructure_path_categories',
+        tags={Topics.TRAFFIC},
     )
 
 
@@ -77,6 +75,7 @@ def build_smoothness_artifact(
         },
         resources=resources,
         filename='cycling_infrastructure_path_smoothness',
+        tags={Topics.SURFACE},
     )
 
 
@@ -105,6 +104,7 @@ def build_surface_types_artifact(
         legend_data=legend,
         resources=resources,
         filename='surface_types',
+        tags={Topics.SURFACE},
     )
 
 
@@ -117,6 +117,7 @@ def build_aoi_summary_category_stacked_bar_artifact(
         caption='How is the total length of paths distributed across the path categories?',
         resources=resources,
         filename='aggregation_aoi_category_stacked_bar',
+        tags={Topics.TRAFFIC, Topics.SUMMARY},
     )
 
 
@@ -147,6 +148,7 @@ def build_dooring_artifact(
         legend_data=legend,
         resources=resources,
         filename='cycling_infrastructure_dooring_risk',
+        tags={Topics.TRAFFIC, Topics.SAFETY},
     )
 
 
@@ -193,6 +195,7 @@ def build_naturalness_artifact(
         legend_data=legend,
         resources=resources,
         filename='cycling_infrastructure_path_greenness',
+        tags={Topics.GREENNESS},
     )
 
     return [map_artifact]
@@ -205,6 +208,7 @@ def build_naturalness_summary_bar_artifact(aoi_aggregate: Figure, resources: Com
         caption='What length of paths has low, mid, and high NDVI?',
         resources=resources,
         filename='aggregation_aoi_naturalness_bar',
+        tags={Topics.SUMMARY, Topics.GREENNESS},
     )
 
     return [chart_artifact]

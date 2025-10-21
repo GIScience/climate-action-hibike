@@ -2,16 +2,18 @@ import uuid
 from unittest.mock import patch
 
 import geopandas as gpd
+import pandas as pd
 import pytest
 import responses
 import shapely
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
+from mobility_tools.ors_settings import ORSSettings
 from shapely import LineString
 
+from bikeability.core.input import ComputeInputBikeability
+from bikeability.core.operator_worker import OperatorBikeability
 from bikeability.indicators.path_categories import PathCategory
-from bikeability.input import ComputeInputBikeability
-from bikeability.operator_worker import OperatorBikeability
 from test.utils import filter_start_matcher
 
 
@@ -32,7 +34,7 @@ def default_aoi() -> shapely.MultiPolygon:
                     [12.48, 48.22],
                     [12.3, 48.22],
                 ]
-            ]
+            ]  # type: ignore
         ]
     )
 
@@ -56,8 +58,13 @@ def responses_mock():
 
 
 @pytest.fixture
-def operator(naturalness_utility_mock):
-    return OperatorBikeability(naturalness_utility_mock)
+def default_ors_settings() -> ORSSettings:
+    return ORSSettings()
+
+
+@pytest.fixture
+def operator(default_ors_settings, naturalness_utility_mock):
+    return OperatorBikeability(naturalness_utility_mock, default_ors_settings)
 
 
 @pytest.fixture
@@ -221,6 +228,40 @@ def naturalness_utility_mock():
 
         naturalness_utility.compute_vector.return_value = return_gdf
         yield naturalness_utility
+
+
+@pytest.fixture
+def expected_detour_factors() -> gpd.GeoDataFrame:
+    detour_factors = pd.DataFrame(
+        data={
+            'detour_factor': [
+                1.3995538900828162,
+                1.219719961221372,
+                1.454343083874761,
+                1.7969363677141994,
+                1.4832090368368422,
+                1.8521635465676833,
+                1.3880294081510607,
+            ],
+            'id': [
+                '8a1faa996847fff',
+                '8a1faa99684ffff',
+                '8a1faa996857fff',
+                '8a1faa99685ffff',
+                '8a1faa9968c7fff',
+                '8a1faa9968effff',
+                '8a1faa996bb7fff',
+            ],
+        }
+    ).set_index('id')
+    return detour_factors.h3.h3_to_geo_boundary()
+
+
+@pytest.fixture
+def detour_factor_mock(expected_detour_factors):
+    with patch('bikeability.indicators.detour_factors.get_detour_factors') as get_detour_factors:
+        get_detour_factors.return_value = expected_detour_factors
+        yield get_detour_factors
 
 
 @pytest.fixture

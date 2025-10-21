@@ -10,6 +10,7 @@ import shapely
 from climatoology.base.baseoperator import AoiProperties, BaseOperator, ComputationResources, _Artifact
 from climatoology.base.info import Concern, PluginAuthor, _Info, generate_plugin_info
 from climatoology.utility.Naturalness import NaturalnessIndex, NaturalnessUtility
+from mobility_tools.ors_settings import ORSSettings
 from ohsome import OhsomeClient
 from semver import Version
 from shapely import make_valid
@@ -23,6 +24,10 @@ from bikeability.artifact import (
     build_smoothness_artifact,
     build_surface_types_artifact,
 )
+from bikeability.core.input import BikeabilityIndicators, ComputeInputBikeability
+from bikeability.indicators.detour_factors import (
+    detour_factor_analysis,
+)
 from bikeability.indicators.dooring_risk import get_dooring_risk
 from bikeability.indicators.naturalness import get_naturalness
 from bikeability.indicators.path_categories import (
@@ -31,7 +36,6 @@ from bikeability.indicators.path_categories import (
 )
 from bikeability.indicators.smoothness import get_smoothness
 from bikeability.indicators.surface_types import get_surface_types
-from bikeability.input import BikeabilityIndicators, ComputeInputBikeability
 from bikeability.path_summarisation import summarise_aoi, summarise_naturalness
 from bikeability.utils import (
     check_paths_count_limit,
@@ -47,9 +51,10 @@ log = logging.getLogger(__name__)
 
 
 class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
-    def __init__(self, naturalness_utility: NaturalnessUtility):
+    def __init__(self, naturalness_utility: NaturalnessUtility, ors_settings: ORSSettings):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
+        self.ors_settings = ors_settings
         log.debug('Initialised bikeability operator with ohsome client')
 
         self.naturalness_utility = naturalness_utility
@@ -116,7 +121,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             aoi_summary_category_stacked_bar, resources
         )
 
-        return_artifacts = [
+        artifacts = [
             path_categories_artifact,
             smoothness_artifact,
             surface_types_artifact,
@@ -130,15 +135,22 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                 paths_nature = get_naturalness(
                     line_paths, polygon_paths, self.naturalness_utility, NaturalnessIndex.NDVI
                 )
-                naturalness_artifact = build_naturalness_artifact(paths_nature, aoi, resources)
-                return_artifacts.extend(naturalness_artifact)
+                naturalness_artifacts = build_naturalness_artifact(paths_nature, aoi, resources)
+                artifacts.extend(naturalness_artifacts)
                 naturalness_summary_bar = summarise_naturalness(paths=paths_nature, projected_crs=get_utm_zone(aoi))
                 naturalness_summary_bar_artifact = build_naturalness_summary_bar_artifact(
                     aoi_aggregate=naturalness_summary_bar, resources=resources
                 )
-                return_artifacts.extend(naturalness_summary_bar_artifact)
+                artifacts.extend(naturalness_summary_bar_artifact)
 
-        return return_artifacts
+        if BikeabilityIndicators.DETOUR_FACTORS in params.optional_indicators:
+            with self.catch_exceptions(indicator_name=BikeabilityIndicators.DETOUR_FACTORS.value, resources=resources):
+                detour_artifacts = detour_factor_analysis(
+                    aoi, line_paths, ors_settings=self.ors_settings, resources=resources
+                )
+                artifacts.extend(detour_artifacts)
+
+        return artifacts
 
     def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
         log.debug('Extracting paths')

@@ -1,22 +1,21 @@
-from functools import partial
-
 import geopandas as gpd
 import geopandas.testing
 import pandas as pd
 import pytest
 import shapely
-from ohsome import OhsomeClient, OhsomeResponse
-from urllib3 import Retry
+from approvaltests import verify
+from ohsome import OhsomeClient
+from pandas.testing import assert_series_equal
 
 from bikeability.indicators.dooring_risk import (
     DooringRiskCategory,
     apply_dooring_filters,
     find_nearest_parking,
+    get_dooring_risk,
 )
-from bikeability.indicators.path_categories import apply_path_category_filters
+from bikeability.indicators.path_categories import PathCategory
 from bikeability.utils import (
     fetch_osm_data,
-    ohsome_filter,
     parallel_parking_filter,
 )
 
@@ -46,105 +45,75 @@ expected_parking_polygon = gpd.GeoDataFrame(
 )
 
 
-@pytest.fixture(scope='module')
-def bpolys():
-    """Small bounding boxes."""
-    bpolys = gpd.GeoSeries(
-        data=[
-            # large box around Heidelberg:
-            shapely.box(8.65354, 49.37019, 8.7836, 49.4447),
-            # perpendicular parking cases:
-            shapely.box(8.478101, 49.464160, 8.490192, 49.480128),
-            # diagonal parking cases:
-            shapely.box(8.645821, 50.106273, 8.656443, 50.115557),
-            # parking separate cases:
-            shapely.box(8.640989, 50.121719, 8.642748, 50.122811),
-            # separate parking without tags on the street:
-            shapely.box(8.402949, 49.473049, 8.403547, 49.473839),
-        ],
-        crs='EPSG:4326',
-    )
-    return bpolys
+@pytest.fixture
+def dooring_risk():
+    tags = [
+        {'parking:both:orientation': 'parallel'},
+        {'parking:right:orientation': 'parallel'},
+        {'parking:left:orientation': 'parallel'},
+        {'parking:lane:both': 'parallel'},
+        {'parking:lane:left': 'parallel'},
+        {'parking:lane:right': 'parallel'},
+        {'parking:both': 'separate'},
+    ]
 
-
-@pytest.fixture(scope='module')
-def request_ohsome(bpolys):
-    return partial(
-        OhsomeClient(
-            user_agent='HeiGIT Climate Action Bikeability Tester', retry=Retry(total=1)
-        ).elements.geometry.post,
-        bpolys=bpolys,
-        properties='tags',
-        time='2024-01-01',
-        timeout=60,
+    parking = [False for _ in tags]
+    parking[-1] = True
+    dooring_risk_tags = pd.DataFrame(
+        data={
+            '@other_tags': tags,
+            'expected_dooring_risk': [DooringRiskCategory.DOORING_RISK for _ in tags],
+            'parking': parking,
+            'category': [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags],
+        }
     )
 
-
-validation_objects = {
-    DooringRiskCategory.DOORING_RISK: {
-        'way/24644359',
-        'way/24485180',
-        'way/1026216148',
-        'way/155055444',
-        'way/1115530967',
-        'way/24485185',
-        'way/1081736395',
-        'way/622579778',
-    },
-    # https://www.openstreetmap.org/way/1026216148 parking:both:orientation=parallel
-    # https://www.openstreetmap.org/way/24485180 parking:right:orientation=parallel
-    # https://www.openstreetmap.org/way/24644359 parking:left:orientation=parallel
-    # https://www.openstreetmap.org/way/1081736395 parking:left=separate, parking:right=separate with parallel parking
-    # https://www.openstreetmap.org/way/622579778 no parking related tags, but amenity=parking and orientation=parallel adjacent
-    # The following are deprecated ways of tagging on street parking
-    # https://www.openstreetmap.org/way/155055444 parking:lane:both=parallel
-    # https://www.openstreetmap.org/way/1115530967 parking:lane:left=parallel
-    # https://www.openstreetmap.org/way/24485185 parking:lane:left=parallel
-    DooringRiskCategory.DOORING_SAFE: {
-        'way/1124445170',
-        'way/190443683',
-        'way/1109137744',
-        'way/1213267125',
-        'way/142603608',
-        'way/9824020',
-        'way/58164685',
-    },
-    # https://www.openstreetmap.org/way/1124445170 parking:lane:both=no
-    # https://www.openstreetmap.org/way/190443683 parkinng:both:orientation=perpendicular
-    # https://www.openstreetmap.org/way/1109137744 parking:right:orientation=perpendicular and parking:left:orientation=perpendicular
-    # https://www.openstreetmap.org/way/1213267125 parking:left:orientation=perpendicular and parkinng:right=no
-    # https://www.openstreetmap.org/way/142603608 parking:both:orientation=diagonal
-    # https://www.openstreetmap.org/way/9824020 parking:left:orientation=diagonal and parking:right=no
-    # https://www.openstreetmap.org/way/58164685 parking:right:orientation=diagonal and parking:left=no
-    DooringRiskCategory.UNKNOWN: set(),
-}
+    return dooring_risk_tags
 
 
-@pytest.fixture(scope='module')
-def id_filter_dooring() -> str:
-    full_ids = set().union(*validation_objects.values())
-    return f'id:({",".join(full_ids)})'
+@pytest.fixture
+def dooring_safe():
+    tags = [
+        {'parking:lane:both': 'no'},
+        {'parking:both:orientation': 'perpendicular'},
+        {'parking:right:orientation': 'perpendicular', 'parking:left:orientation': 'perpendicular'},
+        {'parking:left:orientation': 'perpendicular', 'parking:right': 'no'},
+        {'parking:both:orientation': 'diagonal'},
+        {'parking:left:orientation': 'diagonal', 'parking:right': 'no'},
+        {'parking:right:orientation': 'diagonal', 'parking:left': 'no'},
+        {'parking:both:orientation': 'parallel'},
+    ]
 
+    category = [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags]
+    category[-1] = PathCategory.EXCLUSIVE
 
-@pytest.fixture(scope='module')
-def osm_parking_data(request_ohsome: partial[OhsomeResponse]) -> pd.DataFrame:
-    return request_ohsome(filter=f'({parallel_parking_filter("polygon")})').as_dataframe()
-
-
-@pytest.fixture(scope='module')
-def osm_dooring_return_data(
-    request_ohsome: partial[OhsomeResponse], id_filter_dooring: str, osm_parking_data: gpd.GeoDataFrame
-) -> pd.DataFrame:
-    osm_line_data = request_ohsome(filter=f'({ohsome_filter("line")})  and ({id_filter_dooring})').as_dataframe(
-        multi_index=False
+    dooring_risk_tags = pd.DataFrame(
+        data={
+            '@other_tags': tags,
+            'expected_dooring_risk': [DooringRiskCategory.DOORING_SAFE for _ in tags],
+            'parking': [False for _ in tags],
+            'category': category,
+        }
     )
 
-    osm_line_data['category'] = osm_line_data.apply(apply_path_category_filters, axis=1)
+    return dooring_risk_tags
 
-    osm_line_data = find_nearest_parking(osm_line_data, osm_parking_data)
-    osm_line_data['dooring_category'] = osm_line_data.apply(apply_dooring_filters, axis=1)
 
-    return osm_line_data
+@pytest.fixture
+def dooring_unknown():
+    return pd.DataFrame(
+        data={
+            '@other_tags': [{}],
+            'expected_dooring_risk': [DooringRiskCategory.UNKNOWN],
+            'category': [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED],
+            'parking': [False],
+        }
+    )
+
+
+@pytest.fixture
+def dooring_test_cases(dooring_risk, dooring_safe, dooring_unknown):
+    return pd.concat([dooring_risk, dooring_safe, dooring_unknown])
 
 
 def test_find_nearest_parking(responses_mock, default_aoi):
@@ -185,8 +154,12 @@ def test_parking_filter(responses_mock, default_aoi, geometry_type, expected_par
     assert fetch_parking_data.geom_type[0] == expected_geometry_type
 
 
-@pytest.mark.parametrize('category', validation_objects)
-def test_construct_dooring_filter_validate(osm_dooring_return_data: pd.DataFrame, category: DooringRiskCategory):
-    osm_dooring_return_data = osm_dooring_return_data[osm_dooring_return_data['dooring_category'] == category]
+def test_dooring_filter(dooring_test_cases):
+    result = dooring_test_cases.apply(apply_dooring_filters, axis=1)
 
-    assert set(osm_dooring_return_data['@osmId']) == validation_objects[category]
+    assert_series_equal(result, dooring_test_cases['expected_dooring_risk'], check_names=False)
+
+
+def test_get_dooring_risk(test_line, expected_parking_polygon):
+    result = get_dooring_risk(test_line, expected_parking_polygon)
+    verify(result.to_csv())

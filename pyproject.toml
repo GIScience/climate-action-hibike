@@ -13,6 +13,7 @@ pydantic-settings = "^2.1.0"
 shapely = "^2.0.2"
 ohsome = "^0.4.0"
 matplotlib = "^3.8.3"
+mobility-tools = {git = "ssh://git@gitlab.heigit.org:2022/climate-action/utilities/mobility-tools.git", rev = "1.0.3"}
 
 
 [tool.poetry.group.test.dependencies]
