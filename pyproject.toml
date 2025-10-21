@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "~3.11.5"
 climatoology = {git = "ssh://git@gitlab.heigit.org:2022/climate-action/climatoology.git", tag = "6.4.3"}
-pydantic = "2.8.2"
+pydantic = "2.12.3"
 pydantic-settings = "^2.1.0"
 shapely = "^2.0.2"
 ohsome = "^0.4.0"
@@ -20,7 +20,7 @@ mobility-tools = {git = "ssh://git@gitlab.heigit.org:2022/climate-action/utiliti
 pytest = "^7.4.4"
 approvaltests = "^12.2.0"
 pytest-approvaltests = "^0.2.4"
-responses = "^0.24.1"
+responses = "^0.25.0"
 pytest-cov = "^6.1.1"
 ohsome-filter-to-sql = {git = "https://github.com/GIScience/ohsome-filter-to-sql.git"}
 
