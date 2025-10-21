@@ -3,12 +3,13 @@ import geopandas.testing as gpdtest
 import pytest
 import shapely
 from climatoology.utility.Naturalness import NaturalnessIndex
+from plotly.graph_objects import Figure
 
 # from climatoology.utility.Naturalness import NaturalnessIndex
 from pyproj import CRS
 from shapely import LineString
 
-from bikeability.indicators.naturalness import _valid_path_lines, get_naturalness
+from bikeability.components.naturalness import _valid_path_lines, get_naturalness, summarise_naturalness
 
 
 @pytest.fixture
@@ -85,3 +86,18 @@ def test_get_naturalness(naturalness_utility_mock, naturalness_test_lines, natur
     )
 
     gpdtest.assert_geodataframe_equal(computed_naturalness, expected_naturalness, check_like=True)
+
+
+def test_summarise_naturalness(default_path_geometry, default_polygon_geometry):
+    input_paths = gpd.GeoDataFrame(
+        data={
+            'naturalness': [0.4, 0.6],
+            'geometry': [default_path_geometry] + [default_polygon_geometry],
+        },
+        crs='EPSG:4326',
+    )
+    bar_chart = summarise_naturalness(paths=input_paths, projected_crs=CRS.from_user_input(32632))
+
+    assert isinstance(bar_chart, Figure)
+    assert bar_chart['data'][0]['x'] == ('Medium (0.3 to 0.6)',)
+    assert bar_chart['data'][0]['y'] == (0.12,)

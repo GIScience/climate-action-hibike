@@ -11,9 +11,9 @@ from climatoology.base.computation import ComputationScope
 from mobility_tools.ors_settings import ORSSettings
 from shapely import LineString
 
+from bikeability.components.path_categories.path_categories import PathCategory
 from bikeability.core.input import ComputeInputBikeability
 from bikeability.core.operator_worker import OperatorBikeability
-from bikeability.indicators.path_categories import PathCategory
 from test.utils import filter_start_matcher
 
 
@@ -259,7 +259,7 @@ def expected_detour_factors() -> gpd.GeoDataFrame:
 
 @pytest.fixture
 def detour_factor_mock(expected_detour_factors):
-    with patch('bikeability.indicators.detour_factors.get_detour_factors') as get_detour_factors:
+    with patch('bikeability.components.detour_factors.detour_analysis.get_detour_factors') as get_detour_factors:
         get_detour_factors.return_value = expected_detour_factors
         yield get_detour_factors
 

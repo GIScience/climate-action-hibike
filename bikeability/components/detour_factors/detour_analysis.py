@@ -21,7 +21,7 @@ from mobility_tools.utils.exceptions import SizeLimitExceededError
 from plotly.graph_objects import Figure
 from pydantic_extra_types.color import Color
 
-from bikeability.utils import Topics
+from bikeability.components.utils.utils import Topics
 
 # from bikeability.utils import (
 #     get_detour_factor_legend

@@ -10,7 +10,7 @@ from climatoology.utility.exception import ClimatoologyUserError
 from mobility_tools.utils.exceptions import SizeLimitExceededError
 from pydantic_extra_types.color import Color
 
-from bikeability.indicators.detour_factors import (
+from bikeability.components.detour_factors.detour_analysis import (
     DetourCategory,
     apply_color_and_label,
     build_detour_factor_artifact,
@@ -45,7 +45,7 @@ def test_detour_factors(default_aoi, test_line, default_ors_settings, compute_re
 
 @pytest.fixture
 def detour_factor_mock_fail(expected_detour_factors):
-    with patch('bikeability.indicators.detour_factors.get_detour_factors') as get_detour_factors:
+    with patch('bikeability.components.detour_factors.detour_analysis.get_detour_factors') as get_detour_factors:
         get_detour_factors.side_effect = SizeLimitExceededError()
         yield get_detour_factors
 

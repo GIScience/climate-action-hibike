@@ -25,6 +25,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Update the colors of surface types in hiBike to match hiWalk ([#94](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/94))
 - Update result size (paths count) check method and directly request ohsome element count api([#104](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/104))
 - Remove network requests from dooring risk tests
+- Remove netwokr requests from smoothness test
+- Refactor to match standard plugin layout ([#87](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/87))
 
 ### Added
 - Port Detour Factors from Hiwalk ([#96])(https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/96)

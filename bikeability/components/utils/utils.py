@@ -1,23 +1,12 @@
 import logging
 from enum import StrEnum
-from typing import Union
 
 import geopandas as gpd
-import matplotlib
-import pandas as pd
 import shapely
 from climatoology.utility.exception import ClimatoologyUserError
-from matplotlib.colors import Normalize, to_hex
 from ohsome import OhsomeClient
-from pydantic_extra_types.color import Color
 from pyproj import CRS, Transformer
 from shapely.ops import transform
-
-# from bikeability.indicators.detour_factors import DETOUR_FACTOR_COLOR_MAP
-from bikeability.indicators.dooring_risk import DooringRiskCategory
-from bikeability.indicators.path_categories import PathCategory
-from bikeability.indicators.smoothness import SmoothnessCategory
-from bikeability.indicators.surface_types import SurfaceType
 
 log = logging.getLogger(__name__)
 
@@ -56,29 +45,6 @@ def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeCli
     return elements[['@osmId', 'geometry', '@other_tags']]
 
 
-def get_qualitative_color(
-    category: Union[PathCategory, SmoothnessCategory, SurfaceType, DooringRiskCategory], cmap_name: str
-) -> Color:
-    norm = Normalize(0, 1)
-    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
-    cmap.set_under('#808080')
-
-    category_norm = {name: idx / (len(category.get_visible()) - 1) for idx, name in enumerate(category.get_visible())}
-
-    if category.value == 'unknown':
-        return Color(to_hex(cmap(-9999)))
-    else:
-        return Color(to_hex(cmap(category_norm[category])))
-
-
-def get_continuous_colors(category: pd.Series, cmap_name: str) -> list[Color]:
-    norm = matplotlib.colors.Normalize(vmin=0, vmax=1)
-    cmap = matplotlib.colormaps.get(cmap_name)
-    cmap.set_bad('#808080')
-    mapped_colors = [Color(matplotlib.colors.to_hex(col)) for col in cmap(norm(category))]
-    return mapped_colors
-
-
 def ohsome_filter(geometry_type: str) -> str:
     return str(
         f'geometry:{geometry_type} and '
@@ -105,9 +71,10 @@ def get_buffered_aoi(aoi: shapely.MultiPolygon) -> shapely.MultiPolygon:
     return transform(wgs84_projection_function, buffered_aoi)
 
 
-def zebra_crossings_filter() -> str:
-    return str('geometry:point and type:node and (crossing=zebra or crossing:markings=zebra or crossing_ref=zebra)')
-
-
-def parallel_parking_filter(geometry_type) -> str:
-    return str(f'geometry:{geometry_type} and amenity=parking and orientation=parallel')
+def calculate_length(length_resolution_m, paths, projected_crs):
+    stats = paths.copy()
+    stats = stats.loc[stats.geometry.geom_type.isin(('MultiLineString', 'LineString'))]
+    stats = stats.to_crs(projected_crs)
+    stats['length'] = stats.length / length_resolution_m
+    stats['length'] = round(stats['length'], 2)
+    return stats
