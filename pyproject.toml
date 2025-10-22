@@ -26,7 +26,7 @@ ohsome-filter-to-sql = {git = "https://github.com/GIScience/ohsome-filter-to-sql
 
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.6.0"
+pre-commit = "^4.0.0"
 
 
 [tool.coverage.run]
