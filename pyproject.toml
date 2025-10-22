@@ -17,7 +17,7 @@ mobility-tools = {git = "ssh://git@gitlab.heigit.org:2022/climate-action/utiliti
 
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.4.4"
+pytest = "^8.0.0"
 approvaltests = "^15.0.0"
 pytest-approvaltests = "^0.2.4"
 responses = "^0.25.0"
