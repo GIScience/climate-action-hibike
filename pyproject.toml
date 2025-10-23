@@ -21,7 +21,7 @@ pytest = "^8.0.0"
 approvaltests = "^15.0.0"
 pytest-approvaltests = "^0.2.4"
 responses = "^0.25.0"
-pytest-cov = "^6.1.1"
+pytest-cov = "^7.0.0"
 ohsome-filter-to-sql = {git = "https://github.com/GIScience/ohsome-filter-to-sql.git"}
 
 
