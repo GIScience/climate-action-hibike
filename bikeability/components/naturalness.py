@@ -25,7 +25,7 @@ from bikeability.components.utils.utils import Topics, calculate_length
 log = logging.getLogger(__name__)
 
 
-def _preprocess_path_line(path_line: shapely.LineString, is_0x: bool) -> shapely.LineString:
+def _add_buffer_offset(path_line: shapely.LineString, is_0x: bool) -> shapely.LineString:
     buffer_offset = 0.000009  # ~1 m
 
     coords = list(path_line.coords)
@@ -38,20 +38,21 @@ def _preprocess_path_line(path_line: shapely.LineString, is_0x: bool) -> shapely
     return shapely.LineString(new_coords)
 
 
-def _valid_path_lines(path_lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _preprocess_path_lines(path_lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    log.debug("Pre-process lingstring (path_line) to avoid the case 'width/height = 0'")
     path_lines_bounds = path_lines.geometry.bounds
     path_lines_width = path_lines_bounds['maxx'] - path_lines_bounds['minx']
     path_lines_height = path_lines_bounds['maxy'] - path_lines_bounds['miny']
 
     # fix width = 0
     path_lines.loc[(path_lines_width == 0), 'geometry'] = path_lines.loc[(path_lines_width == 0), 'geometry'].apply(
-        lambda row: _preprocess_path_line(row, True)
+        lambda row: _add_buffer_offset(row, True)
     )
 
     # fix height = 0 (when width != 0)
     path_lines.loc[(path_lines_width != 0) & (path_lines_height == 0), 'geometry'] = path_lines.loc[
         (path_lines_width != 0) & (path_lines_height == 0), 'geometry'
-    ].apply(lambda row: _preprocess_path_line(row, False))
+    ].apply(lambda row: _add_buffer_offset(row, False))
 
     return path_lines
 
@@ -77,8 +78,7 @@ def fetch_naturalness_by_vector(
 
 
 def get_naturalness(
-    path_lines: gpd.GeoDataFrame,
-    path_polygons: gpd.GeoDataFrame,
+    paths: gpd.GeoDataFrame,
     nature_utility: NaturalnessUtility,
     nature_index: NaturalnessIndex,
     agg_stats: list[str] = ['median'],
@@ -88,32 +88,39 @@ def get_naturalness(
     """
     log.info('Naturalness calculation starts...')
 
-    log.debug("Pre-process lingstring (path_line) to avoid the case 'width/height = 0'")
-    lines_valid = _valid_path_lines(path_lines.copy())
+    path_lines = paths[paths.geom_type.isin(['LineString', 'MultiLinesString'])]
+    path_polygons = paths[paths.geom_type.isin(['Polygon', 'MultiPolygon'])]
 
-    log.debug('compute naturalness by sentinelhub... (path_lines)')
-    lines_ndvi = fetch_naturalness_by_vector(
-        nature_utility=nature_utility,
-        time_range=TimeRange(end_date=dt.datetime.now().replace(day=1).date()),
-        vectors=[lines_valid.geometry],
-        index=nature_index,
-        agg_stats=agg_stats,
-    )
+    lines_valid = _preprocess_path_lines(path_lines.copy())
 
-    log.debug('Post-process: reset path_line geometry which is not pre-processed')
-    lines_ndvi.geometry = path_lines.geometry
+    naturalness_paths = []
+    if not lines_valid.empty:
+        log.debug('compute naturalness by sentinelhub... (path_lines)')
+        lines_ndvi = fetch_naturalness_by_vector(
+            nature_utility=nature_utility,
+            time_range=TimeRange(end_date=dt.datetime.now().replace(day=1).date()),
+            vectors=[lines_valid.geometry],
+            index=nature_index,
+            agg_stats=agg_stats,
+        )
 
-    log.debug('compute naturalness by sentinelhub... (path_polygons)')
-    polygons_ndvi = fetch_naturalness_by_vector(
-        nature_utility=nature_utility,
-        time_range=TimeRange(end_date=dt.datetime.now().replace(day=1).date()),
-        vectors=[path_polygons.geometry],
-        index=nature_index,
-        agg_stats=agg_stats,
-    )
+        log.debug('Post-process: reset path_line geometry which is not pre-processed')
+        lines_ndvi.geometry = path_lines.geometry
+        naturalness_paths.append(lines_ndvi)
+
+    if not path_polygons.empty:
+        log.debug('compute naturalness by sentinelhub... (path_polygons)')
+        polygons_ndvi = fetch_naturalness_by_vector(
+            nature_utility=nature_utility,
+            time_range=TimeRange(end_date=dt.datetime.now().replace(day=1).date()),
+            vectors=[path_polygons.geometry],
+            index=nature_index,
+            agg_stats=agg_stats,
+        )
+        naturalness_paths.append(polygons_ndvi)
 
     # merge path_lines and path_polygons result here and return one dataframe
-    paths_all_ndvi = pd.concat([lines_ndvi, polygons_ndvi], ignore_index=True)
+    paths_all_ndvi = pd.concat(naturalness_paths, ignore_index=True)
 
     log.info('Naturalness calculation completed.')
 
@@ -122,15 +129,9 @@ def get_naturalness(
 
 def build_naturalness_artifact(
     paths_all: gpd.GeoDataFrame,
-    clip_aoi: shapely.MultiPolygon,
     resources: ComputationResources,
     cmap_name: str = 'YlGn',
 ) -> list[_Artifact]:
-    for path_geom_type in paths_all.geom_type.unique():
-        paths_all[paths_all.geom_type == path_geom_type] = paths_all[paths_all.geom_type == path_geom_type].clip(
-            clip_aoi, keep_geom_type=True
-        )
-
     # If no good data is returned (e.g. due to an error), return a text artifact with a simple message
     if paths_all['naturalness'].isna().all():
         raise ClimatoologyUserError(

@@ -8,8 +8,9 @@ import responses
 import shapely
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
+from climatoology.utility.api import TimeRange
+from climatoology.utility.Naturalness import NaturalnessIndex
 from mobility_tools.ors_settings import ORSSettings
-from shapely import LineString
 
 from bikeability.components.path_categories.path_categories import PathCategory
 from bikeability.core.input import ComputeInputBikeability
@@ -181,6 +182,11 @@ def test_polygon() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
+def default_paths(test_line, test_polygon):
+    return pd.concat([test_line, test_polygon], ignore_index=True)
+
+
+@pytest.fixture
 def test_polygon_empty() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
         data={
@@ -215,18 +221,35 @@ def expected_parking_polygon() -> gpd.GeoDataFrame:
 
 @pytest.fixture
 def naturalness_utility_mock():
-    with patch('climatoology.utility.Naturalness.NaturalnessUtility') as naturalness_utility:
-        vectors = gpd.GeoSeries(
+    def mock_get_vector(
+        index: NaturalnessIndex,
+        aggregation_stats: list[str],
+        vectors: list[gpd.GeoSeries],
+        time_range: TimeRange,
+        resolution: int = 90,
+        max_raster_size: int = 1000,
+    ) -> gpd.GeoDataFrame:
+        lines = gpd.GeoSeries(
             index=[1, 2],
             data=[
-                LineString([[12.4, 48.25], [12.4, 48.30]]),
-                LineString([[12.41, 48.25], [12.41, 48.30]]),
+                shapely.LineString([[12.4, 48.25], [12.4, 48.30]]),
+                shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),
             ],
             crs='EPSG:4326',
         )
-        return_gdf = gpd.GeoDataFrame(index=[1, 2], data={'median': [0.6, 0.6]}, geometry=vectors, crs='EPSG:4326')
+        polygons = gpd.GeoSeries(index=[3], data=[shapely.Polygon([[12.4, 48.25], [12.4, 48.30], [12.41, 48.30]])])
+        line_vectors = gpd.GeoDataFrame(index=[1, 2], data={'median': [0.6, 0.6]}, geometry=lines, crs='EPSG:4326')
+        polygon_vectors = gpd.GeoDataFrame(index=[3], data={'median': [0.6]}, geometry=polygons, crs='EPSG:4326')
 
-        naturalness_utility.compute_vector.return_value = return_gdf
+        if vectors[0].iloc[0].geom_type == 'LineString':
+            return line_vectors
+        elif vectors[0].iloc[0].geom_type == 'Polygon':
+            return polygon_vectors
+
+        raise ValueError
+
+    with patch('climatoology.utility.Naturalness.NaturalnessUtility') as naturalness_utility:
+        naturalness_utility.compute_vector.side_effect = mock_get_vector
         yield naturalness_utility
 
 

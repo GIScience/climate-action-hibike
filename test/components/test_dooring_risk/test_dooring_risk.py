@@ -166,6 +166,14 @@ def test_dooring_filter(dooring_test_cases):
     assert_series_equal(result, dooring_test_cases['expected_dooring_risk'], check_names=False)
 
 
-def test_get_dooring_risk(test_line, expected_parking_polygon):
-    result = get_dooring_risk(test_line, expected_parking_polygon)
+def test_get_dooring_risk(default_paths, expected_parking_polygon):
+    result = get_dooring_risk(default_paths, expected_parking_polygon)
+    verify(result.to_csv())
+
+
+def test_get_dooring_risk_missing_geometry_types(test_line, test_polygon, expected_parking_polygon):
+    dooring_risk_line_paths = get_dooring_risk(test_polygon, expected_parking_polygon)
+    dooring_risk_polygon_paths = get_dooring_risk(test_line, expected_parking_polygon)
+
+    result = pd.concat([dooring_risk_line_paths, dooring_risk_polygon_paths], ignore_index=True)
     verify(result.to_csv())

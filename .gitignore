@@ -13,5 +13,5 @@ ohsome_log/
 coverage.xml
 .vscode/*
 
-.env.ors
 inbox.md
+playground.py

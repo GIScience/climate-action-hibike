@@ -2,7 +2,6 @@ import importlib
 import logging
 from datetime import timedelta
 from pathlib import Path
-from typing import List, Tuple
 
 import geopandas as gpd
 import pandas as pd
@@ -91,34 +90,34 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         aoi: shapely.MultiPolygon,
         aoi_properties: AoiProperties,
         params: ComputeInputBikeability,
-    ) -> List[_Artifact]:
+    ) -> list[_Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         buffered_aoi = get_buffered_aoi(aoi)
 
         log.debug('Get the number of the paths (lines & polygons) which will return.')
-        check_paths_count_limit(buffered_aoi, self.ohsome, 500000)
+        check_paths_count_limit(aoi, self.ohsome, 500000)
 
-        line_paths, polygon_paths = self.get_paths(buffered_aoi)
+        paths = self.get_paths(aoi)
 
-        line_paths, polygon_paths = categorize_paths(line_paths, polygon_paths)
+        paths = categorize_paths(paths)
 
-        zebra_crossing_nodes = self.get_zebra_crossing_nodes(buffered_aoi)
-        line_paths = recategorise_zebra_crossings(line_paths, zebra_crossing_nodes)
+        zebra_crossing_nodes = self.get_zebra_crossing_nodes(aoi)
+        paths = recategorise_zebra_crossings(paths, zebra_crossing_nodes)
 
-        path_categories_artifact = build_path_categories_artifact(line_paths, polygon_paths, aoi, resources)
+        path_categories_artifact = build_path_categories_artifact(paths, resources)
 
-        path_smoothness = get_smoothness(line_paths)
-        smoothness_artifact = build_smoothness_artifact(path_smoothness, aoi, resources)
+        smoothness_paths = get_smoothness(paths)
+        smoothness_artifact = build_smoothness_artifact(smoothness_paths, resources)
 
-        line_paths = get_surface_types(line_paths)
-        surface_types_artifact = build_surface_types_artifact(line_paths, aoi, resources)
+        surface_type_paths = get_surface_types(paths)
+        surface_types_artifact = build_surface_types_artifact(surface_type_paths, resources)
 
         parallel_car_parking = self.get_parallel_parking(buffered_aoi)
-        path_dooring_risk = get_dooring_risk(line_paths, parallel_car_parking)
-        dooring_risk_artifact = build_dooring_artifact(path_dooring_risk, aoi, resources)
+        dooring_risk_paths = get_dooring_risk(paths, parallel_car_parking)
+        dooring_risk_artifact = build_dooring_artifact(dooring_risk_paths, resources)
 
-        aoi_summary_category_stacked_bar = summarise_aoi(line_paths, get_utm_zone(aoi))
+        aoi_summary_category_stacked_bar = summarise_aoi(paths, get_utm_zone(aoi))
         aoi_summary_category_stacked_bar_artifact = build_aoi_summary_category_stacked_bar_artifact(
             aoi_summary_category_stacked_bar, resources
         )
@@ -134,12 +133,12 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         # naturalness
         if BikeabilityIndicators.NATURALNESS in params.optional_indicators:
             with self.catch_exceptions(indicator_name='Greenness', resources=resources):
-                paths_nature = get_naturalness(
-                    line_paths, polygon_paths, self.naturalness_utility, NaturalnessIndex.NDVI
-                )
-                naturalness_artifacts = build_naturalness_artifact(paths_nature, aoi, resources)
+                naturalness_paths = get_naturalness(paths, self.naturalness_utility, NaturalnessIndex.NDVI)
+                naturalness_artifacts = build_naturalness_artifact(naturalness_paths, resources)
                 artifacts.extend(naturalness_artifacts)
-                naturalness_summary_bar = summarise_naturalness(paths=paths_nature, projected_crs=get_utm_zone(aoi))
+                naturalness_summary_bar = summarise_naturalness(
+                    paths=naturalness_paths, projected_crs=get_utm_zone(aoi)
+                )
                 naturalness_summary_bar_artifact = build_naturalness_summary_bar_artifact(
                     aoi_aggregate=naturalness_summary_bar, resources=resources
                 )
@@ -148,26 +147,34 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         if BikeabilityIndicators.DETOUR_FACTORS in params.optional_indicators:
             with self.catch_exceptions(indicator_name=BikeabilityIndicators.DETOUR_FACTORS.value, resources=resources):
                 detour_artifacts = detour_factor_analysis(
-                    aoi, line_paths, ors_settings=self.ors_settings, resources=resources
+                    aoi, paths, ors_settings=self.ors_settings, resources=resources
                 )
                 artifacts.extend(detour_artifacts)
 
         return artifacts
 
-    def get_paths(self, aoi: shapely.MultiPolygon) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    def get_paths(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
         log.debug('Extracting paths')
 
-        paths_line = fetch_osm_data(aoi, ohsome_filter('line'), self.ohsome)
-        paths_polygon = fetch_osm_data(aoi, ohsome_filter('polygon'), self.ohsome)
+        line_paths = fetch_osm_data(aoi, ohsome_filter('line'), self.ohsome)
+        polygon_paths = fetch_osm_data(aoi, ohsome_filter('polygon'), self.ohsome)
 
-        invalid_line = ~paths_line.is_valid
-        paths_line.loc[invalid_line, 'geometry'] = paths_line.loc[invalid_line, 'geometry'].apply(make_valid)
-        invalid_polygon = ~paths_polygon.is_valid
-        paths_polygon.loc[invalid_polygon, 'geometry'] = paths_polygon.loc[invalid_polygon, 'geometry'].apply(
+        invalid_line = ~line_paths.is_valid
+        line_paths.loc[invalid_line, 'geometry'] = line_paths.loc[invalid_line, 'geometry'].apply(make_valid)
+        invalid_polygon = ~polygon_paths.is_valid
+        polygon_paths.loc[invalid_polygon, 'geometry'] = polygon_paths.loc[invalid_polygon, 'geometry'].apply(
             make_valid
         )
 
-        return paths_line, paths_polygon
+        paths = pd.concat(
+            [
+                line_paths[~line_paths.geom_type.isin(['Point', 'MultiPoint'])],
+                polygon_paths[~polygon_paths.geom_type.isin(['Point', 'MultiPoint'])],
+            ],
+            ignore_index=True,
+        )
+
+        return paths
 
     def get_parallel_parking(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
         log.debug('Extracting parallel car parking')

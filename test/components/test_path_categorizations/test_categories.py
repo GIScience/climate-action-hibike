@@ -1,4 +1,5 @@
 import geopandas as gpd
+import pandas as pd
 import pytest
 import shapely
 from geopandas import testing
@@ -46,50 +47,16 @@ def test_crossing_nodes() -> gpd.GeoDataFrame:
     )
 
 
-def test_categorize_paths(test_line, test_polygon, expected_compute_input):
-    input_line = test_line.drop(['category'], axis=1)
-    input_polygon = test_polygon.drop(['category'], axis=1)
+def test_categorize_paths(default_paths, expected_compute_input):
+    input_paths = default_paths.drop(['category'], axis=1)
 
-    expected_lines = test_line
-    expected_polygons = test_polygon
+    expected_paths = default_paths
 
-    computed_lines, computed_polygons = categorize_paths(input_line, input_polygon)
+    recieved_paths = categorize_paths(input_paths)
 
     testing.assert_geodataframe_equal(
-        computed_lines,
-        expected_lines,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
-    testing.assert_geodataframe_equal(
-        computed_polygons,
-        expected_polygons,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
-
-
-def test_categorize_paths_no_polygon_paths(test_line, test_polygon_empty, expected_compute_input):
-    input_line = test_line.drop(['category'], axis=1)
-    input_polygon = test_polygon_empty
-
-    expected_lines = test_line
-    expected_polygons = test_polygon_empty
-
-    computed_lines, computed_polygons = categorize_paths(input_line, input_polygon)
-
-    testing.assert_geodataframe_equal(
-        computed_lines,
-        expected_lines,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
-    testing.assert_geodataframe_equal(
-        computed_polygons,
-        expected_polygons,
+        recieved_paths,
+        expected_paths,
         check_like=True,
         check_geom_type=True,
         check_less_precise=True,
@@ -106,3 +73,22 @@ def test_split_paths_around_crossing_multiple_crossings(test_line_with_crossing,
     computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes)
     assert len(computed_lines) == 5
     assert len(computed_lines[computed_lines['category'] == PathCategory.REQUIRES_DISMOUNTING]) == 2
+
+
+def test_split_paths_missing_geom_types(test_line, test_polygon):
+    crossing_node = gpd.GeoDataFrame(
+        data={
+            'geometry': [shapely.Point(12.3, 48.2205), shapely.Point(8.692814, 49.413228)],
+            '@other_tags': [
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+            ],
+        },
+        crs='EPSG:4326',
+    )
+
+    no_polygon_result = recategorise_zebra_crossings(test_line, crossing_node)
+    no_line_result = recategorise_zebra_crossings(test_polygon, crossing_node)
+
+    result = pd.concat([no_polygon_result, no_line_result], ignore_index=True)
+    assert len(result) == 5
