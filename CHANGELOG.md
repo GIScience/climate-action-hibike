@@ -7,6 +7,12 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/2.0.0...main)
 
+### Fixed
+- Clipping bug in greenness computation is fixed now by removing the necessity to clip again on artifact creation ([#109](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/109))
+
+### Changed
+- Polygon Paths and Line Paths are now only separated where functionally necessary, in other places they are kept together.
+
 ## [2.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.0) - 2025-11-10
 
 ### Changed

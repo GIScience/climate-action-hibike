@@ -22,13 +22,16 @@ def summarise_aoi(
 ) -> go.Figure:
     log.info('Summarising Walkable Path Categories')
 
-    stats = calculate_length(length_resolution_m, paths, projected_crs)
+    line_paths = paths[
+        paths.geom_type.isin(['LineString', 'MultiLineString'])
+    ]  # summarizing only makes sense by length, if we include polygons we need a different metric
+    stats = calculate_length(length_resolution_m, line_paths, projected_crs)
 
     # Path category stacked bar chart
     summary = stats.groupby('category', dropna=False, sort=False, as_index=False)['length'].sum()
-    category_order = list(PathCategory.get_visible())
+    category_order = PathCategory.get_visible()
     summary['category'] = pd.Categorical(summary['category'], categories=category_order, ordered=True)
-    summary_sorted = summary.sort_values('category')
+    summary_sorted = summary.sort_values('category').dropna()
 
     total_length = summary_sorted['length'].sum()
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100

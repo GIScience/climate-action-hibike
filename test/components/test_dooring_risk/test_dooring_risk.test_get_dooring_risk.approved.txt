@@ -1,2 +1,2 @@
-,geometry,@osmId,@other_tags,parking,category,dooring_category
-1,"LINESTRING (12.3 48.219999999999985, 12.3 48.220499999999994, 12.3005 48.22)",way/171574582,"{'highway': 'track', 'bicycle': 'yes', 'smoothness': 'intermediate', 'surface': 'fine_gravel', 'parking:both': 'no'}",False,PathCategory.SHARED_WITH_PEDESTRIANS,DooringRiskCategory.DOORING_SAFE
+,@osmId,geometry,dooring_category
+0,way/171574582,"LINESTRING (12.3 48.219999999999985, 12.3 48.220499999999994, 12.3005 48.22)",DooringRiskCategory.DOORING_SAFE

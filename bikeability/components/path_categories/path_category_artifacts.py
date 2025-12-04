@@ -1,8 +1,6 @@
 from pathlib import Path
 
 import geopandas as gpd
-import pandas as pd
-import shapely
 from climatoology.base.artifact import _Artifact, create_geojson_artifact
 from climatoology.base.computation import ComputationResources
 
@@ -12,17 +10,11 @@ from bikeability.components.utils.utils import Topics
 
 
 def build_path_categories_artifact(
-    paths_line: gpd.GeoDataFrame,
-    paths_polygon: gpd.GeoDataFrame,
-    clip_aoi: shapely.MultiPolygon,
+    paths: gpd.GeoDataFrame,
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
 ) -> _Artifact:
-    paths_line = paths_line.clip(clip_aoi, keep_geom_type=True)
-    paths_polygon = paths_polygon.clip(clip_aoi, keep_geom_type=True)
-    paths_all = pd.concat([paths_line, paths_polygon], ignore_index=True)
-
-    paths_without_restriction = paths_all[paths_all.category.isin(PathCategory.get_visible())]
+    paths_without_restriction = paths[paths.category.isin(PathCategory.get_visible())].copy(deep=False)
 
     paths_without_restriction['color'] = paths_without_restriction.category.apply(
         get_qualitative_color, cmap_name=cmap_name

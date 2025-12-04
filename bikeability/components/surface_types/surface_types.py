@@ -88,6 +88,6 @@ def categorise_surface(row: pd.Series) -> SurfaceType:
 
 def get_surface_types(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Categorizing path surfaces')
-    paths = paths[paths.category.isin(PathCategory.get_visible())]
+    paths = paths.loc[paths.category.isin(PathCategory.get_visible())].copy(deep=False)
     paths['surface_type'] = paths.apply(categorise_surface, axis=1)
     return paths

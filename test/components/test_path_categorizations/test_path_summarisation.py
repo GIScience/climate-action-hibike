@@ -19,3 +19,11 @@ def test_summarise_aoi(default_path_geometry, default_polygon_geometry):
     assert isinstance(category_stacked_bar_chart, Figure)
     assert category_stacked_bar_chart['data'][0]['y'] == ('Path Types',)
     assert category_stacked_bar_chart['data'][0]['x'] == (100,)
+
+
+def test_summarise_aoi_missing_geometries(test_line, test_polygon):
+    result_no_polygons = summarise_aoi(test_line, projected_crs=CRS.from_user_input(32632))
+    assert isinstance(result_no_polygons, Figure)
+
+    result_no_lines = summarise_aoi(test_polygon, projected_crs=CRS.from_user_input(32632))
+    assert isinstance(result_no_lines, Figure)

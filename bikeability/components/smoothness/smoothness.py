@@ -43,11 +43,11 @@ def apply_path_smoothness_filters(row: pd.Series) -> SmoothnessCategory:
             return SmoothnessCategory.UNKNOWN
 
 
-def get_smoothness(line_paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def get_smoothness(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Applying smoothness rating')
 
-    line_paths = line_paths[line_paths.category.isin(PathCategory.get_bikeable())]
+    paths = paths[paths.category.isin(PathCategory.get_bikeable())].copy(deep=False)
 
-    line_paths['smoothness'] = line_paths.apply(apply_path_smoothness_filters, axis=1)
+    paths['smoothness'] = paths.apply(apply_path_smoothness_filters, axis=1)
 
-    return line_paths
+    return paths

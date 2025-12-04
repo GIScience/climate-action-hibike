@@ -85,15 +85,26 @@ def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
             return DooringRiskCategory.UNKNOWN
 
 
-def get_dooring_risk(line_paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def get_dooring_risk(paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Applying dooring risk rating')
 
-    line_paths = line_paths[line_paths.category.isin(PathCategory.get_bikeable())]
+    paths = paths[paths.category.isin(PathCategory.get_bikeable())]
+
+    polygon_paths = paths[paths.geom_type.isin(['Polygon', 'MultiPolygon'])].copy(deep=False)
+    polygon_paths['dooring_category'] = DooringRiskCategory.DOORING_SAFE
+
+    line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]
+
+    if line_paths.empty:
+        return polygon_paths
 
     line_paths_with_parking = find_nearest_parking(line_paths, parking)
 
     line_paths_with_parking['dooring_category'] = line_paths_with_parking.apply(apply_dooring_filters, axis=1)
-    return line_paths_with_parking
+
+    dooring_risk_paths = pd.concat([polygon_paths, line_paths_with_parking], ignore_index=True)
+
+    return gpd.GeoDataFrame(dooring_risk_paths[['@osmId', 'geometry', 'dooring_category']])
 
 
 def find_nearest_parking(line_paths, parking):

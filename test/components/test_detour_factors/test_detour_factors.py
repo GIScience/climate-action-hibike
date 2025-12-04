@@ -36,8 +36,8 @@ def test_build_detour_factor_artifact(default_polygon_geometry, compute_resource
     assert isinstance(artifact, _Artifact)
 
 
-def test_detour_factors(default_aoi, test_line, default_ors_settings, compute_resources, detour_factor_mock):
-    artifacts = detour_factor_analysis(default_aoi, test_line, default_ors_settings, compute_resources)
+def test_detour_factors(default_aoi, default_paths, default_ors_settings, compute_resources, detour_factor_mock):
+    artifacts = detour_factor_analysis(default_aoi, default_paths, default_ors_settings, compute_resources)
 
     for artifact in artifacts:
         assert isinstance(artifact, _Artifact)
@@ -50,9 +50,11 @@ def detour_factor_mock_fail(expected_detour_factors):
         yield get_detour_factors
 
 
-def test_detour_factors_fail(default_aoi, test_line, default_ors_settings, compute_resources, detour_factor_mock_fail):
+def test_detour_factors_fail(
+    default_aoi, default_paths, default_ors_settings, compute_resources, detour_factor_mock_fail
+):
     with pytest.raises(ClimatoologyUserError):
-        detour_factor_analysis(default_aoi, test_line, default_ors_settings, compute_resources)
+        detour_factor_analysis(default_aoi, default_paths, default_ors_settings, compute_resources)
 
 
 def test_apply_detour_color_and_label(default_polygon_geometry):

@@ -87,7 +87,9 @@ def apply_color_and_label(detour_factor_data: gpd.GeoDataFrame, cmap_name: str =
             return DetourCategory.UNREACHABLE
 
     detour_factor_data['detour_category'] = detour_factor_data['detour_factor'].apply(categorize_detour)
-    detour_factor_data_no_low = detour_factor_data[detour_factor_data['detour_category'] != DetourCategory.LOW_DETOUR]
+    detour_factor_data_no_low = detour_factor_data.loc[
+        detour_factor_data['detour_category'] != DetourCategory.LOW_DETOUR
+    ].copy(deep=False)
 
     detour_factor_data_no_low['color'] = detour_factor_data_no_low['detour_category'].map(DETOUR_FACTOR_COLOR_MAP)
 
