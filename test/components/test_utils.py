@@ -2,9 +2,9 @@ import geopandas as gpd
 import geopandas.testing
 import pytest
 import shapely
-from climatoology.utility.exception import ClimatoologyUserError
+from climatoology.base.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
-from ohsome_filter_to_sql.main import ohsome_filter_to_sql
+from ohsome_filter_to_sql.main import validate_filter
 
 from bikeability.components.utils.utils import (
     check_paths_count_limit,
@@ -58,4 +58,4 @@ def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_ohsome_filter(geometry_type):
-    ohsome_filter_to_sql(ohsome_filter(geometry_type))
+    validate_filter(ohsome_filter(geometry_type))

@@ -3,10 +3,8 @@ import geopandas.testing as gpdtest
 import pandas as pd
 import pytest
 import shapely
-from climatoology.utility.Naturalness import NaturalnessIndex
+from climatoology.utility.naturalness import NaturalnessIndex
 from plotly.graph_objects import Figure
-
-# from climatoology.utility.Naturalness import NaturalnessIndex
 from pyproj import CRS
 
 from bikeability.components.naturalness import _preprocess_path_lines, get_naturalness, summarise_naturalness

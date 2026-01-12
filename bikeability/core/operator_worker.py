@@ -1,4 +1,3 @@
-import importlib
 import logging
 from datetime import timedelta
 from pathlib import Path
@@ -6,12 +5,12 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import shapely
-from climatoology.base.baseoperator import AoiProperties, BaseOperator, ComputationResources, _Artifact
-from climatoology.base.info import Concern, PluginAuthor, _Info, generate_plugin_info
-from climatoology.utility.Naturalness import NaturalnessIndex, NaturalnessUtility
+from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources
+from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
+from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
 from mobility_tools.ors_settings import ORSSettings
 from ohsome import OhsomeClient
-from semver import Version
+from pydantic.networks import HttpUrl
 from shapely import make_valid
 
 from bikeability.components.detour_factors.detour_analysis import (
@@ -61,7 +60,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         self.naturalness_utility = naturalness_utility
         log.debug('Initialised bikeability operator with naturalness client')
 
-    def info(self) -> _Info:
+    def info(self) -> PluginInfo:
         info = generate_plugin_info(
             name='hiBike',
             icon=Path('resources/info/bike-lane.jpeg'),
@@ -69,28 +68,32 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                 PluginAuthor(
                     name='Climate Action Team',
                     affiliation='HeiGIT gGmbH',
-                    website='https://heigit.org/heigit-team/',
+                    website=HttpUrl('https://heigit.org/heigit-team/'),
                 ),
             ],
-            version=Version.parse(importlib.metadata.version('Bikeability')),
             concerns={Concern.MOBILITY_CYCLING},
             purpose=Path('resources/info/purpose.md'),
             teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
             methodology=Path('resources/info/methodology.md'),
-            sources=Path('resources/literature.bib'),
-            demo_input_parameters=ComputeInputBikeability(),
+            sources_library=Path('resources/literature.bib'),
             computation_shelf_life=timedelta(weeks=24),
+            # TODO replace this  aoi
+            demo_input_parameters=ComputeInputBikeability(),
+            demo_aoi=CustomAOI(
+                name='Demo',
+                path=Path('resources/Heidelberg_AOI.geojson'),
+            ),
         )
         log.info(f'Return info {info.model_dump()}')
         return info
 
-    def compute(  # dead: disable
+    def compute(  # dead: disable # type: ignore
         self,
         resources: ComputationResources,
         aoi: shapely.MultiPolygon,
         aoi_properties: AoiProperties,
         params: ComputeInputBikeability,
-    ) -> list[_Artifact]:
+    ) -> list[Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         buffered_aoi = get_buffered_aoi(aoi)
@@ -135,14 +138,14 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             with self.catch_exceptions(indicator_name='Greenness', resources=resources):
                 naturalness_paths = get_naturalness(paths, self.naturalness_utility, NaturalnessIndex.NDVI)
                 naturalness_artifacts = build_naturalness_artifact(naturalness_paths, resources)
-                artifacts.extend(naturalness_artifacts)
+                artifacts.append(naturalness_artifacts)
                 naturalness_summary_bar = summarise_naturalness(
                     paths=naturalness_paths, projected_crs=get_utm_zone(aoi)
                 )
                 naturalness_summary_bar_artifact = build_naturalness_summary_bar_artifact(
                     aoi_aggregate=naturalness_summary_bar, resources=resources
                 )
-                artifacts.extend(naturalness_summary_bar_artifact)
+                artifacts.append(naturalness_summary_bar_artifact)
 
         if BikeabilityIndicators.DETOUR_FACTORS in params.optional_indicators:
             with self.catch_exceptions(indicator_name=BikeabilityIndicators.DETOUR_FACTORS.value, resources=resources):
@@ -174,14 +177,14 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             ignore_index=True,
         )
 
-        return paths
+        return paths  # type: ignore
 
     def get_parallel_parking(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
         log.debug('Extracting parallel car parking')
         parking_paths = fetch_osm_data(aoi, parallel_parking_filter('line'), self.ohsome)
         parking_polygons = fetch_osm_data(aoi, parallel_parking_filter('polygon'), self.ohsome)
 
-        return pd.concat([parking_paths, parking_polygons])
+        return pd.concat([parking_paths, parking_polygons])  # type: ignore
 
     def get_zebra_crossing_nodes(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
         log.debug('Getting crossing nodes')

@@ -4,6 +4,7 @@ from typing import Dict
 
 import geopandas as gpd
 import pandas as pd
+from ohsome_filter_to_sql.main import OhsomeFilter
 
 from bikeability.components.path_categories.path_categories import PathCategory
 
@@ -123,5 +124,5 @@ def find_nearest_parking(line_paths, parking):
     return line_paths
 
 
-def parallel_parking_filter(geometry_type) -> str:
+def parallel_parking_filter(geometry_type) -> OhsomeFilter:
     return str(f'geometry:{geometry_type} and amenity=parking and orientation=parallel')

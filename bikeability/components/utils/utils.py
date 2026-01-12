@@ -3,8 +3,9 @@ from enum import StrEnum
 
 import geopandas as gpd
 import shapely
-from climatoology.utility.exception import ClimatoologyUserError
+from climatoology.base.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
+from ohsome_filter_to_sql.main import OhsomeFilter
 from pyproj import CRS, Transformer
 from shapely.ops import transform
 
@@ -37,7 +38,7 @@ def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, cou
         )
 
 
-def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
+def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: OhsomeFilter, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
     elements = ohsome.elements.geometry.post(
         bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
     ).as_dataframe()
@@ -45,7 +46,7 @@ def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: str, ohsome: OhsomeCli
     return elements[['@osmId', 'geometry', '@other_tags']]
 
 
-def ohsome_filter(geometry_type: str) -> str:
+def ohsome_filter(geometry_type: str) -> OhsomeFilter:
     return str(
         f'geometry:{geometry_type} and '
         '(highway=* or railway=platform) and not '

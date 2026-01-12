@@ -12,6 +12,8 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 - Polygon Paths and Line Paths are now only separated where functionally necessary, in other places they are kept together.
+- Updated to python 3.13 and climatoology 7.0.0
+- Updated to ohsome-filter-to-sql 0.3.0
 
 ## [2.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.0) - 2025-11-10
 

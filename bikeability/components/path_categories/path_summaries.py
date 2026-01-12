@@ -3,7 +3,8 @@ import logging
 import geopandas as gpd
 import pandas as pd
 import plotly.graph_objects as go
-from climatoology.base.artifact import _Artifact, create_plotly_chart_artifact
+from climatoology.base.artifact import Artifact, ArtifactMetadata
+from climatoology.base.artifact_creators import create_plotly_chart_artifact
 from climatoology.base.computation import ComputationResources
 from plotly.graph_objs import Figure
 from pyproj import CRS
@@ -76,14 +77,15 @@ def summarise_aoi(
     return category_fig_stacked_bar
 
 
-def build_aoi_summary_category_stacked_bar_artifact(
-    aoi_aggregate: Figure, resources: ComputationResources
-) -> _Artifact:
+def build_aoi_summary_category_stacked_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
+    metadata = ArtifactMetadata(
+        name='Distribution of Path Categories',
+        summary='How is the total length of paths distributed across the path categories?',
+        tags={Topics.TRAFFIC, Topics.SUMMARY},
+    )
+
     return create_plotly_chart_artifact(
         figure=aoi_aggregate,
-        title='Distribution of Path Categories',
-        caption='How is the total length of paths distributed across the path categories?',
+        metadata=metadata,
         resources=resources,
-        filename='aggregation_aoi_category_stacked_bar',
-        tags={Topics.TRAFFIC, Topics.SUMMARY},
     )

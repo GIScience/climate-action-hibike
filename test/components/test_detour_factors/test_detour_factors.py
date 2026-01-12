@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
-from climatoology.base.artifact import _Artifact
-from climatoology.utility.exception import ClimatoologyUserError
+from climatoology.base.artifact import Artifact
+from climatoology.base.exception import ClimatoologyUserError
 from mobility_tools.utils.exceptions import SizeLimitExceededError
 from pydantic_extra_types.color import Color
 
@@ -33,14 +33,14 @@ def test_build_detour_factor_artifact(default_polygon_geometry, compute_resource
 
     artifact = build_detour_factor_artifact(test_detour_df, compute_resources)
 
-    assert isinstance(artifact, _Artifact)
+    assert isinstance(artifact, Artifact)
 
 
 def test_detour_factors(default_aoi, default_paths, default_ors_settings, compute_resources, detour_factor_mock):
     artifacts = detour_factor_analysis(default_aoi, default_paths, default_ors_settings, compute_resources)
 
     for artifact in artifacts:
-        assert isinstance(artifact, _Artifact)
+        assert isinstance(artifact, Artifact)
 
 
 @pytest.fixture

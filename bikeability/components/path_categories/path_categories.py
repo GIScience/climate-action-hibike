@@ -3,6 +3,7 @@ from enum import Enum
 
 import geopandas as gpd
 import pandas as pd
+from ohsome_filter_to_sql.main import OhsomeFilter
 from shapely import intersects
 from shapely.geometry.multipoint import MultiPoint
 from shapely.ops import split
@@ -138,5 +139,5 @@ def recategorise_zebra_crossings(paths: gpd.GeoDataFrame, zebra_crossing_nodes: 
     return pd.concat([line_paths, polygon_paths])
 
 
-def zebra_crossings_filter() -> str:
+def zebra_crossings_filter() -> OhsomeFilter:
     return str('geometry:point and type:node and (crossing=zebra or crossing:markings=zebra or crossing_ref=zebra)')

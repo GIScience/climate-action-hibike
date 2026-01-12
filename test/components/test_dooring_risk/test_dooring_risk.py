@@ -5,7 +5,7 @@ import pytest
 import shapely
 from approvaltests import verify
 from ohsome import OhsomeClient
-from ohsome_filter_to_sql.main import ohsome_filter_to_sql
+from ohsome_filter_to_sql.main import validate_filter
 from pandas.testing import assert_series_equal
 
 from bikeability.components.dooring_risk.dooring_risk import (
@@ -157,7 +157,7 @@ def test_parking_filter(responses_mock, default_aoi, geometry_type, expected_par
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_parking_filter_syntax(geometry_type):
-    ohsome_filter_to_sql(parallel_parking_filter(geometry_type))
+    validate_filter(parallel_parking_filter(geometry_type))
 
 
 def test_dooring_filter(dooring_test_cases):
