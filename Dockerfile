@@ -1,10 +1,10 @@
 FROM python:3.13.5-bookworm
 SHELL ["/bin/bash", "-c"]
 
-ENV PACKAGE_NAME='bikeability'
 ARG CI_COMMIT_SHORT_SHA
+ENV PACKAGE_NAME='bikeability'
 
-RUN pip install --no-cache-dir poetry==1.7.1
+RUN pip install --no-cache-dir poetry==2.1.3
 
 COPY pyproject.toml poetry.lock ./
 
