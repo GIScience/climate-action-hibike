@@ -1,11 +1,11 @@
-from climatoology.base.artifact import _Artifact
-from climatoology.base.info import _Info
+from climatoology.base.artifact import Artifact
+from climatoology.base.plugin_info import PluginInfo
 
 from bikeability.core.input import BikeabilityIndicators
 
 
 def test_plugin_info_request(operator):
-    assert isinstance(operator.info(), _Info)
+    assert isinstance(operator.info(), PluginInfo)
 
 
 def test_plugin_compute_request_minimal(
@@ -28,7 +28,7 @@ def test_plugin_compute_request_minimal(
 
     assert len(computed_artifacts) == 5
     for artifact in computed_artifacts:
-        assert isinstance(artifact, _Artifact)
+        assert isinstance(artifact, Artifact)
 
 
 def test_plugin_compute_request_all_optionals(
@@ -55,4 +55,4 @@ def test_plugin_compute_request_all_optionals(
 
     assert len(computed_artifacts) == 9
     for artifact in computed_artifacts:
-        assert isinstance(artifact, _Artifact)
+        assert isinstance(artifact, Artifact)

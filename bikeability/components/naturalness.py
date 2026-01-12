@@ -6,16 +6,15 @@ import geopandas as gpd
 import pandas as pd
 import plotly.graph_objects as go
 import shapely
-from climatoology.base.artifact import (
-    ContinuousLegendData,
-    _Artifact,
-    create_geojson_artifact,
+from climatoology.base.artifact import Artifact, ArtifactMetadata, ContinuousLegendData, Legend
+from climatoology.base.artifact_creators import (
     create_plotly_chart_artifact,
+    create_vector_artifact,
 )
 from climatoology.base.computation import ComputationResources
+from climatoology.base.exception import ClimatoologyUserError
 from climatoology.utility.api import TimeRange
-from climatoology.utility.exception import ClimatoologyUserError
-from climatoology.utility.Naturalness import NaturalnessIndex, NaturalnessUtility
+from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
 from plotly.graph_objs import Figure
 from pyproj import CRS
 
@@ -131,7 +130,7 @@ def build_naturalness_artifact(
     paths_all: gpd.GeoDataFrame,
     resources: ComputationResources,
     cmap_name: str = 'YlGn',
-) -> list[_Artifact]:
+) -> Artifact:
     # If no good data is returned (e.g. due to an error), return a text artifact with a simple message
     if paths_all['naturalness'].isna().all():
         raise ClimatoologyUserError(
@@ -146,41 +145,41 @@ def build_naturalness_artifact(
     # Clean data for labels
     paths_all['naturalness'] = paths_all['naturalness'].round(2)
 
-    # Define colors and legend
-    color = get_continuous_colors(paths_all['naturalness'], cmap_name)
-    legend = ContinuousLegendData(
-        cmap_name=cmap_name,
-        ticks={'Low (0)': 0.0, 'High (1)': 1.0},
+    legend = Legend(
+        legend_data=ContinuousLegendData(
+            cmap_name=cmap_name,
+            ticks={'Low (0)': 0.0, 'High (1)': 1.0},
+        )
     )
 
-    # Build artifact
-    map_artifact = create_geojson_artifact(
-        features=paths_all.geometry,
-        layer_name='Path Greenness',
-        caption=Path('resources/info/naturalness/caption.md').read_text(),
+    paths_all['color'] = get_continuous_colors(paths_all['naturalness'], cmap_name)
+
+    metadata = ArtifactMetadata(
+        name='Path Greenness',
+        summary=Path('resources/info/naturalness/summary.md').read_text(),
         description=Path('resources/info/naturalness/description.md').read_text(),
-        label=paths_all.naturalness.to_list(),
-        color=color,
-        legend_data=legend,
-        resources=resources,
         filename='cycling_infrastructure_path_greenness',
         tags={Topics.GREENNESS},
     )
 
-    return [map_artifact]
+    return create_vector_artifact(
+        data=paths_all, metadata=metadata, resources=resources, label='naturalness', legend=legend
+    )
 
 
-def build_naturalness_summary_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> list[_Artifact]:
-    chart_artifact = create_plotly_chart_artifact(
-        figure=aoi_aggregate,
-        title='Distribution of Greenness',
-        caption='What length of paths has low, mid, and high NDVI?',
-        resources=resources,
+def build_naturalness_summary_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
+    metadata = ArtifactMetadata(
+        name='Distribution of Greenness',
+        summary='What length of paths has low, mid, and high NDVI?',
         filename='aggregation_aoi_naturalness_bar',
         tags={Topics.SUMMARY, Topics.GREENNESS},
     )
 
-    return [chart_artifact]
+    return create_plotly_chart_artifact(
+        figure=aoi_aggregate,
+        metadata=metadata,
+        resources=resources,
+    )
 
 
 def summarise_naturalness(

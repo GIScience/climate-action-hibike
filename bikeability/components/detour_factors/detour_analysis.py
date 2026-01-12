@@ -8,13 +8,10 @@ import matplotlib.pyplot as pyplt
 import numpy as np
 import plotly.graph_objects as go
 import shapely
-from climatoology.base.artifact import (
-    _Artifact,
-    create_geojson_artifact,
-    create_plotly_chart_artifact,
-)
+from climatoology.base.artifact import Artifact, ArtifactMetadata
+from climatoology.base.artifact_creators import create_plotly_chart_artifact, create_vector_artifact
 from climatoology.base.computation import ComputationResources
-from climatoology.utility.exception import ClimatoologyUserError
+from climatoology.base.exception import ClimatoologyUserError
 from mobility_tools.detour_factors import get_detour_factors
 from mobility_tools.ors_settings import ORSSettings
 from mobility_tools.utils.exceptions import SizeLimitExceededError
@@ -22,10 +19,6 @@ from plotly.graph_objects import Figure
 from pydantic_extra_types.color import Color
 
 from bikeability.components.utils.utils import Topics
-
-# from bikeability.utils import (
-#     get_detour_factor_legend
-# )
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +28,7 @@ def detour_factor_analysis(
     paths: gpd.GeoDataFrame,
     ors_settings: ORSSettings,
     resources: ComputationResources,
-) -> list[_Artifact]:
+) -> list[Artifact]:
     try:
         detour_factors = get_detour_factors(aoi=aoi, paths=paths, ors_settings=ors_settings, profile='foot-walking')
     except SizeLimitExceededError:
@@ -50,21 +43,24 @@ def detour_factor_analysis(
 
 def build_detour_factor_artifact(
     detour_factor_data: gpd.GeoDataFrame, resources: ComputationResources, cmap_name: str = 'YlOrRd'
-) -> _Artifact:
+) -> Artifact:
     """Artifact containing a GeoJSON with hex-grid cells and the Detour Factor."""
 
     detour_data = apply_color_and_label(detour_factor_data, cmap_name)
 
-    return create_geojson_artifact(
-        features=detour_data.geometry,
-        layer_name='Detour Factor',
-        filename='hexgrid_detours',
-        caption='Can I reach my surroundings without big detours?',
-        description=Path('resources/info/detour_factors/description.md').read_text(),
-        label=detour_data.label.to_list(),
-        color=detour_data.color.to_list(),
-        resources=resources,
+    metadata = ArtifactMetadata(
+        name='Detour Factor',
+        primary=True,
         tags={Topics.CONNECTIVITY, Topics.BARRIERS},
+        filename='hexgrid_detours',
+        summary='Can I reach my surroundings without big detours?',
+        description=Path('resources/info/detour_factors/description.md').read_text(),
+    )
+
+    return create_vector_artifact(
+        data=detour_data[['detour_factor', 'color', 'label', 'geometry']],
+        metadata=metadata,
+        resources=resources,
     )
 
 
@@ -142,18 +138,19 @@ def summarise_detour(
     return detour_fig
 
 
-def build_detour_summary_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> _Artifact:
+def build_detour_summary_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
     number_inf_detour_cells = sum(np.isinf(aoi_aggregate['data'][0]['x']))
-    return create_plotly_chart_artifact(
-        figure=aoi_aggregate,
-        title='Histogram of Detour Factors',
-        caption='How are detour factor values distributed?',
-        description=f'The area contains {number_inf_detour_cells} (partly) unreachable hexagon{"" if number_inf_detour_cells == 1 else "s"}.',
-        resources=resources,
-        filename='aggregation_aoi_detour',
+
+    metadata = ArtifactMetadata(
+        name='Histogram of Detour Factors',
         primary=True,
         tags={Topics.CONNECTIVITY, Topics.BARRIERS, Topics.SUMMARY},
+        filename='aggregation_aoi_detour',
+        summary='How are detour factor values distributed?',
+        description=f'The area contains {number_inf_detour_cells} (partly) unreachable hexagon{"" if number_inf_detour_cells == 1 else "s"}.',
     )
+
+    return create_plotly_chart_artifact(figure=aoi_aggregate, metadata=metadata, resources=resources)
 
 
 DETOUR_FACTOR_COLOR_MAP = {

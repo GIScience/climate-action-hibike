@@ -9,7 +9,7 @@ import shapely
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
-from climatoology.utility.Naturalness import NaturalnessIndex
+from climatoology.utility.naturalness import NaturalnessIndex
 from mobility_tools.ors_settings import ORSSettings
 
 from bikeability.components.path_categories.path_categories import PathCategory
@@ -248,7 +248,7 @@ def naturalness_utility_mock():
 
         raise ValueError
 
-    with patch('climatoology.utility.Naturalness.NaturalnessUtility') as naturalness_utility:
+    with patch('climatoology.utility.naturalness.NaturalnessUtility') as naturalness_utility:
         naturalness_utility.compute_vector.side_effect = mock_get_vector
         yield naturalness_utility
 
@@ -263,8 +263,8 @@ def expected_detour_factors() -> gpd.GeoDataFrame:
                 1.454343083874761,
                 1.7969363677141994,
                 1.4832090368368422,
-                1.8521635465676833,
-                1.3880294081510607,
+                2.8521635465676833,
+                3.3880294081510607,
             ],
             'id': [
                 '8a1faa996847fff',

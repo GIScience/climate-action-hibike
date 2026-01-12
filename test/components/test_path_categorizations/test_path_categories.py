@@ -1,5 +1,5 @@
 import pandas as pd
-from ohsome_filter_to_sql.main import ohsome_filter_to_sql
+from ohsome_filter_to_sql.main import validate_filter
 
 from bikeability.components.path_categories.path_categories import (
     PathCategory,
@@ -244,4 +244,4 @@ def test_construct_filter_validate():
 
 
 def test_crossings_filter():
-    ohsome_filter_to_sql(zebra_crossings_filter())
+    validate_filter(zebra_crossings_filter())
