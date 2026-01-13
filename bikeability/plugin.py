@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 def init_plugin(initialized_settings: Settings, initialized_ors_settings: ORSSettings) -> int | None:
     settings = Settings()
     naturalness_utility = NaturalnessUtility(
-        base_url=f'http://{settings.naturalness_host}{settings.naturalness_path}',
+        base_url=f'http://{settings.naturalness_host}:{settings.naturalness_port}{settings.naturalness_path}',
     )
     operator = OperatorBikeability(naturalness_utility, ors_settings)
 
