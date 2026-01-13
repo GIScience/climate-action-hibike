@@ -10,6 +10,7 @@ groups = ["main"]
 files = [
     {file = "aenum-3.1.16-py2-none-any.whl", hash = "sha256:7810cbb6b4054b7654e5a7bafbe16e9ee1d25ef8e397be699f63f2f3a5800433"},
     {file = "aenum-3.1.16-py3-none-any.whl", hash = "sha256:9035092855a98e41b66e3d0998bd7b96280e85ceb3a04cc035636138a1943eaf"},
+    {file = "aenum-3.1.16.tar.gz", hash = "sha256:bfaf9589bdb418ee3a986d85750c7318d9d2839c1b1a1d6fe8fc53ec201cf140"},
 ]
 
 [[package]]
@@ -139,31 +140,31 @@ files = [
 
 [[package]]
 name = "approval-utilities"
-version = "16.1.0"
+version = "16.2.2"
 description = "Utilities for your production code that work well with approvaltests"
 optional = false
 python-versions = ">=3.8"
 groups = ["test"]
 files = [
-    {file = "approval_utilities-16.1.0-py3-none-any.whl", hash = "sha256:e197f854af57c791c2637cebd76d905ac260dcfa095909210b3b59f2edae55ac"},
-    {file = "approval_utilities-16.1.0.tar.gz", hash = "sha256:15e2aa550cdf611edfa21796fdd8dfb34c72d0f349941586eba6ec53411ca2ad"},
+    {file = "approval_utilities-16.2.2-py3-none-any.whl", hash = "sha256:30f1ca1f4f748a42c7da083e2ab766f531e680c1203cc78bd7131e182dca197e"},
+    {file = "approval_utilities-16.2.2.tar.gz", hash = "sha256:6820848d721f3b0a2f71cfde012bbd27478628eb0b4a8596b7bc50cd300d4835"},
 ]
 
 [[package]]
 name = "approvaltests"
-version = "16.1.0"
+version = "16.2.2"
 description = "Assertion/verification library to aid testing"
 optional = false
 python-versions = ">=3.8"
 groups = ["test"]
 files = [
-    {file = "approvaltests-16.1.0-py3-none-any.whl", hash = "sha256:d7d6a53844f98a9efe0426d6d09811387d7d22b25a6163f50d492af2d5572796"},
-    {file = "approvaltests-16.1.0.tar.gz", hash = "sha256:a5ba0030d6d2ea3a9cfefb5522a02917e19b10df07d6ae9019f22148607b8bcb"},
+    {file = "approvaltests-16.2.2-py3-none-any.whl", hash = "sha256:3d2e7f6337e7ffd001b0b269f3155a8a563c9b0b07ad9312ede2b0d00972cbe3"},
+    {file = "approvaltests-16.2.2.tar.gz", hash = "sha256:5cb403ddb50e8bd5e8a3efff0d66e63490bf18a2e41d48d9bfcc347e9981aa10"},
 ]
 
 [package.dependencies]
 allpairspy = ">=2.1.0"
-approval_utilities = "16.1.0"
+approval_utilities = "16.2.2"
 beautifulsoup4 = ">=4.4.0"
 empty-files = ">=0.0.3"
 mock = ">=5.1.0"
