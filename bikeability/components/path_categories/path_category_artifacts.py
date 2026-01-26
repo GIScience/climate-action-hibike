@@ -24,7 +24,7 @@ def build_path_categories_artifact(
     paths_without_restriction['label'] = paths_without_restriction.category.apply(lambda r: r.name)
 
     metadata = ArtifactMetadata(
-        name='PathCategories',
+        name='Path Categories',
         primary=True,
         tags={Topics.TRAFFIC},
         summary=Path('resources/info/path_categories/summary.md').read_text(),
@@ -36,8 +36,9 @@ def build_path_categories_artifact(
         metadata=metadata,
         resources=resources,
         legend=Legend(
+            title='Who Shares This Path with Me?',
             legend_data={
                 category.value: get_qualitative_color(category, cmap_name) for category in PathCategory.get_visible()
-            }
+            },
         ),
     )

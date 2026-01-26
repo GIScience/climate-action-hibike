@@ -14,16 +14,16 @@ log = logging.getLogger(__name__)
 
 
 class PathCategory(Enum):
-    EXCLUSIVE = 'exclusive'
-    SHARED_WITH_PEDESTRIANS = 'shared_with_pedestrians'
-    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'shared_with_cars_up_to_15_km/h'
-    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED = 'shared_with_cars_up_to_30_km/h'
-    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED = 'shared_with_cars_up_to_50_km/h'
-    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'shared_with_cars_above_50_km/h'
-    SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED = 'shared_with_cars_unknown_speed'
+    EXCLUSIVE = 'bike_exclusive'
+    SHARED_WITH_PEDESTRIANS = 'pedestrians'
+    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'cars_up_to_15_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED = 'cars_up_to_30_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED = 'cars_up_to_50_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED = 'cars_above_50_km/h'
+    SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED = 'cars_unknown_speed'
     REQUIRES_DISMOUNTING = 'requires_dismounting'
     PEDESTRIAN_EXCLUSIVE = 'pedestrian_exclusive'
-    NO_ACCESS = 'no_access'
+    NO_ACCESS = 'bike_not_allowed'
     UNKNOWN = 'unknown'
 
     @classmethod

@@ -80,7 +80,8 @@ def summarise_aoi(
 def build_aoi_summary_category_stacked_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
     metadata = ArtifactMetadata(
         name='Distribution of Path Categories',
-        summary='How is the total length of paths distributed across the path categories?',
+        summary='How is the total length of paths distributed across the path categories? '
+        'Each category indicates with which other road users cyclists share the path.',
         tags={Topics.TRAFFIC, Topics.SUMMARY},
     )
 
