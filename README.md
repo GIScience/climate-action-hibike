@@ -55,18 +55,21 @@ This will make debugging easier at a later stage.
 If the infrastructure is reachable you can copy [.env.base_template](.env.base_template) to `.env.base` and then run
 
 ```shell
-docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
+docker build . --tag repo.heigit.org/climate-action/bikeability:devel
 docker run --env-file .env.base --network=host heigit/{bikeability}:devel
 ```
 
-Make sure the cone-token is copied to the text-file named `CI_JOB_TOKEN` that is mounted to the container build process as secret.
 
 To deploy this plugin to the central docker repository run
 
 ```shell
-docker build --secret id=CI_JOB_TOKEN . --tag heigit/{bikeability}:devel
+docker build . --tag repo.heigit.org/climate-action/bikeability:devel
 docker image push heigit/{bikeability}:devel
 ```
 
 To mimic the build behaviour of the CI you have to add --build-arg CI_COMMIT_SHORT_SHA=$(git rev-parse --short HEAD)
 to the above command.
+
+To build a canary version with the latest `climatoology` (depending on your dependency declaration) also add
+`--build-arg "CANARY=true"`, i.e. run
+`docker build . --build-arg CANARY=true --build-arg CI_COMMIT_SHORT_SHA=$(git rev-parse --short HEAD) --tag repo.heigit.org/climate-action/bikeability:canary --push`

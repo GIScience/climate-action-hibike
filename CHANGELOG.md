@@ -17,6 +17,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Updated greenness description to match artifact name and hiWalk
 - Rename path cateogories and related artifact titles for better clarity ([#81](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/81))
 
+### Removed
+- all the shenanigans around accessing a private climatoology repository because that is now public
+
 ## [2.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.0) - 2025-11-10
 
 ### Changed
