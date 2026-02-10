@@ -16,6 +16,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Updated to ohsome-filter-to-sql 0.3.0
 - Updated greenness description to match artifact name and hiWalk
 - Rename path cateogories and related artifact titles for better clarity ([#81](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/81))
+- Raise a `ClimatoologyUserError` if there's an error with Ohsome ([#117](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/117))
 
 ### Removed
 - all the shenanigans around accessing a private climatoology repository because that is now public

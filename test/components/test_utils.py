@@ -1,9 +1,13 @@
+from unittest.mock import patch
+
 import geopandas as gpd
 import geopandas.testing
+import ohsome
 import pytest
 import shapely
 from climatoology.base.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
+from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import validate_filter
 
 from bikeability.components.utils.utils import (
@@ -54,6 +58,23 @@ def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
     )
     computed_osm_data = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
     geopandas.testing.assert_geodataframe_equal(computed_osm_data, expected_osm_data, check_like=True)
+
+
+class MockPostClient:
+    def post(self, **kwags):
+        raise OhsomeException('test: Broken Response', error_code=500)
+
+
+class MockElements:
+    @property
+    def geometry(self):
+        return MockPostClient()
+
+
+@patch.object(ohsome.OhsomeClient, attribute='elements', new=MockElements())
+def test_fetch_osm_data_ohsome_error(default_aoi):
+    with pytest.raises(ClimatoologyUserError):
+        fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
 
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
