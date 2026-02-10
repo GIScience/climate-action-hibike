@@ -5,6 +5,7 @@ import geopandas as gpd
 import shapely
 from climatoology.base.exception import ClimatoologyUserError
 from ohsome import OhsomeClient
+from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import OhsomeFilter
 from pyproj import CRS, Transformer
 from shapely.ops import transform
@@ -39,9 +40,16 @@ def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, cou
 
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: OhsomeFilter, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
-    elements = ohsome.elements.geometry.post(
-        bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
-    ).as_dataframe()
+    try:
+        elements = ohsome.elements.geometry.post(
+            bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
+        ).as_dataframe()
+    except OhsomeException as e:
+        if e.error_code in [500, 501, 502, 503, 507]:
+            raise ClimatoologyUserError('Ohsome is currently not available.')
+        else:
+            raise e
+
     elements = elements.reset_index()
     return elements[['@osmId', 'geometry', '@other_tags']]
 
