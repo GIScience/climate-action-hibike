@@ -46,7 +46,7 @@ def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: OhsomeFilter, ohsome: 
         ).as_dataframe()
     except OhsomeException as e:
         if e.error_code in [500, 501, 502, 503, 507]:
-            raise ClimatoologyUserError('Ohsome is currently not available.')
+            raise ClimatoologyUserError('There was an error collecting OSM data. Please try again later.')
         else:
             raise e
 
