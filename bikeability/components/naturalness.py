@@ -170,7 +170,7 @@ def build_naturalness_artifact(
 def build_naturalness_summary_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
     metadata = ArtifactMetadata(
         name='Distribution of Greenness',
-        summary='What length of paths has low, mid, and high NDVI?',
+        summary='What length of paths has low, mid, and high NDVI? A high NDVI signifies abundant healthy vegetation, and a low NDVI signifies a lack of vegetation.',
         filename='aggregation_aoi_naturalness_bar',
         tags={Topics.SUMMARY, Topics.GREENNESS},
     )
