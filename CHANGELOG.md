@@ -5,17 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/2.0.0...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/2.0.1...main)
+
+## [2.0.1](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.1) - 2025-02-23
 
 ### Fixed
 - Clipping bug in greenness computation is fixed now by removing the necessity to clip again on artifact creation ([#109](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/109))
 
 ### Changed
 - Polygon Paths and Line Paths are now only separated where functionally necessary, in other places they are kept together.
-- Updated to python 3.13 and climatoology 7.0.0
+- Updated to python 3.13 and climatoology 7.0.3
 - Updated to ohsome-filter-to-sql 0.3.0
 - Updated greenness description to match artifact name and hiWalk
-- Rename path cateogories and related artifact titles for better clarity ([#81](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/81))
+- Rename path categories and related artifact titles for better clarity ([#81](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/81))
 - Raise a `ClimatoologyUserError` if there's an error with Ohsome ([#117](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/issues/117))
 
 ### Removed

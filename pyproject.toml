@@ -1,6 +1,6 @@
 [project]
 name = "Bikeability"
-version = "2.0.0"
+version = "2.0.1"
 description = "The hiBike plugin"
 authors = [
     {name = "Moritz Schott", email= "moritz.schott@heigit.org"},
@@ -13,7 +13,7 @@ readme = "README.md"
 
 requires-python = ">=3.13.5,<3.14"
 dependencies = [
-    "climatoology @ git+https://gitlab.heigit.org/climate-action/climatoology.git@7.0.2",
+    "climatoology @ git+https://gitlab.heigit.org/climate-action/climatoology.git@7.0.3",
     "pydantic (>=2.12.5,<3.0.0)",
     "pydantic-settings (>=2.1.0,<3.0.0)",
     "shapely (>=2.0.2,<3.0.0)",
