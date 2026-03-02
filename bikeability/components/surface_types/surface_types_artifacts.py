@@ -25,7 +25,7 @@ def build_surface_types_artifact(
     surface_type_paths['color'] = surface_type_paths.surface_type.apply(
         lambda path_surface_type: legend_data[path_surface_type.value]
     )
-    surface_type_paths['label'] = surface_type_paths.surface_type.apply(lambda r: r.name)
+    surface_type_paths['label'] = surface_type_paths.surface_type.apply(lambda r: r.value)
 
     metadata = ArtifactMetadata(
         name='Surface Types',

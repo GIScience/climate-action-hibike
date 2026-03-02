@@ -1,6 +1,6 @@
 [project]
 name = "Bikeability"
-version = "2.0.1"
+version = "2.0.2"
 description = "The hiBike plugin"
 authors = [
     {name = "Moritz Schott", email= "moritz.schott@heigit.org"},

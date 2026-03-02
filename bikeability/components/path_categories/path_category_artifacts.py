@@ -21,7 +21,7 @@ def build_path_categories_artifact(
         get_qualitative_color, cmap_name=cmap_name
     )
 
-    paths_without_restriction['label'] = paths_without_restriction.category.apply(lambda r: r.name)
+    paths_without_restriction['label'] = paths_without_restriction.category.apply(lambda r: r.value)
 
     metadata = ArtifactMetadata(
         name='Path Categories',
