@@ -31,7 +31,7 @@ repository = "https://gitlab.heigit.org/climate-action/plugins/bikeability"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"
-approvaltests = "^16.0.0"
+approvaltests = "^17.0.0"
 pytest-approvaltests = "^0.2.4"
 responses = "^0.26.0"
 pytest-cov = "^7.0.0"
