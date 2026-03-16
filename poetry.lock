@@ -10,7 +10,6 @@ groups = ["main"]
 files = [
     {file = "aenum-3.1.16-py2-none-any.whl", hash = "sha256:7810cbb6b4054b7654e5a7bafbe16e9ee1d25ef8e397be699f63f2f3a5800433"},
     {file = "aenum-3.1.16-py3-none-any.whl", hash = "sha256:9035092855a98e41b66e3d0998bd7b96280e85ceb3a04cc035636138a1943eaf"},
-    {file = "aenum-3.1.16.tar.gz", hash = "sha256:bfaf9589bdb418ee3a986d85750c7318d9d2839c1b1a1d6fe8fc53ec201cf140"},
 ]
 
 [[package]]
@@ -90,7 +89,7 @@ version = "2.5.1"
 description = "Pairwise test combinations generator"
 optional = false
 python-versions = ">=3.7"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "allpairspy-2.5.1-py3-none-any.whl", hash = "sha256:3f97cbac2bbee86f4bfceffd0fd91dca740a120c78e9368af2bad81a2b3426e2"},
     {file = "allpairspy-2.5.1.tar.gz", hash = "sha256:f69d31a3b56eee119d1ec6063e9c732dd44fbba352ef738cb22d9699fc4009fe"},
@@ -140,31 +139,31 @@ files = [
 
 [[package]]
 name = "approval-utilities"
-version = "17.2.0"
+version = "17.2.1"
 description = "Utilities for your production code that work well with approvaltests"
 optional = false
 python-versions = ">=3.8"
-groups = ["test"]
+groups = ["main"]
 files = [
-    {file = "approval_utilities-17.2.0-py3-none-any.whl", hash = "sha256:5b7b4ba4ed364beb33b10425f6a8e0a75816fb1dae7e61eb6df1e43cb96c3eec"},
-    {file = "approval_utilities-17.2.0.tar.gz", hash = "sha256:c8aa6494946811a89bf5d3292f9c39ad9b4b7e66ef78e5898e57e9401a6283fb"},
+    {file = "approval_utilities-17.2.1-py3-none-any.whl", hash = "sha256:ab4717ecef9d048ec16b81e20db6d757c527fb6708112c4072773ba7703f5f54"},
+    {file = "approval_utilities-17.2.1.tar.gz", hash = "sha256:5e7bda5af11b6ed9e3828ec389c52ad57f5e9bcb928a787bade309a335b7122a"},
 ]
 
 [[package]]
 name = "approvaltests"
-version = "17.2.0"
+version = "17.2.1"
 description = "Assertion/verification library to aid testing"
 optional = false
 python-versions = ">=3.8"
-groups = ["test"]
+groups = ["main"]
 files = [
-    {file = "approvaltests-17.2.0-py3-none-any.whl", hash = "sha256:1f829865f0cf6d7a7d0adc9eee0fa42181408d51984ad4664e5454f5ac081be6"},
-    {file = "approvaltests-17.2.0.tar.gz", hash = "sha256:a2dc356268cfba388d188367230d7af8387925718c742374db22369ea412f163"},
+    {file = "approvaltests-17.2.1-py3-none-any.whl", hash = "sha256:50620958117a9a896ef8bece4165b433d6b922b32599d55b57d30b097e3b0aeb"},
+    {file = "approvaltests-17.2.1.tar.gz", hash = "sha256:59e35b5e3238ced7a77b440619b895b4f8cf179405ead6fbb06f9e5ac2648935"},
 ]
 
 [package.dependencies]
 allpairspy = ">=2.1.0"
-approval_utilities = "17.2.0"
+approval_utilities = "17.2.1"
 beautifulsoup4 = ">=4.4.0"
 empty-files = ">=0.0.3"
 mock = ">=5.1.0"
@@ -245,7 +244,7 @@ version = "4.14.3"
 description = "Screen-scraping library"
 optional = false
 python-versions = ">=3.7.0"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "beautifulsoup4-4.14.3-py3-none-any.whl", hash = "sha256:0918bfe44902e6ad8d57732ba310582e98da931428d231a5ecb9e7c703a735bb"},
     {file = "beautifulsoup4-4.14.3.tar.gz", hash = "sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86"},
@@ -733,7 +732,7 @@ files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "platform_system == \"Windows\"", test = "sys_platform == \"win32\""}
+markers = {main = "platform_system == \"Windows\" or sys_platform == \"win32\"", test = "sys_platform == \"win32\""}
 
 [[package]]
 name = "contourpy"
@@ -1008,7 +1007,7 @@ version = "0.0.9"
 description = "Serves empty files of many types"
 optional = false
 python-versions = ">=3.7.1"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "empty-files-0.0.9.tar.gz", hash = "sha256:22e74de327271ef9592a661aaa53bb1d5fa6cfd539dac7315625c8b30b7292ae"},
     {file = "empty_files-0.0.9-py3-none-any.whl", hash = "sha256:9af04feacd5858d1255a00e76926a2d760f6d05c3c5a8df58abd6be21da742c2"},
@@ -1414,7 +1413,7 @@ version = "2.3.0"
 description = "brain-dead simple config-ini parsing"
 optional = false
 python-versions = ">=3.10"
-groups = ["test"]
+groups = ["main", "test"]
 files = [
     {file = "iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"},
     {file = "iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730"},
@@ -1838,7 +1837,7 @@ version = "5.2.0"
 description = "Rolling backport of unittest.mock for all Pythons"
 optional = false
 python-versions = ">=3.6"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "mock-5.2.0-py3-none-any.whl", hash = "sha256:7ba87f72ca0e915175596069dbbcc7c75af7b5e9b9bc107ad6349ede0819982f"},
     {file = "mock-5.2.0.tar.gz", hash = "sha256:4e460e818629b4b173f32d08bf30d3af8123afbb8e04bb5707a1fd4799e503f0"},
@@ -2320,7 +2319,7 @@ version = "1.6.0"
 description = "plugin and hook calling mechanisms for python"
 optional = false
 python-versions = ">=3.9"
-groups = ["test"]
+groups = ["main", "test"]
 files = [
     {file = "pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"},
     {file = "pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3"},
@@ -2805,7 +2804,7 @@ version = "2.19.2"
 description = "Pygments is a syntax highlighting package written in Python."
 optional = false
 python-versions = ">=3.8"
-groups = ["test"]
+groups = ["main", "test"]
 files = [
     {file = "pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b"},
     {file = "pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887"},
@@ -2899,7 +2898,7 @@ version = "1.11.0"
 description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
 optional = false
 python-versions = "*"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "pyperclip-1.11.0-py3-none-any.whl", hash = "sha256:299403e9ff44581cb9ba2ffeed69c7aa96a008622ad0c46cb575ca75b5b84273"},
     {file = "pyperclip-1.11.0.tar.gz", hash = "sha256:244035963e4428530d9e3a6101a1ef97209c6825edab1567beac148ccc1db1b6"},
@@ -2995,7 +2994,7 @@ version = "9.0.2"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["test"]
+groups = ["main", "test"]
 files = [
     {file = "pytest-9.0.2-py3-none-any.whl", hash = "sha256:711ffd45bf766d5264d487b917733b453d917afd2b0ad65223959f59089f875b"},
     {file = "pytest-9.0.2.tar.gz", hash = "sha256:75186651a92bd89611d1d9fc20f0b4345fd827c41ccd5c299a868a05d70edf11"},
@@ -3017,7 +3016,7 @@ version = "0.2.4"
 description = "A plugin to use approvaltests with pytest"
 optional = false
 python-versions = ">=3.6.1"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "pytest-approvaltests-0.2.4.tar.gz", hash = "sha256:325fafdc1ed49d10f88f072c3305b3d35557cbc15748d835be3020db4092e9a6"},
     {file = "pytest_approvaltests-0.2.4-py3-none-any.whl", hash = "sha256:199ad1cac8ebcbf681f4876d07bf3bbb8bdfa49396e16747027f6bac2fa0a075"},
@@ -3617,7 +3616,7 @@ version = "2.8.3"
 description = "A modern CSS selector implementation for Beautiful Soup."
 optional = false
 python-versions = ">=3.9"
-groups = ["test"]
+groups = ["main"]
 files = [
     {file = "soupsieve-2.8.3-py3-none-any.whl", hash = "sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95"},
     {file = "soupsieve-2.8.3.tar.gz", hash = "sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349"},
@@ -3756,20 +3755,23 @@ url = ["furl (>=0.4.1)"]
 
 [[package]]
 name = "testfixtures"
-version = "10.0.0"
+version = "11.0.0"
 description = "A collection of helpers and mock objects for unit tests and doc tests."
 optional = false
 python-versions = ">=3.11"
-groups = ["test"]
+groups = ["main"]
 files = [
-    {file = "testfixtures-10.0.0-py3-none-any.whl", hash = "sha256:c54ed5c4cd93ad271a6add94a575a5843964ea3aaf590f4c3cb4df16a261b15f"},
-    {file = "testfixtures-10.0.0.tar.gz", hash = "sha256:2b9829bf7f42f0ca8600250762e6725575da59af18d9a7f82aae2c97b14f0f66"},
+    {file = "testfixtures-11.0.0-py3-none-any.whl", hash = "sha256:371385596e87388469f2635decba00619cc416cd034671ecde8a059f6625634e"},
+    {file = "testfixtures-11.0.0.tar.gz", hash = "sha256:06dfeb3792e06c4ea7217e14114391f6c7735c36e0a57e6f4641c6ae5d790ee7"},
 ]
 
 [package.extras]
-build = ["setuptools-git", "twine", "wheel"]
-docs = ["django", "furo", "sphinx", "sybil (>=6)", "twisted"]
-test = ["django", "django-stubs", "mypy", "mypy-zope", "pytest (>=7.1)", "pytest-cov", "pytest-django", "sybil (>=6)", "twisted", "types-mock"]
+django = ["django (>=4) ; python_version < \"3.13\"", "django (>=5.1.3) ; python_version >= \"3.13\""]
+mock-backport = ["mock (>=4.0.3)"]
+sybil = ["sybil (>=6.0.3)"]
+toml = ["tomlkit (>=0.10.0)"]
+twisted = ["twisted (>=22.1)"]
+yaml = ["pyyaml (>=6.0.3)"]
 
 [[package]]
 name = "tifffile"
@@ -3891,7 +3893,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "test"]
+groups = ["main"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -4033,4 +4035,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13.5,<3.14"
-content-hash = "5bbf993d38702d810385ccc219bf44b04a431381fda8108fbf3fcbc00e334ef8"
+content-hash = "fcdc891d46a7d27c35399efe7779f79c96ab6637a005533ae06553fe3510adb5"
