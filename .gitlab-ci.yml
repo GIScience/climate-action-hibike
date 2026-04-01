@@ -25,7 +25,6 @@ unit_tests:
     - poetry config virtualenvs.in-project true
     - poetry install --with test,dev
     - poetry update climatoology # trigger re-fetch from climatoology main branch on plugin development branch
-    - poetry remove pytest-approvaltests approvaltests && poetry add pytest-approvaltests 'approvaltests@17.2.1' --group=test
   script:
     - poetry run pre-commit run --all-files
     - poetry run pytest --ignore test/core/ --cov --cov-report term --cov-report xml:coverage.xml
