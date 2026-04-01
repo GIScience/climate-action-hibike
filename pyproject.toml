@@ -22,7 +22,6 @@ dependencies = [
     "ohsome-filter-to-sql (>=0.3.0,<1.0.0)",
     "mobility-tools @ git+https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git@1.0.3",
     "pytest-approvaltests (>=0.2.4,<0.3.0)",
-    "approvaltests (==17.4.1)",
 ]
 
 
@@ -35,6 +34,7 @@ repository = "https://gitlab.heigit.org/climate-action/plugins/bikeability"
 pytest = "^9.0.0"
 responses = "^0.26.0"
 pytest-cov = "^7.0.0"
+approvaltests = "^17.4.1"
 
 
 [tool.poetry.group.dev.dependencies]
