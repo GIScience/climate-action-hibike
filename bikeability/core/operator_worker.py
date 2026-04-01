@@ -8,7 +8,7 @@ import shapely
 from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources
 from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
-from mobility_tools.ors_settings import ORSSettings
+from mobility_tools.settings import ORSSettings
 from ohsome import OhsomeClient
 from pydantic.networks import HttpUrl
 from shapely import make_valid

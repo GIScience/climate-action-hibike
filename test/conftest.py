@@ -10,7 +10,7 @@ from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
 from climatoology.utility.naturalness import NaturalnessIndex
-from mobility_tools.ors_settings import ORSSettings
+from mobility_tools.settings import ORSSettings
 
 from bikeability.components.path_categories.path_categories import PathCategory
 from bikeability.core.input import ComputeInputBikeability
