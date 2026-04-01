@@ -13,7 +13,7 @@ from climatoology.base.artifact_creators import create_plotly_chart_artifact, cr
 from climatoology.base.computation import ComputationResources
 from climatoology.base.exception import ClimatoologyUserError
 from mobility_tools.detour_factors import get_detour_factors
-from mobility_tools.ors_settings import ORSSettings
+from mobility_tools.settings import ORSSettings
 from mobility_tools.utils.exceptions import SizeLimitExceededError
 from plotly.graph_objects import Figure
 from pydantic_extra_types.color import Color

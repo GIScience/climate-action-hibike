@@ -2,7 +2,7 @@ import logging.config
 
 from climatoology.app.plugin import start_plugin
 from climatoology.utility.naturalness import NaturalnessUtility
-from mobility_tools.ors_settings import ORSSettings
+from mobility_tools.settings import ORSSettings
 
 from bikeability.core.operator_worker import OperatorBikeability
 from bikeability.core.settings import Settings
