@@ -9,6 +9,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [2.0.2](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.2) - 2026-03-02
 
+### Changed
+- Improved methodology for detour factors
+
 ### Fixed
 - Labels of features now match labels in the legend,
   enabling ([webapp #162](https://gitlab.heigit.org/climate-action/web-app/-/issues/162))
