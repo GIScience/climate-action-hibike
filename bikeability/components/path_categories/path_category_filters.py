@@ -96,41 +96,36 @@ def requires_dismounting(d: dict) -> bool:
 
 
 def pedestrian_exclusive(d: dict) -> bool:
-    return (
-        d.get('highway') in ['footway', 'pedestrian']
-        and (
-            d.get('bicycle')
-            not in [
-                'yes',
-                'designated',
-                'dismount',
-            ]
-            or d.get('bicycle:conditional') is not None
-        )
-        and (d.get('access') not in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency'])
+    return d.get('highway') in ['footway', 'pedestrian'] and (
+        d.get('bicycle')
+        not in [
+            'yes',
+            'designated',
+            'dismount',
+        ]
+        or d.get('bicycle:conditional') is not None
     )
 
 
-###############or d.get('highway') == 'footway'
-##############and (d.get('bicycle') not in ['yes', 'designated', 'permissive'])        #### this one shoul dbe added?
-
-
-def restricted_access(d: dict) -> bool:
+def no_access(d: dict) -> bool:
     return (
         d.get('access') in ['no', 'private', 'permit', 'military', 'delivery', 'customers', 'emergency']
         or d.get('motorroad') == 'yes'
-        or d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
-        or d.get('highway')
-        not in [
-            *potential_bikeable_highway_values,
-            'pedestrian',
-            'path',
-            'cycleway',
-            'footway',
-            'steps',
-            'platform',
-        ]
     )
+
+
+def no_bike_access(d: dict) -> bool:
+    return d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination'] or d.get(
+        'highway'
+    ) not in [
+        *potential_bikeable_highway_values,
+        'pedestrian',
+        'path',
+        'cycleway',
+        'footway',
+        'steps',
+        'platform',
+    ]
 
 
 def parse_maxspeed_tag(d: dict) -> SpeedLimitCategory:

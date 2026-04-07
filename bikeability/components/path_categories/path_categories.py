@@ -47,11 +47,13 @@ def apply_path_category_filters(row: pd.Series) -> PathCategory:
     tags = row['@other_tags']
     speed_limit = filters.parse_maxspeed_tag(tags)
     match tags:
+        case x if filters.no_access(x):
+            return PathCategory.NO_ACCESS
         case x if filters.requires_dismounting(x):
             return PathCategory.REQUIRES_DISMOUNTING
         case x if filters.pedestrian_exclusive(x):
             return PathCategory.PEDESTRIAN_EXCLUSIVE
-        case x if filters.restricted_access(x):
+        case x if filters.no_bike_access(x):
             return PathCategory.NO_ACCESS
         case x if filters.designated_exclusive(x):
             return PathCategory.EXCLUSIVE
