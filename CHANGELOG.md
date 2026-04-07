@@ -10,6 +10,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 - Improved methodology for detour factors
 
+### Fixed
+- Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
+
+
 ## [2.0.2](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.2) - 2026-03-02
 
 ### Fixed

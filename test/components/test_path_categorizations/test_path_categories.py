@@ -194,7 +194,15 @@ PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
 
 NO_ACCESS_DF = pd.DataFrame(
     {
-        '@osmId': ['way/320034117', 'way/849049867', 'way/25805786', 'way/4084008', 'way/24635973', 'way/343029968'],
+        '@osmId': [
+            'way/320034117',
+            'way/849049867',
+            'way/25805786',
+            'way/4084008',
+            'way/24635973',
+            'way/343029968',
+            'way/111754956',
+        ],
         '@other_tags': [
             {'highway': 'trunk'},
             {'highway': 'secondary', 'bicycle': 'no'},
@@ -202,8 +210,10 @@ NO_ACCESS_DF = pd.DataFrame(
             {'highway': 'service', 'access': 'no', 'bus': 'yes'},
             {'highway': 'service', 'access': 'private'},
             {'highway': 'footway', 'access': 'private'},
+            {'highway': 'steps', 'access': 'private'},
         ],
         'expected_category': [
+            PathCategory.NO_ACCESS,
             PathCategory.NO_ACCESS,
             PathCategory.NO_ACCESS,
             PathCategory.NO_ACCESS,
