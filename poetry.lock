@@ -2035,7 +2035,7 @@ urllib3 = "*"
 
 [[package]]
 name = "mobility-tools"
-version = "2.0.0"
+version = "2.0.1"
 description = "A library to bundle shared code between hiWalk and hiBike plugins"
 optional = false
 python-versions = "~=3.13"
@@ -2062,8 +2062,8 @@ tqdm = ">=4.67.1,<5.0.0"
 [package.source]
 type = "git"
 url = "https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git"
-reference = "2.0.0"
-resolved_reference = "842e428332f7bd31ffa48b289b4a5146d203f1f6"
+reference = "2.0.1"
+resolved_reference = "5c32a8816ee0c7cca3222c1b44c7c70e760b88ed"
 
 [[package]]
 name = "mock"
@@ -4580,4 +4580,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13.5,<3.14"
-content-hash = "38af64f434b65a42e90762da2b08e2bba37d475ea843ebe50142839c66dc33b0"
+content-hash = "f63fb725627e15b36910774962e9065557c00077677f7b8e82694a3b66edd809"

@@ -36,7 +36,7 @@ class PathCategory(Enum):
 
     @classmethod
     def get_not_bikeable(cls):
-        return [cls.PEDESTRIAN_EXCLUSIVE, cls.NO_ACCESS]
+        return [cls.PEDESTRIAN_EXCLUSIVE, cls.NO_ACCESS, cls.REQUIRES_DISMOUNTING]
 
     @classmethod
     def get_bikeable(cls):

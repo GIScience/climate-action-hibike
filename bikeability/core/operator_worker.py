@@ -8,7 +8,7 @@ import shapely
 from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources
 from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
-from mobility_tools.settings import ORSSettings
+from mobility_tools.settings import ORSSettings, S3Settings
 from ohsome import OhsomeClient
 from pydantic.networks import HttpUrl
 from shapely import make_valid
@@ -34,6 +34,7 @@ from bikeability.components.path_categories.path_summaries import (
     build_aoi_summary_category_stacked_bar_artifact,
     summarise_aoi,
 )
+from bikeability.components.slope.slope_analysis import compute_slope_analysis
 from bikeability.components.smoothness.smoothness import get_smoothness
 from bikeability.components.smoothness.smoothness_artifacts import build_smoothness_artifact
 from bikeability.components.surface_types.surface_types import get_surface_types
@@ -51,11 +52,12 @@ log = logging.getLogger(__name__)
 
 
 class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
-    def __init__(self, naturalness_utility: NaturalnessUtility, ors_settings: ORSSettings):
+    def __init__(self, naturalness_utility: NaturalnessUtility, ors_settings: ORSSettings, s3_settings: S3Settings):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
         self.ors_settings = ors_settings
-        log.debug('Initialised bikeability operator with ohsome client')
+        self.s3_settings = s3_settings
+        log.debug('Initialised bikeability operator with ohsome client, ors settings, and s3 settings')
 
         self.naturalness_utility = naturalness_utility
         log.debug('Initialised bikeability operator with naturalness client')
@@ -153,6 +155,11 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                     aoi, paths, ors_settings=self.ors_settings, resources=resources
                 )
                 artifacts.extend(detour_artifacts)
+
+        if BikeabilityIndicators.SLOPE in params.optional_indicators:
+            with self.catch_exceptions(indicator_name=BikeabilityIndicators.SLOPE.value, resources=resources):
+                slope_artifacts = compute_slope_analysis(paths, self.s3_settings, resources)
+                artifacts.extend(slope_artifacts)
 
         return artifacts
 

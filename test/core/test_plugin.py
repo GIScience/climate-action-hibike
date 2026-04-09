@@ -42,6 +42,7 @@ def test_plugin_compute_request_all_optionals(
     ohsome_api_zebra,
     ohsome_api_count,
     detour_factor_mock,
+    slopes_mock,
 ):
     expected_compute_input = expected_compute_input.model_copy(deep=True)
     expected_compute_input.optional_indicators = {e for e in BikeabilityIndicators}
@@ -53,6 +54,6 @@ def test_plugin_compute_request_all_optionals(
         params=expected_compute_input,
     )
 
-    assert len(computed_artifacts) == 9
+    assert len(computed_artifacts) == 11
     for artifact in computed_artifacts:
         assert isinstance(artifact, Artifact)

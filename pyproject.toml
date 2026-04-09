@@ -20,7 +20,7 @@ dependencies = [
     "ohsome (>=0.4.0,<1.0.0)",
     "matplotlib (>=3.8.3,<4.0.0)",
     "ohsome-filter-to-sql (>=0.3.0,<1.0.0)",
-    "mobility-tools @ git+https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git@2.0.0",
+    "mobility-tools @ git+https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git@2.0.1",
 ]
 
 
