@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class BikeabilityIndicators(Enum):
     DETOUR_FACTORS = 'Detour Factors'
     NATURALNESS = 'Greenness'
+    SLOPE = 'Slope'
 
 
 class ComputeInputBikeability(BaseModel):

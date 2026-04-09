@@ -11,6 +11,7 @@ from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
 from climatoology.utility.naturalness import NaturalnessIndex
 from mobility_tools.settings import ORSSettings
+from shapely import LineString
 
 from bikeability.components.path_categories.path_categories import PathCategory
 from bikeability.core.input import ComputeInputBikeability
@@ -65,7 +66,7 @@ def default_ors_settings() -> ORSSettings:
 
 @pytest.fixture
 def operator(default_ors_settings, naturalness_utility_mock):
-    return OperatorBikeability(naturalness_utility_mock, default_ors_settings)
+    return OperatorBikeability(naturalness_utility_mock, default_ors_settings, None)
 
 
 @pytest.fixture
@@ -285,6 +286,32 @@ def detour_factor_mock(expected_detour_factors):
     with patch('bikeability.components.detour_factors.detour_analysis.get_detour_factors') as get_detour_factors:
         get_detour_factors.return_value = expected_detour_factors
         yield get_detour_factors
+
+
+@pytest.fixture
+def default_slopes_gdf() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame(
+        data={
+            '@osmId': ['way/1', 'way/1', 'way/2', 'way/3'],
+            'segment_id': [0, 1, 0, 0],
+            'segment_length': [10, 10, 10, 10],
+            'slope': [1.0, 2.0, 3.0, 10.0],
+        },
+        geometry=[
+            LineString([(-1.0, -1.0), (-0.5, -0.5)]),  # way/1 seg0 — fully OUTSIDE
+            LineString([(0.2, 0.2), (0.5, 0.5)]),  # way/1 seg1 — fully INSIDE
+            LineString([(0.5, 0.0), (0.5, 1.0)]),  # way/2 seg0 — fully INSIDE (on boundary)
+            LineString([(0.8, 0.8), (1.5, 1.5)]),  # way/3 seg0 — CROSSES boundary (partial)
+        ],
+        crs='EPSG:4326',
+    )
+
+
+@pytest.fixture
+def slopes_mock(default_slopes_gdf):
+    with patch('bikeability.components.slope.slope_analysis.get_paths_slopes') as get_slopes:
+        get_slopes.return_value = default_slopes_gdf
+        yield default_slopes_gdf
 
 
 @pytest.fixture
