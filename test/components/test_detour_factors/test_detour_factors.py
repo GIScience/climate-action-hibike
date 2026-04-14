@@ -43,6 +43,11 @@ def test_detour_factors(default_aoi, default_paths, default_ors_settings, comput
         assert isinstance(artifact, Artifact)
 
 
+def test_detour_factors_fail_without_ors_settings(default_aoi, default_paths, compute_resources):
+    with pytest.raises(ClimatoologyUserError):
+        detour_factor_analysis(aoi=default_aoi, paths=default_paths, ors_settings=None, resources=compute_resources)
+
+
 @pytest.fixture
 def detour_factor_mock_fail(expected_detour_factors):
     with patch('bikeability.components.detour_factors.detour_analysis.get_detour_factors') as get_detour_factors:

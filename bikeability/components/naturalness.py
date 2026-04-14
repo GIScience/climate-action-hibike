@@ -78,13 +78,15 @@ def fetch_naturalness_by_vector(
 
 def get_naturalness(
     paths: gpd.GeoDataFrame,
-    nature_utility: NaturalnessUtility,
+    nature_utility: NaturalnessUtility | None,
     nature_index: NaturalnessIndex,
     agg_stats: list[str] = ['median'],
 ) -> gpd.GeoDataFrame:
     """
     Get naturalness/NDVI along street within the AOI.
     """
+    if nature_utility is None:
+        raise ClimatoologyUserError('Plugin was initialised without a NaturalnessUtility.')
     log.info('Naturalness calculation starts...')
 
     path_lines = paths[paths.geom_type.isin(['LineString', 'MultiLinesString'])]
@@ -134,7 +136,7 @@ def build_naturalness_artifact(
     # If no good data is returned (e.g. due to an error), return a text artifact with a simple message
     if paths_all['naturalness'].isna().all():
         raise ClimatoologyUserError(
-            'here was an error calculating greenness in this computation. '
+            'There was an error calculating greenness in this computation. '
             'The returned greenness is empty. '
             'Contact the developers for more information.'
         )

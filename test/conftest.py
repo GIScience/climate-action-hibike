@@ -10,7 +10,7 @@ from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
 from climatoology.utility.naturalness import NaturalnessIndex
-from mobility_tools.settings import ORSSettings
+from mobility_tools.settings import ORSSettings, S3Settings
 from shapely import LineString
 
 from bikeability.components.path_categories.path_categories import PathCategory
@@ -65,8 +65,21 @@ def default_ors_settings() -> ORSSettings:
 
 
 @pytest.fixture
-def operator(default_ors_settings, naturalness_utility_mock):
-    return OperatorBikeability(naturalness_utility_mock, default_ors_settings, None)
+def default_s3_settings() -> S3Settings:
+    return S3Settings(
+        s3_default_filename='test',
+        s3_bucket='test',
+        s3_secure=False,
+        s3_endpoint='test',
+        s3_access_key='',
+        s3_secret_key='',
+        s3_dem_version='8.0.0',
+    )
+
+
+@pytest.fixture
+def operator(default_ors_settings, naturalness_utility_mock, default_s3_settings):
+    return OperatorBikeability(naturalness_utility_mock, default_ors_settings, default_s3_settings)
 
 
 @pytest.fixture

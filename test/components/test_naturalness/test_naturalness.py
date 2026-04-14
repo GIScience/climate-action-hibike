@@ -3,6 +3,7 @@ import geopandas.testing as gpdtest
 import pandas as pd
 import pytest
 import shapely
+from climatoology.base.exception import ClimatoologyUserError
 from climatoology.utility.naturalness import NaturalnessIndex
 from plotly.graph_objects import Figure
 from pyproj import CRS
@@ -74,6 +75,11 @@ def test_get_naturalness(naturalness_utility_mock, naturalness_test_lines, natur
     )
 
     gpdtest.assert_geodataframe_equal(computed_naturalness, expected_naturalness, check_like=True)
+
+
+def test_get_naturalness_without_naturalness_utility(naturalness_test_lines):
+    with pytest.raises(ClimatoologyUserError):
+        get_naturalness(paths=naturalness_test_lines, nature_index=NaturalnessIndex.NDVI, nature_utility=None)
 
 
 def test_get_naturalness_missing_geometry_types(
