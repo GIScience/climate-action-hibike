@@ -22,8 +22,10 @@ log = logging.getLogger(__name__)
 
 
 def compute_slope_analysis(
-    paths: gpd.GeoDataFrame, s3settings: S3Settings, resources: ComputationResources
+    paths: gpd.GeoDataFrame, s3settings: S3Settings | None, resources: ComputationResources
 ) -> list[Artifact]:
+    if s3settings is None:
+        raise ClimatoologyUserError('Plugin was initialised without S3 settings')
     log.debug('Computing slopes for paths')
 
     multi_line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]

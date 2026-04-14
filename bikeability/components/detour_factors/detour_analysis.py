@@ -26,9 +26,12 @@ log = logging.getLogger(__name__)
 def detour_factor_analysis(
     aoi: shapely.MultiPolygon,
     paths: gpd.GeoDataFrame,
-    ors_settings: ORSSettings,
+    ors_settings: ORSSettings | None,
     resources: ComputationResources,
 ) -> list[Artifact]:
+    if ors_settings is None:
+        raise ClimatoologyUserError('Could not run detour factors, as plugin was initialised without ORS settings')
+
     try:
         detour_factors = get_detour_factors(aoi=aoi, paths=paths, ors_settings=ors_settings, profile='foot-walking')
     except SizeLimitExceededError:

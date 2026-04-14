@@ -52,15 +52,40 @@ log = logging.getLogger(__name__)
 
 
 class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
-    def __init__(self, naturalness_utility: NaturalnessUtility, ors_settings: ORSSettings, s3_settings: S3Settings):
+    def __init__(
+        self,
+        naturalness_utility: NaturalnessUtility | None = None,
+        ors_settings: ORSSettings | None = None,
+        s3_settings: S3Settings | None = None,
+    ):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
+        log.debug('Initialised bikeability operator with ohsome client')
+
         self.ors_settings = ors_settings
+        if self.ors_settings is None:
+            log.warning(
+                'Initialised bikeability operator without ORS client. In this state detour factors cannot be run'
+            )
+
+        else:
+            log.debug('Initialised bikeability operator with ors client')
+
         self.s3_settings = s3_settings
-        log.debug('Initialised bikeability operator with ohsome client, ors settings, and s3 settings')
+        if self.s3_settings is None:
+            log.warning('Initialised bikeability operator without S3 client. In this state slope cannot be run')
+
+        else:
+            log.debug('Initialised bikeability operator with s3 client')
 
         self.naturalness_utility = naturalness_utility
-        log.debug('Initialised bikeability operator with naturalness client')
+        if self.naturalness_utility is None:
+            log.warning(
+                'Initialised bikeability operator without naturalness client. In this state naturalness cannot be run'
+            )
+
+        else:
+            log.debug('Initialised bikeability operator with naturalness client')
 
     def info(self) -> PluginInfo:
         info = generate_plugin_info(
