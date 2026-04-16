@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from pathlib import Path
+from importlib.resources import path
 
 import geopandas as gpd
 import pandas as pd
@@ -156,13 +156,17 @@ def build_naturalness_artifact(
 
     paths_all['color'] = get_continuous_colors(paths_all['naturalness'], cmap_name)
 
-    metadata = ArtifactMetadata(
-        name='Path Greenness',
-        summary=Path('resources/info/naturalness/summary.md').read_text(),
-        description=Path('resources/info/naturalness/description.md').read_text(),
-        filename='cycling_infrastructure_path_greenness',
-        tags={Topics.GREENNESS},
-    )
+    with (
+        path('resources.info.naturalness', 'summary.md') as summary,
+        path('resources.info.naturalness', 'description.md') as description,
+    ):
+        metadata = ArtifactMetadata(
+            name='Path Greenness',
+            summary=summary.read_text(),
+            description=description.read_text(),
+            filename='cycling_infrastructure_path_greenness',
+            tags={Topics.GREENNESS},
+        )
 
     return create_vector_artifact(
         data=paths_all, metadata=metadata, resources=resources, label='naturalness', legend=legend

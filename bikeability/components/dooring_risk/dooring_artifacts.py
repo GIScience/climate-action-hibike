@@ -1,4 +1,4 @@
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
@@ -29,8 +29,8 @@ def build_dooring_artifact(
         primary=True,
         tags={Topics.TRAFFIC, Topics.SAFETY},
         filename='cycling_infrastructure_dooring_risk',
-        summary=Path('resources/info/dooring_risk/summary.md').read_text(),
-        description=Path('resources/info/dooring_risk/description.md').read_text(),
+        summary=read_text('resources.info.dooring_risk', 'summary.md'),
+        description=read_text('resources.info.dooring_risk', 'description.md'),
     )
 
     dooring_risk_paths['label'] = dooring_risk_paths['dooring_category'].apply(lambda x: x.value)

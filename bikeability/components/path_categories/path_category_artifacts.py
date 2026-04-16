@@ -1,4 +1,4 @@
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
@@ -27,8 +27,8 @@ def build_path_categories_artifact(
         name='Path Categories',
         primary=True,
         tags={Topics.TRAFFIC},
-        summary=Path('resources/info/path_categories/summary.md').read_text(),
-        description=Path('resources/info/path_categories/description.md').read_text(),
+        summary=read_text('resources.info.path_categories', 'summary.md'),
+        description=read_text('resources.info.path_categories', 'description.md'),
     )
 
     return create_vector_artifact(
