@@ -10,6 +10,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 - Improved methodology for detour factors
 - make it possible to run the plugin without initializing settings for components that are optional, and raise errors if those optional components are computed without the initialized settings
+- resources are now part of the package definition, and can be accessed from a packaged version of bikeability. Usages of `pathlib.Path` in the package were changed to using `importlib.resources.path` contexts.
 
 ### Fixed
 - Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
