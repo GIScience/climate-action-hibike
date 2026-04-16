@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from pathlib import Path
+from importlib.resources import path
 
 import geopandas as gpd
 import pandas as pd
@@ -88,31 +88,38 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             log.debug('Initialised bikeability operator with naturalness client')
 
     def info(self) -> PluginInfo:
-        info = generate_plugin_info(
-            name='hiBike',
-            icon=Path('resources/info/bike-lane.jpeg'),
-            authors=[
-                PluginAuthor(
-                    name='Climate Action Team',
-                    affiliation='HeiGIT gGmbH',
-                    website=HttpUrl('https://heigit.org/heigit-team/'),
+        with (
+            path('resources.info', 'bike-lane.jpeg') as icon,
+            path('resources.info', 'purpose.md') as purpose,
+            path('resources.info', 'methodology.md') as methodology,
+            path('resources', 'literature.bib') as literature,
+            path('resources', 'Heidelberg_AOI.geojson') as demo_aoi,
+        ):
+            info = generate_plugin_info(
+                name='hiBike',
+                icon=icon,
+                authors=[
+                    PluginAuthor(
+                        name='Climate Action Team',
+                        affiliation='HeiGIT gGmbH',
+                        website=HttpUrl('https://heigit.org/heigit-team/'),
+                    ),
+                ],
+                concerns={Concern.MOBILITY_CYCLING},
+                purpose=purpose,
+                teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
+                methodology=methodology,
+                sources_library=literature,
+                computation_shelf_life=timedelta(weeks=24),
+                # TODO replace this  aoi
+                demo_input_parameters=ComputeInputBikeability(),
+                demo_aoi=CustomAOI(
+                    name='Demo Heidelberg',
+                    path=demo_aoi,
                 ),
-            ],
-            concerns={Concern.MOBILITY_CYCLING},
-            purpose=Path('resources/info/purpose.md'),
-            teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
-            methodology=Path('resources/info/methodology.md'),
-            sources_library=Path('resources/literature.bib'),
-            computation_shelf_life=timedelta(weeks=24),
-            # TODO replace this  aoi
-            demo_input_parameters=ComputeInputBikeability(),
-            demo_aoi=CustomAOI(
-                name='Demo',
-                path=Path('resources/Heidelberg_AOI.geojson'),
-            ),
-        )
-        log.info(f'Return info {info.model_dump()}')
-        return info
+            )
+            log.info(f'Return info {info.model_dump()}')
+            return info
 
     def compute(  # dead: disable # type: ignore
         self,
