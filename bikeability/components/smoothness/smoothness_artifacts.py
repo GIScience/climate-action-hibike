@@ -1,4 +1,4 @@
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 from climatoology.base.artifact import Artifact, ArtifactMetadata
@@ -18,8 +18,8 @@ def build_smoothness_artifact(
     smoothness_paths['label'] = smoothness_paths.smoothness.apply(lambda r: r.name)
     metadata = ArtifactMetadata(
         name='Path Smoothness',
-        summary=Path('resources/info/path_smoothness/summary.md').read_text(),
-        description=Path('resources/info/path_smoothness/description.md').read_text(),
+        summary=read_text('resources.info.path_smoothness', 'summary.md'),
+        description=read_text('resources.info.path_smoothness', 'description.md'),
         tags={Topics.SURFACE},
         filename='smoothness',
     )

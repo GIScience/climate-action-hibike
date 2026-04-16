@@ -1,4 +1,4 @@
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
@@ -29,8 +29,8 @@ def build_surface_types_artifact(
 
     metadata = ArtifactMetadata(
         name='Surface Types',
-        summary=Path('resources/info/surface_types/summary.md').read_text(),
-        description=Path('resources/info/surface_types/description.md').read_text(),
+        summary=read_text('resources.info.surface_types', 'summary.md'),
+        description=read_text('resources.info.surface_types', 'description.md'),
         tags={Topics.SURFACE},
         filename='surface_types',
     )
