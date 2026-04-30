@@ -68,9 +68,9 @@ def build_slope_artifact(
             cmap_name=cmap_name,
             ticks={
                 f'Flat {legend_lower_bound}%': 0.0,
-                'Very Gentle Slope (1.5%)': 0.25,
-                'Moderate Slope (3%)': 0.5,
-                'Considerable Slope (4.5%)': 0.75,
+                'Very Gentle (1.5%)': 0.25,
+                'Moderate (3%)': 0.5,
+                'Considerable (4.5%)': 0.75,
                 f'Steep (> {legend_upper_bound}%)': 1.0,
             },
         )
@@ -101,21 +101,30 @@ def summarise_slope(
     log.info('Summarising slope stats')
     stats = path_slopes_data.dropna(how='any')
 
-    lower_bound, upper_bound = 0, 6
-    clipped = stats['slope'].clip(lower=lower_bound, upper=upper_bound)
+    lower_bound, upper_bound = 0, 7  # 6%+1
+    clipped = stats['slope'].clip(lower=lower_bound, upper=upper_bound - 0.1)
 
-    bins = 7
-    counts, bin_edges = np.histogram(clipped, bins=bins)
+    bins = upper_bound
+    pre_bin_edges = np.linspace(lower_bound, bins, bins + 1)
+    counts, bin_edges = np.histogram(clipped, bins=pre_bin_edges)
+    assert np.abs(pre_bin_edges - bin_edges).sum() < 1e-2, f'Expected bin edges {pre_bin_edges} to match {bin_edges}'
 
     cmap = pyplt.get_cmap(cmap_name, len(counts))
     colors = [mcolors.to_hex(cmap(i)) for i in range(len(counts))]
 
+    bin_labels = [
+        f'Range: {bin_edges[bi]:.2f} - {bin_edges[bi + 1]:.2f}<br>Count: {counts[bi]}'
+        if bi != len(bin_edges) - 2
+        else f'≥{round(bin_edges[bi])}<br>Count: {counts[bi]}'
+        for bi in range(len(bin_edges) - 1)
+    ]
+
     histogram = go.Histogram(
         x=clipped,
-        nbinsx=20,
-        histnorm='percent',
+        nbinsx=bins,
         marker=dict(color=colors),
-        hovertemplate='Range: %{x}<br>Percentage: %{y:.2f}%<extra></extra>',
+        customdata=bin_labels,
+        hovertemplate='%{customdata}<extra></extra>',
         xbins=dict(start=lower_bound, end=upper_bound, size=(upper_bound - lower_bound) / bins),
     )
 
@@ -124,7 +133,7 @@ def summarise_slope(
     # Replace the last tick label with '>100'
     tick_vals = list(bin_edges[::3])  # every 3rd edge to avoid crowding
     tick_text = [str(round(v)) for v in tick_vals]
-    tick_text[-1] = '≥6'
+    tick_text[-1] = f'≥{tick_text[-1]}'  # if int(tick_text[-1]) < upper_bound else '≥6'
 
     slope_fig.update_layout(
         title=dict(

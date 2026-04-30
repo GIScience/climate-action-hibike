@@ -7,6 +7,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/2.0.2...main)
 
+### Added
+- New slope indicator showing slopes for bikeable paths ([#89](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/89))
+
 ### Changed
 - Improved methodology for detour factors
 - make it possible to run the plugin without initializing settings for components that are optional, and raise errors if those optional components are computed without the initialized settings
