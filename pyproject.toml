@@ -33,7 +33,7 @@ repository = "https://gitlab.heigit.org/climate-action/plugins/bikeability"
 pytest = "^9.0.0"
 responses = "^0.26.0"
 pytest-cov = "^7.0.0"
-approvaltests = "^17.4.1"
+approvaltests = "^18.0.0"
 pytest-approvaltests = "^0.2.4"
 
 
