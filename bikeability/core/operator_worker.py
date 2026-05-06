@@ -57,6 +57,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         naturalness_utility: NaturalnessUtility | None = None,
         ors_settings: ORSSettings | None = None,
         s3_settings: S3Settings | None = None,
+        check_size: bool = True,
     ):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
@@ -86,6 +87,8 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
         else:
             log.debug('Initialised bikeability operator with naturalness client')
+
+        self.check_size = check_size
 
     def info(self) -> PluginInfo:
         with (
@@ -133,7 +136,8 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         buffered_aoi = get_buffered_aoi(aoi)
 
         log.debug('Get the number of the paths (lines & polygons) which will return.')
-        check_paths_count_limit(aoi, self.ohsome, 500000)
+        if self.check_size:
+            check_paths_count_limit(aoi, self.ohsome, 500000)
 
         paths = self.get_paths(aoi)
 
