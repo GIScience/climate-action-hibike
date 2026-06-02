@@ -27,8 +27,8 @@ def build_path_categories_artifact(
         name='Path Categories',
         primary=True,
         tags={Topics.TRAFFIC},
-        summary=read_text('resources.info.path_categories', 'summary.md'),
-        description=read_text('resources.info.path_categories', 'description.md'),
+        summary=read_text('bikeability.resources.info.path_categories', 'summary.md'),
+        description=read_text('bikeability.resources.info.path_categories', 'description.md'),
     )
 
     return create_vector_artifact(

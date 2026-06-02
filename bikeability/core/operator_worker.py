@@ -92,11 +92,11 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
     def info(self) -> PluginInfo:
         with (
-            path('resources.info', 'bike-lane.jpeg') as icon,
-            path('resources.info', 'purpose.md') as purpose,
-            path('resources.info', 'methodology.md') as methodology,
-            path('resources', 'literature.bib') as literature,
-            path('resources', 'Heidelberg_AOI.geojson') as demo_aoi,
+            path('bikeability.resources.info', 'bike-lane.jpeg') as icon,
+            path('bikeability.resources.info', 'purpose.md') as purpose,
+            path('bikeability.resources.info', 'methodology.md') as methodology,
+            path('bikeability.resources', 'literature.bib') as literature,
+            path('bikeability.resources', 'Heidelberg_AOI.geojson') as demo_aoi,
         ):
             info = generate_plugin_info(
                 name='hiBike',

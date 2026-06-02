@@ -31,7 +31,6 @@ repository = "https://gitlab.heigit.org/climate-action/plugins/bikeability"
 [tool.poetry]
 packages = [
     {include="bikeability"},
-    {include="resources"},
 ]
 
 [tool.poetry.group.test.dependencies]

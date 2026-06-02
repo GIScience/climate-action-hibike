@@ -157,8 +157,8 @@ def build_naturalness_artifact(
     paths_all['color'] = get_continuous_colors(paths_all['naturalness'], cmap_name)
 
     with (
-        path('resources.info.naturalness', 'summary.md') as summary,
-        path('resources.info.naturalness', 'description.md') as description,
+        path('bikeability.resources.info.naturalness', 'summary.md') as summary,
+        path('bikeability.resources.info.naturalness', 'description.md') as description,
     ):
         metadata = ArtifactMetadata(
             name='Path Greenness',

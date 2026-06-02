@@ -18,8 +18,8 @@ def build_smoothness_artifact(
     smoothness_paths['label'] = smoothness_paths.smoothness.apply(lambda r: r.name)
     metadata = ArtifactMetadata(
         name='Path Smoothness',
-        summary=read_text('resources.info.path_smoothness', 'summary.md'),
-        description=read_text('resources.info.path_smoothness', 'description.md'),
+        summary=read_text('bikeability.resources.info.path_smoothness', 'summary.md'),
+        description=read_text('bikeability.resources.info.path_smoothness', 'description.md'),
         tags={Topics.SURFACE},
         filename='smoothness',
     )

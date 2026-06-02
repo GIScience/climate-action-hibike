@@ -82,7 +82,7 @@ def build_slope_artifact(
         tags={Topics.BARRIERS},
         filename='slope',
         summary='How steep is my path?',
-        description=read_text('resources.info.slope', 'description.md'),
+        description=read_text('bikeability.resources.info.slope', 'description.md'),
     )
 
     return create_vector_artifact(

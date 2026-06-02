@@ -57,7 +57,7 @@ def build_detour_factor_artifact(
         tags={Topics.CONNECTIVITY, Topics.BARRIERS},
         filename='hexgrid_detours',
         summary='Can I reach my surroundings without big detours?',
-        description=read_text('resources.info.detour_factors', 'description.md'),
+        description=read_text('bikeability.resources.info.detour_factors', 'description.md'),
     )
 
     return create_vector_artifact(

@@ -29,8 +29,8 @@ def build_surface_types_artifact(
 
     metadata = ArtifactMetadata(
         name='Surface Types',
-        summary=read_text('resources.info.surface_types', 'summary.md'),
-        description=read_text('resources.info.surface_types', 'description.md'),
+        summary=read_text('bikeability.resources.info.surface_types', 'summary.md'),
+        description=read_text('bikeability.resources.info.surface_types', 'description.md'),
         tags={Topics.SURFACE},
         filename='surface_types',
     )
