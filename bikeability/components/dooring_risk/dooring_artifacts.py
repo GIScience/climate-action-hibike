@@ -29,8 +29,8 @@ def build_dooring_artifact(
         primary=True,
         tags={Topics.TRAFFIC, Topics.SAFETY},
         filename='cycling_infrastructure_dooring_risk',
-        summary=read_text('resources.info.dooring_risk', 'summary.md'),
-        description=read_text('resources.info.dooring_risk', 'description.md'),
+        summary=read_text('bikeability.resources.info.dooring_risk', 'summary.md'),
+        description=read_text('bikeability.resources.info.dooring_risk', 'description.md'),
     )
 
     dooring_risk_paths['label'] = dooring_risk_paths['dooring_category'].apply(lambda x: x.value)
