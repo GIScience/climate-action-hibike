@@ -119,8 +119,8 @@ def dooring_test_cases(dooring_risk, dooring_safe, dooring_unknown):
 
 def test_find_nearest_parking(responses_mock, default_aoi):
     with (
-        open('resources/test/ohsome_line_response.geojson', 'rb') as line_file,
-        open('resources/test/ohsome_parking_response.geojson', 'rb') as parking_file,
+        open('test/resources/ohsome_line_response.geojson', 'rb') as line_file,
+        open('test/resources/ohsome_parking_response.geojson', 'rb') as parking_file,
     ):
         responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=line_file.read())
         responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=parking_file.read())
@@ -143,7 +143,7 @@ def test_find_nearest_parking(responses_mock, default_aoi):
     ],
 )
 def test_parking_filter(responses_mock, default_aoi, geometry_type, expected_parking_data, expected_geometry_type):
-    with open('resources/test/ohsome_parking_response.geojson', 'rb') as vector:
+    with open('test/resources/ohsome_parking_response.geojson', 'rb') as vector:
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/geometry',
             body=vector.read(),
