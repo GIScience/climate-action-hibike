@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 from unittest.mock import patch
 
 import geopandas as gpd
@@ -17,6 +18,11 @@ from bikeability.components.path_categories.path_categories import PathCategory
 from bikeability.core.input import ComputeInputBikeability
 from bikeability.core.operator_worker import OperatorBikeability
 from test.utils import filter_start_matcher
+
+
+@pytest.fixture
+def test_resources() -> Path:
+    return Path('test/resources')
 
 
 @pytest.fixture
@@ -83,10 +89,10 @@ def operator(default_ors_settings, naturalness_utility_mock, default_s3_settings
 
 
 @pytest.fixture
-def ohsome_api_osm(responses_mock):
+def ohsome_api_osm(responses_mock, test_resources):
     with (
-        open('resources/test/ohsome_line_response.geojson', 'r') as line_file,
-        open('resources/test/ohsome_polygon_response.geojson', 'r') as polygon_file,
+        open(test_resources / 'ohsome_line_response.geojson', 'r') as line_file,
+        open(test_resources / 'ohsome_polygon_response.geojson', 'r') as polygon_file,
     ):
         line_body = line_file.read()
         polygon_body = polygon_file.read()
@@ -106,8 +112,8 @@ def ohsome_api_osm(responses_mock):
 
 
 @pytest.fixture
-def ohsome_api_zebra(responses_mock):
-    with open('resources/test/ohsome_node_response.geojson', 'r') as node_file:
+def ohsome_api_zebra(responses_mock, test_resources):
+    with open(test_resources / 'ohsome_node_response.geojson', 'r') as node_file:
         node_body = node_file.read()
 
     responses_mock.post(
@@ -120,10 +126,10 @@ def ohsome_api_zebra(responses_mock):
 
 
 @pytest.fixture
-def ohsome_api_parking(responses_mock):
+def ohsome_api_parking(responses_mock, test_resources):
     with (
-        open('resources/test/ohsome_parking_response.geojson', 'r') as parking_line_file,
-        open('resources/test/ohsome_parking_response.geojson', 'r') as parking_polygon_file,
+        open(test_resources / 'ohsome_parking_response.geojson', 'r') as parking_line_file,
+        open(test_resources / 'ohsome_parking_response.geojson', 'r') as parking_polygon_file,
     ):
         parking_line_body = parking_line_file.read()
         parking_polygon_body = parking_polygon_file.read()
@@ -143,8 +149,8 @@ def ohsome_api_parking(responses_mock):
 
 
 @pytest.fixture
-def ohsome_api_count(responses_mock):
-    with open('resources/test/ohsome_count_response.json', 'rb') as paths_count_file:
+def ohsome_api_count(responses_mock, test_resources):
+    with open(test_resources / 'ohsome_count_response.json', 'rb') as paths_count_file:
         paths_count_body = paths_count_file.read()
 
     responses_mock.post(
