@@ -28,10 +28,6 @@ dependencies = [
 homepage = "https://climate-action.heigit.org"
 repository = "https://gitlab.heigit.org/climate-action/plugins/bikeability"
 
-[tool.poetry]
-packages = [
-    {include="bikeability"},
-]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"
