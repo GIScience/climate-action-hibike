@@ -17,8 +17,8 @@ from bikeability.components.utils.utils import (
 )
 
 
-def test_check_paths_count_limit(default_aoi, expected_compute_input, responses_mock):
-    with open('resources/test/ohsome_count_response.json', 'rb') as paths_count:
+def test_check_paths_count_limit(default_aoi, expected_compute_input, responses_mock, test_resources):
+    with open(test_resources / 'ohsome_count_response.json', 'rb') as paths_count:
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/count',
             body=paths_count.read(),
@@ -29,8 +29,8 @@ def test_check_paths_count_limit(default_aoi, expected_compute_input, responses_
         check_paths_count_limit(default_aoi, OhsomeClient(), 5000)
 
 
-def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock):
-    with open('resources/test/ohsome_line_response.geojson', 'rb') as vector:
+def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock, test_resources):
+    with open(test_resources / 'ohsome_line_response.geojson', 'rb') as vector:
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/geometry',
             body=vector.read(),

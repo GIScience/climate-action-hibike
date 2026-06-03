@@ -117,10 +117,10 @@ def dooring_test_cases(dooring_risk, dooring_safe, dooring_unknown):
     return pd.concat([dooring_risk, dooring_safe, dooring_unknown])
 
 
-def test_find_nearest_parking(responses_mock, default_aoi):
+def test_find_nearest_parking(responses_mock, default_aoi, test_resources):
     with (
-        open('resources/test/ohsome_line_response.geojson', 'rb') as line_file,
-        open('resources/test/ohsome_parking_response.geojson', 'rb') as parking_file,
+        open(test_resources / 'ohsome_line_response.geojson', 'rb') as line_file,
+        open(test_resources / 'ohsome_parking_response.geojson', 'rb') as parking_file,
     ):
         responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=line_file.read())
         responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=parking_file.read())
@@ -142,8 +142,10 @@ def test_find_nearest_parking(responses_mock, default_aoi):
         ('polygon', expected_parking_polygon, 'Polygon'),
     ],
 )
-def test_parking_filter(responses_mock, default_aoi, geometry_type, expected_parking_data, expected_geometry_type):
-    with open('resources/test/ohsome_parking_response.geojson', 'rb') as vector:
+def test_parking_filter(
+    responses_mock, default_aoi, geometry_type, expected_parking_data, expected_geometry_type, test_resources
+):
+    with open(test_resources / 'ohsome_parking_response.geojson', 'rb') as vector:
         responses_mock.post(
             'https://api.ohsome.org/v1/elements/geometry',
             body=vector.read(),

@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from pathlib import Path
+from importlib.resources import files
 
 import geopandas as gpd
 import pandas as pd
@@ -57,6 +57,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         naturalness_utility: NaturalnessUtility | None = None,
         ors_settings: ORSSettings | None = None,
         s3_settings: S3Settings | None = None,
+        check_size: bool = True,
     ):
         super().__init__()
         self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
@@ -87,10 +88,14 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         else:
             log.debug('Initialised bikeability operator with naturalness client')
 
+        self.check_size = check_size
+
     def info(self) -> PluginInfo:
+        resources_dir = files('bikeability.resources')
+
         info = generate_plugin_info(
             name='hiBike',
-            icon=Path('resources/info/bike-lane.jpeg'),
+            icon=resources_dir / 'info/bike-lane.jpeg',
             authors=[
                 PluginAuthor(
                     name='Climate Action Team',
@@ -99,16 +104,16 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                 ),
             ],
             concerns={Concern.MOBILITY_CYCLING},
-            purpose=Path('resources/info/purpose.md'),
+            purpose=resources_dir / 'info/purpose.md',
             teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
-            methodology=Path('resources/info/methodology.md'),
-            sources_library=Path('resources/literature.bib'),
+            methodology=resources_dir / 'info/methodology.md',
+            sources_library=resources_dir / 'literature.bib',
             computation_shelf_life=timedelta(weeks=24),
             # TODO replace this  aoi
             demo_input_parameters=ComputeInputBikeability(),
             demo_aoi=CustomAOI(
-                name='Demo',
-                path=Path('resources/Heidelberg_AOI.geojson'),
+                name='Demo Heidelberg',
+                path=resources_dir / 'Heidelberg_AOI.geojson',
             ),
         )
         log.info(f'Return info {info.model_dump()}')
@@ -126,7 +131,8 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         buffered_aoi = get_buffered_aoi(aoi)
 
         log.debug('Get the number of the paths (lines & polygons) which will return.')
-        check_paths_count_limit(aoi, self.ohsome, 500000)
+        if self.check_size:
+            check_paths_count_limit(aoi, self.ohsome, 500000)
 
         paths = self.get_paths(aoi)
 

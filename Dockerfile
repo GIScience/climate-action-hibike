@@ -12,7 +12,6 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-ansi --no-interaction --without dev,test --no-root
 
 COPY $PACKAGE_NAME $PACKAGE_NAME
-COPY resources resources
 COPY README.md ./README.md
 
 RUN if [[ -n "${CI_COMMIT_SHORT_SHA}" ]]; then sed -E -i "s/^(version *= *\"[^+]*)\"/\\1+${CI_COMMIT_SHORT_SHA}\"/" pyproject.toml; fi;

@@ -1,5 +1,5 @@
 import logging
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 import matplotlib.colors as mcolors
@@ -82,7 +82,7 @@ def build_slope_artifact(
         tags={Topics.BARRIERS},
         filename='slope',
         summary='How steep is my path?',
-        description=Path('resources/info/slope/description.md').read_text(),
+        description=read_text('bikeability.resources.info.slope', 'description.md'),
     )
 
     return create_vector_artifact(

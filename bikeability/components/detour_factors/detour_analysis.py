@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 import matplotlib.colors as mcolors
@@ -57,7 +57,7 @@ def build_detour_factor_artifact(
         tags={Topics.CONNECTIVITY, Topics.BARRIERS},
         filename='hexgrid_detours',
         summary='Can I reach my surroundings without big detours?',
-        description=Path('resources/info/detour_factors/description.md').read_text(),
+        description=read_text('bikeability.resources.info.detour_factors', 'description.md'),
     )
 
     return create_vector_artifact(

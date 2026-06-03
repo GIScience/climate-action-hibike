@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from pathlib import Path
+from importlib.resources import read_text
 
 import geopandas as gpd
 import pandas as pd
@@ -158,8 +158,8 @@ def build_naturalness_artifact(
 
     metadata = ArtifactMetadata(
         name='Path Greenness',
-        summary=Path('resources/info/naturalness/summary.md').read_text(),
-        description=Path('resources/info/naturalness/description.md').read_text(),
+        summary=read_text('bikeability.resources.info.naturalness', 'summary.md'),
+        description=read_text('bikeability.resources.info.naturalness', 'description.md'),
         filename='cycling_infrastructure_path_greenness',
         tags={Topics.GREENNESS},
     )
