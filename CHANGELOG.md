@@ -15,6 +15,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - make it possible to run the plugin without initializing settings for components that are optional, and raise errors if those optional components are computed without the initialized settings
 - resources are now part of the package folder, and can be accessed from a packaged version of bikeability. Usages of `pathlib.Path` in the package were changed to using `importlib.resources.path` contexts or read using the methods provided by `importlib`.
 - test resources now live in the test folder and not with general package resources
+- Add relation of plugin to climate action to plugin description ([#140](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/140))
 
 ### Fixed
 - Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
