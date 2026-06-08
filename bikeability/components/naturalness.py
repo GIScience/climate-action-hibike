@@ -107,6 +107,7 @@ def get_naturalness(
 
         log.debug('Post-process: reset path_line geometry which is not pre-processed')
         lines_ndvi.geometry = path_lines.geometry
+        lines_ndvi['@osmId'] = path_lines['@osmId']
         naturalness_paths.append(lines_ndvi)
 
     if not path_polygons.empty:
@@ -118,6 +119,7 @@ def get_naturalness(
             index=nature_index,
             agg_stats=agg_stats,
         )
+        polygons_ndvi['@osmId'] = path_polygons['@osmId']
         naturalness_paths.append(polygons_ndvi)
 
     # merge path_lines and path_polygons result here and return one dataframe
