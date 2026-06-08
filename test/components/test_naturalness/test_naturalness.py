@@ -15,6 +15,7 @@ from bikeability.components.naturalness import _preprocess_path_lines, get_natur
 def naturalness_test_lines() -> gpd.GeoDataFrame:
     path_lines = gpd.GeoDataFrame(
         index=[1, 2, 3],
+        data={'@osmId': ['a', 'b', 'c']},
         geometry=[
             shapely.LineString([[12.4, 48.25], [12.4, 48.30]]),  # width = 0
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),  # width = 0
@@ -30,7 +31,8 @@ def naturalness_test_lines() -> gpd.GeoDataFrame:
 def naturalness_test_polygons() -> gpd.GeoDataFrame:
     polygon_geom = shapely.Polygon(((12.3, 48.2), (12.3, 48.25), (12.35, 48.25), (12.3, 48.25)))
     polygons = gpd.GeoDataFrame(
-        index=[1, 2],
+        index=[3, 4],
+        data={'@osmId': ['d', 'd']},
         geometry=[polygon_geom, polygon_geom],
         crs='EPSG:4326',
     )
@@ -41,6 +43,7 @@ def naturalness_test_polygons() -> gpd.GeoDataFrame:
 def test_preprocess_line_paths(naturalness_utility_mock, naturalness_test_lines, naturalness_test_polygons):
     expected_valid_path_lines = gpd.GeoDataFrame(
         index=[1, 2, 3],
+        data={'@osmId': ['a', 'b', 'c']},
         geometry=[
             shapely.LineString([[12.4, 48.25], [12.4 + 0.000009, 48.30]]),  # width = 0
             shapely.LineString([[12.41, 48.25], [12.41 + 0.000009, 48.30]]),  # width = 0
@@ -70,7 +73,7 @@ def test_get_naturalness(naturalness_utility_mock, naturalness_test_lines, natur
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),
             shapely.Polygon([[12.4, 48.25], [12.4, 48.30], [12.41, 48.30]]),
         ],
-        data={'naturalness': [0.6, 0.6, 0.6]},  # Walkability: 0.5, 0.6
+        data={'@osmId': ['a', 'b', 'd'], 'naturalness': [0.6, 0.6, 0.6]},  # Walkability: 0.5, 0.6
         crs=CRS.from_epsg(4326),
     )
 
@@ -100,11 +103,11 @@ def test_get_naturalness_missing_geometry_types(
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),
             shapely.Polygon([[12.4, 48.25], [12.4, 48.30], [12.41, 48.30]]),
         ],
-        data={'naturalness': [0.6, 0.6, 0.6]},  # Walkability: 0.5, 0.6
+        data={'naturalness': [0.6, 0.6, 0.6], '@osmId': ['a', 'b', 'd']},  # Walkability: 0.5, 0.6
         crs=CRS.from_epsg(4326),
     )
 
-    gpdtest.assert_geodataframe_equal(result, expected_naturalness)
+    gpdtest.assert_geodataframe_equal(result, expected_naturalness, check_like=True)
 
 
 def test_summarise_naturalness(default_path_geometry, default_polygon_geometry):
