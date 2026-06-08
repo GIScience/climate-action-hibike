@@ -9,6 +9,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 - New slope indicator showing slopes for bikeable paths ([#89](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/89))
+- [Documentation](docs/environment_variables.md) for the available config options ([#138](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/138))
 
 ### Changed
 - Improved methodology for detour factors

@@ -44,15 +44,10 @@ It will now run automatically before each commit and apply fixes for a variety o
 Note that we have increased the maximum number of characters per line to be 120 to make better use of large modern displays.
 If you want to keep short lines explicitly seperate (e.g. in the definition of functions or list) please use ["magic trailing commas"](https://docs.astral.sh/ruff/settings/#format_skip-magic-trailing-comma).
 
-### Logging
-
-Using the environment variable `LOG_Level` you can adjust the amount of log messages produced by the plugin.
-Please make sure to use logging throughout your plugin.
-This will make debugging easier at a later stage.
-
 ## Docker (for admins and interested devs)
 
-If the infrastructure is reachable you can copy [.env.base_template](.env.base_template) to `.env.base` and then run
+If the infrastructure is reachable you can copy the env templates like [.env.base_template](.env.base_template) to `.env.base`, and fill missing values (for more details see [docs/environment_variables.md](docs/environment_variables.md)).
+Then you can run
 
 ```shell
 docker build . --tag repo.heigit.org/climate-action/bikeability:devel
@@ -73,3 +68,19 @@ to the above command.
 To build a canary version with the latest `climatoology` (depending on your dependency declaration) also add
 `--build-arg "CANARY=true"`, i.e. run
 `docker build . --build-arg CANARY=true --build-arg CI_COMMIT_SHORT_SHA=$(git rev-parse --short HEAD) --tag repo.heigit.org/climate-action/bikeability:canary --push`
+
+## Using hiBike as a library
+
+You can import bikeability into your own python project using
+```shell
+poetry add git+https://gitlab.heigit.org/climate-action/plugins/bikeability.git#<version>
+```
+Then you can run hibike computations using `climatoology.app.plugin.run_standalone_computation` locally:
+
+```py
+results = run_standalone_computation(
+            operator=OperatorBikeability(...),
+            ...
+        )
+
+```
