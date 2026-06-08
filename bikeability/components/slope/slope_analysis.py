@@ -39,7 +39,7 @@ def compute_slope_analysis(
         raise ClimatoologyUserError('No linear paths to calculate slope for.')
 
     # Calculate the slope for each path segment.
-    paths_with_slopes = get_paths_slopes(line_string_paths, s3settings, segment_length=15)
+    paths_with_slopes = get_paths_slopes(line_string_paths, s3settings, segment_length=100)
     paths_with_slopes['slope'] = paths_with_slopes['slope'].abs()
 
     slope_artifact = build_slope_artifact(path_slopes_data=paths_with_slopes, resources=resources)
