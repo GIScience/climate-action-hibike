@@ -1,6 +1,6 @@
 Detour factors measure how directly you can bike to surrounding locations.
 The detour factor for a given cell is the average ratio between the biking distance and the straight-line (Euclidean) distance, i.e. “as the crow flies”, from the center of each cell to its corners.
-Cells without walkable paths around the center of the cell are dropped.
+Cells without bikeable paths around the center of the cell are dropped.
 
 Cells are classified as follows:
 - Medium Detour if it takes on average twice the straight-line distance to reach the corners
