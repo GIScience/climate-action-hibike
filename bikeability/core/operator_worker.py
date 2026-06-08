@@ -108,7 +108,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
             methodology=resources_dir / 'info/methodology.md',
             sources_library=resources_dir / 'literature.bib',
-            computation_shelf_life=timedelta(weeks=24),
+            computation_shelf_life=timedelta(weeks=8),
             # TODO replace this  aoi
             demo_input_parameters=ComputeInputBikeability(),
             demo_aoi=CustomAOI(
