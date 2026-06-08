@@ -33,7 +33,7 @@ def detour_factor_analysis(
         raise ClimatoologyUserError('Could not run detour factors, as plugin was initialised without ORS settings')
 
     try:
-        detour_factors = get_detour_factors(aoi=aoi, paths=paths, ors_settings=ors_settings, profile='foot-walking')
+        detour_factors = get_detour_factors(aoi=aoi, paths=paths, ors_settings=ors_settings, profile='cycling-regular')
     except SizeLimitExceededError:
         raise ClimatoologyUserError('Detour Factors failed on an aoi too large for computation timeout.')
 
