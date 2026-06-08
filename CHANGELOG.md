@@ -19,6 +19,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Add relation of plugin to climate action to plugin description ([#140](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/140))
 - results are now only cached for 8 weeks instead of half a year ([#106]https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/106))
 - OSM Ids are now also carried forward in naturalness ([#114](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/114))
+- `check_paths_count_limit` now raises an `InputValidationError` instead of a `ClimatoologyUserError` ([#137](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/137))
 
 ### Fixed
 - Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
