@@ -6,7 +6,7 @@ import geopandas as gpd
 import pandas as pd
 from ohsome_filter_to_sql.main import OhsomeFilter
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 
 log = logging.getLogger(__name__)
 
@@ -63,10 +63,10 @@ class DooringRiskFilters:
 
 
 def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
-    if row['category'] in [
-        PathCategory.EXCLUSIVE,
-        PathCategory.SHARED_WITH_PEDESTRIANS,
-        PathCategory.REQUIRES_DISMOUNTING,
+    if row['path_sharing'] in [
+        PathSharing.EXCLUSIVE,
+        PathSharing.SHARED_WITH_PEDESTRIANS,
+        PathSharing.REQUIRES_DISMOUNTING,
     ]:
         # Treat Paths that are not shared with motorised traffic as safe from dooring
         return DooringRiskCategory.DOORING_SAFE
@@ -89,7 +89,7 @@ def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
 def get_dooring_risk(paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Applying dooring risk rating')
 
-    paths = paths[paths.category.isin(PathCategory.get_bikeable())]
+    paths = paths[paths.path_sharing.isin(PathSharing.get_bikeable())]
 
     polygon_paths = paths[paths.geom_type.isin(['Polygon', 'MultiPolygon'])].copy(deep=False)
     polygon_paths['dooring_category'] = DooringRiskCategory.DOORING_SAFE
@@ -97,7 +97,7 @@ def get_dooring_risk(paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.
     line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]
 
     if line_paths.empty:
-        return polygon_paths
+        return polygon_paths[['@osmId', 'geometry', 'dooring_category']]
 
     line_paths_with_parking = find_nearest_parking(line_paths, parking)
 
@@ -119,7 +119,7 @@ def find_nearest_parking(line_paths, parking):
 
     line_paths = line_paths_with_parking.rename(columns={'@other_tags_left': '@other_tags', '@osmId_left': '@osmId'})
 
-    line_paths = line_paths[['geometry', '@osmId', '@other_tags', 'parking', 'category']]
+    line_paths = line_paths[['geometry', '@osmId', '@other_tags', 'parking', 'path_sharing']]
 
     return line_paths
 

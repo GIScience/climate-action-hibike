@@ -9,7 +9,7 @@ from climatoology.base.computation import ComputationResources
 from plotly.graph_objs import Figure
 from pyproj import CRS
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics, calculate_length
 
@@ -21,6 +21,10 @@ def summarise_aoi(
     projected_crs: CRS,
     length_resolution_m: int = 1000,
 ) -> go.Figure:
+    """
+    Creates a stacked bar chart summarizing path sharing by length.
+    """
+
     log.info('Summarising Walkable Path Categories')
 
     line_paths = paths[
@@ -28,18 +32,17 @@ def summarise_aoi(
     ]  # summarizing only makes sense by length, if we include polygons we need a different metric
     stats = calculate_length(length_resolution_m, line_paths, projected_crs)
 
-    # Path category stacked bar chart
-    summary = stats.groupby('category', dropna=False, sort=False, as_index=False)['length'].sum()
-    category_order = PathCategory.get_visible()
-    summary['category'] = pd.Categorical(summary['category'], categories=category_order, ordered=True)
-    summary_sorted = summary.sort_values('category').dropna()
+    summary = stats.groupby('path_sharing', dropna=False, sort=False, as_index=False)['length'].sum()
+    category_order = PathSharing.get_visible()
+    summary['path_sharing'] = pd.Categorical(summary['path_sharing'], categories=category_order, ordered=True)
+    summary_sorted = summary.sort_values('path_sharing').dropna()
 
     total_length = summary_sorted['length'].sum()
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100
 
-    stacked_bar_colors = summary_sorted.category.apply(get_qualitative_color, cmap_name='coolwarm')
+    stacked_bar_colors = summary_sorted.path_sharing.apply(get_qualitative_color, cmap_name='coolwarm')
     stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
-    summary_sorted['category'] = summary_sorted.category.apply(lambda cat: cat.value)
+    summary_sorted['path_sharing'] = summary_sorted.path_sharing.apply(lambda cat: cat.value)
 
     category_fig_stacked_bar = go.Figure()
 
@@ -48,10 +51,10 @@ def summarise_aoi(
             go.Bar(
                 y=['Path Types'],
                 x=[row['percent']],
-                name=row['category'].replace('_', ' ').capitalize(),
+                name=row['path_sharing'].replace('_', ' ').capitalize(),
                 orientation='h',
                 marker_color=stacked_bar_colors[i],
-                hovertemplate=f'{row["category"]}: {row["length"]:.2f} km ({row["percent"]:.1f}%)<extra></extra>'.replace(
+                hovertemplate=f'{row["path_sharing"]}: {row["length"]:.2f} km ({row["percent"]:.1f}%)<extra></extra>'.replace(
                     '_', ' '
                 ).capitalize(),
                 showlegend=True,
@@ -79,8 +82,8 @@ def summarise_aoi(
 
 def build_aoi_summary_category_stacked_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
     metadata = ArtifactMetadata(
-        name='Distribution of Path Categories',
-        summary='How is the total length of paths distributed across the path categories? '
+        name='Distribution of Path Sharing',
+        summary='How is the total length of paths distributed across the path sharing categories? '
         'Each category indicates with which other road users cyclists share the path.',
         tags={Topics.TRAFFIC, Topics.SUMMARY},
     )

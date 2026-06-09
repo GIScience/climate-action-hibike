@@ -2,14 +2,14 @@ import geopandas as gpd
 from plotly.graph_objects import Figure
 from pyproj import CRS
 
-from bikeability.components.path_categories.path_categories import PathCategory
-from bikeability.components.path_categories.path_summaries import summarise_aoi
+from bikeability.components.path_sharing.path_sharing import PathSharing
+from bikeability.components.path_sharing.path_summaries import summarise_aoi
 
 
 def test_summarise_aoi(default_path_geometry, default_polygon_geometry):
     input_paths = gpd.GeoDataFrame(
         data={
-            'category': 2 * [PathCategory.EXCLUSIVE],
+            'path_sharing': 2 * [PathSharing.EXCLUSIVE],
             'geometry': [default_path_geometry] + [default_polygon_geometry],
         },
         crs='EPSG:4326',

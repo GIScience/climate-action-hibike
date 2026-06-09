@@ -4,7 +4,7 @@ from enum import Enum
 import geopandas as gpd
 import pandas as pd
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.smoothness import filters
 
 log = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def apply_path_smoothness_filters(row: pd.Series) -> SmoothnessCategory:
 def get_smoothness(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Applying smoothness rating')
 
-    paths = paths[paths.category.isin(PathCategory.get_bikeable())].copy(deep=False)
+    paths = paths[paths.path_sharing.isin(PathSharing.get_bikeable())].copy(deep=False)
 
     paths['smoothness'] = paths.apply(apply_path_smoothness_filters, axis=1)
 

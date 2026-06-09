@@ -1,9 +1,9 @@
 import pytest
 
-import bikeability.components.path_categories.path_category_filters as filters
-from bikeability.components.path_categories.path_category_filters import SpeedLimitCategory
+import bikeability.components.path_sharing.path_sharing_filters as filters
+from bikeability.components.path_sharing.path_sharing_filters import SpeedLimitCategory
 
-speed_tags = {
+SPEED_TAGS = {
     'walk': SpeedLimitCategory.WALKING_SPEED,
     '15': SpeedLimitCategory.WALKING_SPEED,
     '7 mph': SpeedLimitCategory.WALKING_SPEED,
@@ -22,15 +22,15 @@ speed_tags = {
 }
 
 
-@pytest.mark.parametrize('tag', speed_tags)
+@pytest.mark.parametrize('tag', SPEED_TAGS)
 def test_maxspeed_parsing(tag: str):
     tags = {'maxspeed': tag}
     result = filters.parse_maxspeed_tag(tags)
-    assert speed_tags[tag] == result
+    assert SPEED_TAGS[tag] == result
 
 
-@pytest.mark.parametrize('tag', speed_tags)
+@pytest.mark.parametrize('tag', SPEED_TAGS)
 def test_maxspeed_forward(tag: str):
     tags = {'maxspeed:forward': tag}
     result = filters.parse_maxspeed_tag(tags)
-    assert speed_tags[tag] == result
+    assert SPEED_TAGS[tag] == result

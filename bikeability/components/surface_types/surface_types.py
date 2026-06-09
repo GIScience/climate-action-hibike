@@ -4,7 +4,7 @@ from enum import Enum
 import geopandas as gpd
 import pandas as pd
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 
 log = logging.getLogger(__name__)
 
@@ -88,6 +88,6 @@ def categorise_surface(row: pd.Series) -> SurfaceType:
 
 def get_surface_types(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     log.debug('Categorizing path surfaces')
-    paths = paths.loc[paths.category.isin(PathCategory.get_visible())].copy(deep=False)
+    paths = paths.loc[paths.path_sharing.isin(PathSharing.get_visible())].copy(deep=False)
     paths['surface_type'] = paths.apply(categorise_surface, axis=1)
     return paths

@@ -5,7 +5,7 @@ from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
 from climatoology.base.artifact_creators import create_vector_artifact
 from climatoology.base.computation import ComputationResources
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics
 
@@ -15,20 +15,20 @@ def build_path_categories_artifact(
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
 ) -> Artifact:
-    paths_without_restriction = paths[paths.category.isin(PathCategory.get_visible())].copy(deep=False)
+    paths_without_restriction = paths[paths.path_sharing.isin(PathSharing.get_visible())].copy(deep=False)
 
-    paths_without_restriction['color'] = paths_without_restriction.category.apply(
+    paths_without_restriction['color'] = paths_without_restriction.path_sharing.apply(
         get_qualitative_color, cmap_name=cmap_name
     )
 
-    paths_without_restriction['label'] = paths_without_restriction.category.apply(lambda r: r.value)
+    paths_without_restriction['label'] = paths_without_restriction.path_sharing.apply(lambda r: r.value)
 
     metadata = ArtifactMetadata(
-        name='Path Categories',
+        name='Path Sharing',
         primary=True,
         tags={Topics.TRAFFIC},
-        summary=read_text('bikeability.resources.info.path_categories', 'summary.md'),
-        description=read_text('bikeability.resources.info.path_categories', 'description.md'),
+        summary=read_text('bikeability.resources.info.path_sharing', 'summary.md'),
+        description=read_text('bikeability.resources.info.path_sharing', 'description.md'),
     )
 
     return create_vector_artifact(
@@ -38,7 +38,7 @@ def build_path_categories_artifact(
         legend=Legend(
             title='Who Shares This Path with Me?',
             legend_data={
-                category.value: get_qualitative_color(category, cmap_name) for category in PathCategory.get_visible()
+                category.value: get_qualitative_color(category, cmap_name) for category in PathSharing.get_visible()
             },
         ),
     )

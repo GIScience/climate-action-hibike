@@ -1,9 +1,15 @@
+import geopandas as gpd
 import pandas as pd
+import pytest
+import shapely
+from geopandas import testing
 from ohsome_filter_to_sql.main import validate_filter
 
-from bikeability.components.path_categories.path_categories import (
-    PathCategory,
+from bikeability.components.path_sharing.path_sharing import (
+    PathSharing,
     apply_path_category_filters,
+    categorize_paths,
+    recategorise_zebra_crossings,
     zebra_crossings_filter,
 )
 
@@ -11,7 +17,7 @@ EXCLUSIVE_DF = pd.DataFrame(
     {
         '@osmId': ['way/246387137', 'way/118975501'],
         '@other_tags': [{'highway': 'cycleway', 'foot': 'no'}, {'highway': 'path', 'foot': 'yes', 'segregated': 'yes'}],
-        'expected_category': [PathCategory.EXCLUSIVE, PathCategory.EXCLUSIVE],
+        'expected_category': [PathSharing.EXCLUSIVE, PathSharing.EXCLUSIVE],
     }
 )
 
@@ -26,11 +32,11 @@ SHARED_WITH_PEDESTRIANS_DF = pd.DataFrame(
             {'highway': 'footway', 'bicycle': 'yes'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_PEDESTRIANS,
-            PathCategory.SHARED_WITH_PEDESTRIANS,
-            PathCategory.SHARED_WITH_PEDESTRIANS,
-            PathCategory.SHARED_WITH_PEDESTRIANS,
-            PathCategory.SHARED_WITH_PEDESTRIANS,
+            PathSharing.SHARED_WITH_PEDESTRIANS,
+            PathSharing.SHARED_WITH_PEDESTRIANS,
+            PathSharing.SHARED_WITH_PEDESTRIANS,
+            PathSharing.SHARED_WITH_PEDESTRIANS,
+            PathSharing.SHARED_WITH_PEDESTRIANS,
         ],
     }
 )
@@ -59,14 +65,14 @@ SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF = pd.DataFrame(
             {'highway': 'residential', 'bicycle': 'designated', 'maxspeed': '15', 'motorvehicle': 'destination'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
         ],
     }
 )
@@ -90,12 +96,12 @@ SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF = pd.DataFrame(
             {'highway': 'tertiary', 'zone:maxspeed': 'DE:30', 'cycleway:right': 'no'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
         ],
     }
 )
@@ -110,9 +116,9 @@ SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF = pd.DataFrame(
             {'highway': 'residential', 'maxspeed:type': 'DE:urban'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED,
         ],
     }
 )
@@ -128,9 +134,9 @@ SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF = pd.DataFrame(
             {'highway': 'secondary', 'maxspeed': '70', 'cycleway:left': 'no', 'cycleway:right': 'separate'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED,
         ],
     }
 )
@@ -145,9 +151,9 @@ SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF = pd.DataFrame(
             {'highway': 'tertiary', 'cycleway': 'no'},
         ],
         'expected_category': [
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
-            PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED,
         ],
     }
 )
@@ -164,11 +170,11 @@ REQUIRES_DISMOUNTING_DF = pd.DataFrame(
             {'highway': 'track', 'ford': 'yes'},
         ],
         'expected_category': [
-            PathCategory.REQUIRES_DISMOUNTING,
-            PathCategory.REQUIRES_DISMOUNTING,
-            PathCategory.REQUIRES_DISMOUNTING,
-            PathCategory.REQUIRES_DISMOUNTING,
-            PathCategory.REQUIRES_DISMOUNTING,
+            PathSharing.REQUIRES_DISMOUNTING,
+            PathSharing.REQUIRES_DISMOUNTING,
+            PathSharing.REQUIRES_DISMOUNTING,
+            PathSharing.REQUIRES_DISMOUNTING,
+            PathSharing.REQUIRES_DISMOUNTING,
         ],
     }
 )
@@ -184,9 +190,9 @@ PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
             {'highway': 'pedestrian', 'bicycle': 'no'},
         ],
         'expected_category': [
-            PathCategory.PEDESTRIAN_EXCLUSIVE,
-            PathCategory.PEDESTRIAN_EXCLUSIVE,
-            PathCategory.PEDESTRIAN_EXCLUSIVE,
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
         ],
     }
 )
@@ -213,13 +219,13 @@ NO_ACCESS_DF = pd.DataFrame(
             {'highway': 'steps', 'access': 'private'},
         ],
         'expected_category': [
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
-            PathCategory.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
+            PathSharing.NO_ACCESS,
         ],
     }
 )
@@ -251,6 +257,89 @@ def test_construct_filter_validate():
         FILTER_VALIDATION_OBJECTS['expected_category'],
         check_names=False,
     )
+
+
+@pytest.fixture
+def test_line_with_crossing() -> gpd.GeoDataFrame:
+    line_geom = shapely.LineString(
+        [
+            (8.692353, 49.413160),
+            (8.692814, 49.413228),
+            (8.692870, 49.413334),
+            (8.6928656, 49.4133677),
+            (8.692836, 49.413484),
+        ]
+    )
+    return gpd.GeoDataFrame(
+        data={
+            'path_sharing': [PathSharing.EXCLUSIVE],
+            'rating': [1.0],
+            'geometry': [line_geom],
+            '@other_tags': [{'highway': 'cycleway', 'bicycle': 'yes'}],
+        },
+        crs='EPSG:4326',
+    )
+
+
+@pytest.fixture
+def test_crossing_nodes() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame(
+        data={
+            'geometry': [shapely.Point(8.6928656, 49.4133677), shapely.Point(8.692814, 49.413228)],
+            '@other_tags': [
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+            ],
+        },
+        crs='EPSG:4326',
+    )
+
+
+def test_categorize_paths(default_paths, expected_compute_input):
+    input_paths = default_paths.drop(['path_sharing'], axis=1)
+
+    expected_paths = default_paths
+
+    recieved_paths = categorize_paths(input_paths)
+
+    testing.assert_geodataframe_equal(
+        recieved_paths,
+        expected_paths,
+        check_like=True,
+        check_geom_type=True,
+        check_less_precise=True,
+    )
+
+
+def test_split_paths_around_crossing_single_crossing(test_line_with_crossing, test_crossing_nodes):
+    computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes.drop(1))
+    assert len(computed_lines) == 3
+    assert len(computed_lines[computed_lines['path_sharing'] == PathSharing.REQUIRES_DISMOUNTING]) == 1
+
+
+def test_split_paths_around_crossing_multiple_crossings(test_line_with_crossing, test_crossing_nodes):
+    computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes)
+    assert len(computed_lines) == 5
+    assert len(computed_lines[computed_lines['path_sharing'] == PathSharing.REQUIRES_DISMOUNTING]) == 2
+
+
+def test_split_paths_missing_geom_types(test_line, test_polygon):
+    crossing_node = gpd.GeoDataFrame(
+        data={
+            'geometry': [shapely.Point(12.3, 48.2205), shapely.Point(8.692814, 49.413228)],
+            '@other_tags': [
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
+            ],
+        },
+        crs='EPSG:4326',
+    )
+
+    no_polygon_result = recategorise_zebra_crossings(test_line, crossing_node)
+    no_line_result = recategorise_zebra_crossings(test_polygon, crossing_node)
+
+    result = pd.concat([no_polygon_result, no_line_result], ignore_index=True)
+    assert len(result) == 5
 
 
 def test_crossings_filter():

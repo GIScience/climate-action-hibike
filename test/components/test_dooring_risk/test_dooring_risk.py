@@ -15,7 +15,7 @@ from bikeability.components.dooring_risk.dooring_risk import (
     get_dooring_risk,
     parallel_parking_filter,
 )
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.utils.utils import (
     fetch_osm_data,
 )
@@ -65,7 +65,7 @@ def dooring_risk():
             '@other_tags': tags,
             'expected_dooring_risk': [DooringRiskCategory.DOORING_RISK for _ in tags],
             'parking': parking,
-            'category': [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags],
+            'path_sharing': [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags],
         }
     )
 
@@ -85,15 +85,15 @@ def dooring_safe():
         {'parking:both:orientation': 'parallel'},
     ]
 
-    category = [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags]
-    category[-1] = PathCategory.EXCLUSIVE
+    category = [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags]
+    category[-1] = PathSharing.EXCLUSIVE
 
     dooring_risk_tags = pd.DataFrame(
         data={
             '@other_tags': tags,
             'expected_dooring_risk': [DooringRiskCategory.DOORING_SAFE for _ in tags],
             'parking': [False for _ in tags],
-            'category': category,
+            'path_sharing': category,
         }
     )
 
@@ -106,7 +106,7 @@ def dooring_unknown():
         data={
             '@other_tags': [{}],
             'expected_dooring_risk': [DooringRiskCategory.UNKNOWN],
-            'category': [PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED],
+            'path_sharing': [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED],
             'parking': [False],
         }
     )
@@ -127,12 +127,12 @@ def test_find_nearest_parking(responses_mock, default_aoi, test_resources):
 
     line_paths = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
     line_paths = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
-    line_paths['category'] = None  # FIXME
+    line_paths['path_sharing'] = None  # FIXME
     parking_polygons = fetch_osm_data(default_aoi, parallel_parking_filter('polygon'), OhsomeClient())
 
     line_paths_with_parking = find_nearest_parking(line_paths, parking_polygons)
 
-    assert line_paths_with_parking.columns.to_list() == ['geometry', '@osmId', '@other_tags', 'parking', 'category']
+    assert line_paths_with_parking.columns.to_list() == ['geometry', '@osmId', '@other_tags', 'parking', 'path_sharing']
     assert line_paths_with_parking.crs.to_epsg() == 4326
 
 
@@ -178,4 +178,5 @@ def test_get_dooring_risk_missing_geometry_types(test_line, test_polygon, expect
     dooring_risk_polygon_paths = get_dooring_risk(test_line, expected_parking_polygon)
 
     result = pd.concat([dooring_risk_line_paths, dooring_risk_polygon_paths], ignore_index=True)
+
     verify(result.to_csv())
