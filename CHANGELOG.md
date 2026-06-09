@@ -20,6 +20,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - results are now only cached for 8 weeks instead of half a year ([#106]https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/106))
 - OSM Ids are now also carried forward in naturalness ([#114](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/114))
 - `check_paths_count_limit` now raises an `InputValidationError` instead of a `ClimatoologyUserError` ([#137](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/137))
+- Mark naturalness on paths in tunnels as 0 ([#134](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/134))
 
 ### Fixed
 - Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
