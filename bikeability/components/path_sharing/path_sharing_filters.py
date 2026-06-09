@@ -26,15 +26,18 @@ potential_bikeable_highway_values = (
 
 
 def _shared_with_pedestrians(d: dict) -> bool:
-    return (d.get('foot') in ['yes', 'designated'] and d.get('segregated') != 'yes') or (
-        d.get('highway') in ['footway', 'pedestrian', 'path'] and d.get('foot') is None
+    return (
+        (d.get('foot') in ['yes', 'designated'] and d.get('segregated') != 'yes')
+        or (d.get('highway') in ['footway', 'pedestrian', 'path'] and d.get('foot') is None)
+        and not (d.get('bicycle') == 'dismount')
     )
 
 
 def designated_shared_with_pedestrians(d: dict) -> bool:
-    return (d.get('highway') in ['cycleway', 'path', 'footway', 'pedestrian'] and _shared_with_pedestrians(d)) or d.get(
-        'highway'
-    ) == 'track'
+    return (
+        (d.get('highway') in ['cycleway', 'path', 'footway', 'pedestrian'] and _shared_with_pedestrians(d))
+        or d.get('highway') == 'track'
+    ) and not (d.get('bicycle') == 'dismount')
 
 
 def designated_exclusive(d: dict) -> bool:
@@ -80,30 +83,29 @@ def shared_with_motorised_traffic_unknown_speed(d: dict, speed_limit: SpeedLimit
 
 def requires_dismounting(d: dict) -> bool:
     return (
-        d.get('bicycle') == 'dismount'
-        or '1012-32' in d.get('traffic_sign', 'no')
-        or (
-            d.get('highway') == 'steps'
+        d.get('highway') == 'steps'
+        and (
+            d.get('ramp:bicycle') == 'yes' or d.get('ramp') == 'yes' or d.get('ramp:wheelchair') == 'yes',
+            d.get('ramp:stroller') == 'yes',
+        )
+    ) or d.get('ford') is not None
+
+
+def pedestrian_exclusive(d: dict) -> bool:
+    return (
+        (
+            d.get('highway') in ['footway', 'pedestrian']
             and (
-                d.get('ramp:bicycle') == 'yes' or d.get('ramp') == 'yes' or d.get('ramp:wheelchair') == 'yes',
-                d.get('ramp:stroller') == 'yes',
+                d.get('bicycle')
+                not in [
+                    'yes',
+                    'designated',
+                ]
+                or d.get('bicycle:conditional') is not None
             )
         )
         or d.get('railway') == 'platform'
         or d.get('highway') == 'platform'
-        or d.get('ford') is not None
-    )
-
-
-def pedestrian_exclusive(d: dict) -> bool:
-    return d.get('highway') in ['footway', 'pedestrian'] and (
-        d.get('bicycle')
-        not in [
-            'yes',
-            'designated',
-            'dismount',
-        ]
-        or d.get('bicycle:conditional') is not None
     )
 
 

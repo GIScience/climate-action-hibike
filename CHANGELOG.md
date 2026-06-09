@@ -22,11 +22,14 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - `check_paths_count_limit` now raises an `InputValidationError` instead of a `ClimatoologyUserError` ([#137](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/137))
 - Mark naturalness on paths in tunnels as 0 ([#134](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/134))
 - Renamed Path Categories to Path Sharing, updated file structure and descriptions accordingly ([#144](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/144))
+- Revamped Path Sharing 'Requires Dismount' to only include physical barriers requiring dismount. Paths with legal requirements to dismount are categorised as Pedestrian now ([#135](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/135))
 
 ### Fixed
 - Paths no longer show up as REQUIRES DISMOUNT if they have access requirements that make it impossible to bike there in the first place ([#124](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/124))
 - Removed references to walking from naturalness description ([#130](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/130))
 
+### Removed
+- Removed the recategorization of paths in 5m buffer of zebra crossings to requires dismount ([#135](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/135))
 
 ## [2.0.2](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/2.0.2) - 2026-03-02
 

@@ -26,10 +26,8 @@ from bikeability.components.naturalness import (
 )
 from bikeability.components.path_sharing.path_sharing import (
     categorize_paths,
-    recategorise_zebra_crossings,
-    zebra_crossings_filter,
 )
-from bikeability.components.path_sharing.path_sharing_artifacts import build_path_categories_artifact
+from bikeability.components.path_sharing.path_sharing_artifacts import build_path_sharing_artifact
 from bikeability.components.path_sharing.path_summaries import (
     build_aoi_summary_category_stacked_bar_artifact,
     summarise_aoi,
@@ -138,10 +136,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
         paths = categorize_paths(paths)
 
-        zebra_crossing_nodes = self.get_zebra_crossing_nodes(aoi)
-        paths = recategorise_zebra_crossings(paths, zebra_crossing_nodes)
-
-        path_categories_artifact = build_path_categories_artifact(paths, resources)
+        path_sharing_artifact = build_path_sharing_artifact(paths, resources)
 
         smoothness_paths = get_smoothness(paths)
         smoothness_artifact = build_smoothness_artifact(smoothness_paths, resources)
@@ -159,7 +154,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         )
 
         artifacts = [
-            path_categories_artifact,
+            path_sharing_artifact,
             smoothness_artifact,
             surface_types_artifact,
             dooring_risk_artifact,
@@ -223,9 +218,3 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         parking_polygons = fetch_osm_data(aoi, parallel_parking_filter('polygon'), self.ohsome)
 
         return pd.concat([parking_paths, parking_polygons])  # type: ignore
-
-    def get_zebra_crossing_nodes(self, aoi: shapely.MultiPolygon) -> gpd.GeoDataFrame:
-        log.debug('Getting crossing nodes')
-        nodes = fetch_osm_data(aoi, zebra_crossings_filter(), self.ohsome)
-
-        return nodes
