@@ -8,7 +8,7 @@ Path sharing categories of cyclists with others, from best to worst:
 * Cars Up to 50 Km/h: Streets without a structurally separated cycle lane, with speed limits up to 50 km/h.
 * Cars Above 50 Km/h: Streets without a structurally separated cycle lane, with speed limits up to 100 km/h.
 * Cars Unknown Speed: Streets without a structurally separated cycle lane, with unknown speed limits.
-* Requires Dismounting: Paths where cyclists must dismount.
+* Requires Dismounting: Paths where cyclists are physically forced to dismount. Paths that carry a legal requirement to dismount are classed with Pedestrians.
 * Unknown: Paths that do not fit in any of the above categories.
 
 Data come from OpenStreetMap (OSM) and the categorisation is based on OSM tags.

@@ -1,16 +1,9 @@
-import geopandas as gpd
 import pandas as pd
 import pytest
-import shapely
-from geopandas import testing
-from ohsome_filter_to_sql.main import validate_filter
 
 from bikeability.components.path_sharing.path_sharing import (
     PathSharing,
-    apply_path_category_filters,
-    categorize_paths,
-    recategorise_zebra_crossings,
-    zebra_crossings_filter,
+    apply_path_sharing_filters,
 )
 
 EXCLUSIVE_DF = pd.DataFrame(
@@ -161,35 +154,43 @@ SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF = pd.DataFrame(
 
 REQUIRES_DISMOUNTING_DF = pd.DataFrame(
     {
-        '@osmId': ['way/810025053', 'way/131478149', 'way/24968605', 'way/27797958', 'way/87956068'],
+        '@osmId': ['way/131478149', 'way/24968605', 'way/87956068'],
         '@other_tags': [
-            {'highway': 'footway', 'bicycle': 'dismount'},
             {'highway': 'steps', 'ramp:bicycle': 'yes'},
             {'highway': 'steps', 'ramp': 'yes', 'ramp:stroller': 'yes'},
-            {'railway': 'platform'},
             {'highway': 'track', 'ford': 'yes'},
         ],
         'expected_category': [
             PathSharing.REQUIRES_DISMOUNTING,
             PathSharing.REQUIRES_DISMOUNTING,
             PathSharing.REQUIRES_DISMOUNTING,
-            PathSharing.REQUIRES_DISMOUNTING,
-            PathSharing.REQUIRES_DISMOUNTING,
         ],
     }
 )
-# 'way/208162626', 'highway': 'footway', 'bicycle': 'yes' overlaps with crossing --> recategorized?
 
 
 PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
     {
-        '@osmId': ['way/694458151', 'way/26028197', 'way/870757384'],
+        '@osmId': [
+            'way/694458151',
+            'way/26028197',
+            'way/870757384',
+            'railway=platform',
+            'highway=platform',
+            'bicycle=dismount',
+        ],
         '@other_tags': [
             {'highway': 'footway', 'footway': 'sidewalk'},
             {'highway': 'footway', 'bicycle': 'no'},
             {'highway': 'pedestrian', 'bicycle': 'no'},
+            {'railway': 'platform'},
+            {'highway': 'platform'},
+            {'highway': 'footway', 'bicycle': 'dismount'},
         ],
         'expected_category': [
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
+            PathSharing.PEDESTRIAN_EXCLUSIVE,
             PathSharing.PEDESTRIAN_EXCLUSIVE,
             PathSharing.PEDESTRIAN_EXCLUSIVE,
             PathSharing.PEDESTRIAN_EXCLUSIVE,
@@ -231,116 +232,32 @@ NO_ACCESS_DF = pd.DataFrame(
 )
 
 
-FILTER_VALIDATION_OBJECTS = pd.concat(
-    [
-        EXCLUSIVE_DF,
-        SHARED_WITH_PEDESTRIANS_DF,
-        SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF,
-        SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF,
-        SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF,
-        SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF,
-        SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF,
-        REQUIRES_DISMOUNTING_DF,
-        PEDESTRIAN_EXCLUSIVE_DF,
-        NO_ACCESS_DF,
-    ]
+FILTER_VALIDATION_OBJECTS = [
+    EXCLUSIVE_DF,
+    SHARED_WITH_PEDESTRIANS_DF,
+    SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF,
+    SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF,
+    SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF,
+    SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF,
+    SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF,
+    REQUIRES_DISMOUNTING_DF,
+    PEDESTRIAN_EXCLUSIVE_DF,
+    NO_ACCESS_DF,
+]
+
+
+@pytest.mark.parametrize(
+    argnames='category',
+    argvalues=FILTER_VALIDATION_OBJECTS,
+    ids=[
+        filter_validation_object.loc[0, 'expected_category'] for filter_validation_object in FILTER_VALIDATION_OBJECTS
+    ],  # type: ignore
 )
-
-
-def test_construct_filter_validate():
-    FILTER_VALIDATION_OBJECTS['received_category'] = FILTER_VALIDATION_OBJECTS.apply(
-        apply_path_category_filters, axis=1
-    )
+def test_construct_filter_validate(category):
+    category['received_category'] = category.apply(apply_path_sharing_filters, axis=1)
 
     pd.testing.assert_series_equal(
-        FILTER_VALIDATION_OBJECTS['received_category'],
-        FILTER_VALIDATION_OBJECTS['expected_category'],
+        category['received_category'],
+        category['expected_category'],
         check_names=False,
     )
-
-
-@pytest.fixture
-def test_line_with_crossing() -> gpd.GeoDataFrame:
-    line_geom = shapely.LineString(
-        [
-            (8.692353, 49.413160),
-            (8.692814, 49.413228),
-            (8.692870, 49.413334),
-            (8.6928656, 49.4133677),
-            (8.692836, 49.413484),
-        ]
-    )
-    return gpd.GeoDataFrame(
-        data={
-            'path_sharing': [PathSharing.EXCLUSIVE],
-            'rating': [1.0],
-            'geometry': [line_geom],
-            '@other_tags': [{'highway': 'cycleway', 'bicycle': 'yes'}],
-        },
-        crs='EPSG:4326',
-    )
-
-
-@pytest.fixture
-def test_crossing_nodes() -> gpd.GeoDataFrame:
-    return gpd.GeoDataFrame(
-        data={
-            'geometry': [shapely.Point(8.6928656, 49.4133677), shapely.Point(8.692814, 49.413228)],
-            '@other_tags': [
-                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
-                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
-            ],
-        },
-        crs='EPSG:4326',
-    )
-
-
-def test_categorize_paths(default_paths, expected_compute_input):
-    input_paths = default_paths.drop(['path_sharing'], axis=1)
-
-    expected_paths = default_paths
-
-    recieved_paths = categorize_paths(input_paths)
-
-    testing.assert_geodataframe_equal(
-        recieved_paths,
-        expected_paths,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
-
-
-def test_split_paths_around_crossing_single_crossing(test_line_with_crossing, test_crossing_nodes):
-    computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes.drop(1))
-    assert len(computed_lines) == 3
-    assert len(computed_lines[computed_lines['path_sharing'] == PathSharing.REQUIRES_DISMOUNTING]) == 1
-
-
-def test_split_paths_around_crossing_multiple_crossings(test_line_with_crossing, test_crossing_nodes):
-    computed_lines = recategorise_zebra_crossings(test_line_with_crossing, test_crossing_nodes)
-    assert len(computed_lines) == 5
-    assert len(computed_lines[computed_lines['path_sharing'] == PathSharing.REQUIRES_DISMOUNTING]) == 2
-
-
-def test_split_paths_missing_geom_types(test_line, test_polygon):
-    crossing_node = gpd.GeoDataFrame(
-        data={
-            'geometry': [shapely.Point(12.3, 48.2205), shapely.Point(8.692814, 49.413228)],
-            '@other_tags': [
-                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
-                {'crossing': 'uncontrolled', 'crossing:markings': 'zebra'},
-            ],
-        },
-        crs='EPSG:4326',
-    )
-
-    no_polygon_result = recategorise_zebra_crossings(test_line, crossing_node)
-    no_line_result = recategorise_zebra_crossings(test_polygon, crossing_node)
-
-    result = pd.concat([no_polygon_result, no_line_result], ignore_index=True)
-    assert len(result) == 5
-
-
-def test_crossings_filter():
-    validate_filter(zebra_crossings_filter())

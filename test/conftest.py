@@ -119,20 +119,6 @@ def ohsome_api_osm(responses_mock, test_resources):
 
 
 @pytest.fixture
-def ohsome_api_zebra(responses_mock, test_resources):
-    with open(test_resources / 'ohsome_node_response.geojson', 'r') as node_file:
-        node_body = node_file.read()
-
-    responses_mock.post(
-        'https://api.ohsome.org/v1/elements/geometry',
-        body=node_body,
-        match=[filter_start_matcher('geometry:point')],
-    )
-
-    return responses_mock
-
-
-@pytest.fixture
 def ohsome_api_parking(responses_mock, test_resources):
     with (
         open(test_resources / 'ohsome_parking_response.geojson', 'r') as parking_line_file,

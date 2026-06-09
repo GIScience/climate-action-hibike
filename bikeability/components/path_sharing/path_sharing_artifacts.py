@@ -10,7 +10,7 @@ from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics
 
 
-def build_path_categories_artifact(
+def build_path_sharing_artifact(
     paths: gpd.GeoDataFrame,
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
