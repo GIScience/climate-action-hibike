@@ -14,7 +14,7 @@ from mobility_tools.settings import S3Settings
 from mobility_tools.slope import get_paths_slopes
 from plotly.graph_objs import Figure
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.utils.colors import get_continuous_colors
 from bikeability.components.utils.utils import Topics
 
@@ -29,7 +29,7 @@ def compute_slope_analysis(
     log.debug('Computing slopes for paths')
 
     multi_line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]
-    multi_line_paths = multi_line_paths.loc[multi_line_paths.category.isin(PathCategory.get_bikeable())].copy(
+    multi_line_paths = multi_line_paths.loc[multi_line_paths.path_sharing.isin(PathSharing.get_bikeable())].copy(
         deep=False
     )
     line_string_paths = multi_line_paths.set_index('@osmId').explode(ignore_index=False)

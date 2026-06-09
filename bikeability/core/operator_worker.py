@@ -24,13 +24,13 @@ from bikeability.components.naturalness import (
     get_naturalness,
     summarise_naturalness,
 )
-from bikeability.components.path_categories.path_categories import (
+from bikeability.components.path_sharing.path_sharing import (
     categorize_paths,
     recategorise_zebra_crossings,
     zebra_crossings_filter,
 )
-from bikeability.components.path_categories.path_category_artifacts import build_path_categories_artifact
-from bikeability.components.path_categories.path_summaries import (
+from bikeability.components.path_sharing.path_sharing_artifacts import build_path_categories_artifact
+from bikeability.components.path_sharing.path_summaries import (
     build_aoi_summary_category_stacked_bar_artifact,
     summarise_aoi,
 )

@@ -2,7 +2,7 @@ from geopandas import testing
 
 
 def test_get_paths(operator, expected_compute_input, default_aoi, ohsome_api_osm, default_paths):
-    expected_paths = default_paths.drop(columns=['category'])
+    expected_paths = default_paths.drop(columns=['path_sharing'])
     received_paths = operator.get_paths(default_aoi)
 
     testing.assert_geodataframe_equal(

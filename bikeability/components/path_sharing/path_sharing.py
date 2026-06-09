@@ -8,12 +8,12 @@ from shapely import intersects
 from shapely.geometry.multipoint import MultiPoint
 from shapely.ops import split
 
-import bikeability.components.path_categories.path_category_filters as filters
+import bikeability.components.path_sharing.path_sharing_filters as filters
 
 log = logging.getLogger(__name__)
 
 
-class PathCategory(Enum):
+class PathSharing(Enum):
     EXCLUSIVE = 'bike_exclusive'
     SHARED_WITH_PEDESTRIANS = 'pedestrians'
     SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED = 'cars_up_to_15_km/h'
@@ -43,40 +43,40 @@ class PathCategory(Enum):
         return [category for category in cls if category not in cls.get_not_bikeable()]
 
 
-def apply_path_category_filters(row: pd.Series) -> PathCategory:
+def apply_path_category_filters(row: pd.Series) -> PathSharing:
     tags = row['@other_tags']
     speed_limit = filters.parse_maxspeed_tag(tags)
     match tags:
         case x if filters.no_access(x):
-            return PathCategory.NO_ACCESS
+            return PathSharing.NO_ACCESS
         case x if filters.requires_dismounting(x):
-            return PathCategory.REQUIRES_DISMOUNTING
+            return PathSharing.REQUIRES_DISMOUNTING
         case x if filters.pedestrian_exclusive(x):
-            return PathCategory.PEDESTRIAN_EXCLUSIVE
+            return PathSharing.PEDESTRIAN_EXCLUSIVE
         case x if filters.no_bike_access(x):
-            return PathCategory.NO_ACCESS
+            return PathSharing.NO_ACCESS
         case x if filters.designated_exclusive(x):
-            return PathCategory.EXCLUSIVE
+            return PathSharing.EXCLUSIVE
         case x if filters.designated_shared_with_pedestrians(x):
-            return PathCategory.SHARED_WITH_PEDESTRIANS
+            return PathSharing.SHARED_WITH_PEDESTRIANS
         case x if filters.shared_with_motorised_traffic_walking_speed(x, speed_limit):
-            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED
+            return PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED
         case x if filters.shared_with_motorised_traffic_low_speed(x, speed_limit):
-            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED
+            return PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED
         case x if filters.shared_with_motorised_traffic_medium_speed(x, speed_limit):
-            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED
+            return PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED
         case x if filters.shared_with_motorised_traffic_high_speed(x, speed_limit):
-            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED
+            return PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED
         case x if filters.shared_with_motorised_traffic_unknown_speed(x, speed_limit):
-            return PathCategory.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED
+            return PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED
         case _:
-            return PathCategory.UNKNOWN
+            return PathSharing.UNKNOWN
 
 
 def categorize_paths(paths: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    log.debug('Categorizing and rating paths')
+    log.debug('Categorizing path sharing')
 
-    paths['category'] = paths.apply(apply_path_category_filters, axis=1)
+    paths['path_sharing'] = paths.apply(apply_path_category_filters, axis=1)
 
     return paths
 
@@ -99,8 +99,8 @@ def _split_paths_around_crossing(
     split_paths['geometry'] = split_geometry.geoms
     split_paths.loc[
         intersects(split_paths.geometry, match_entry.geometry),
-        'category',
-    ] = PathCategory.REQUIRES_DISMOUNTING
+        'path_sharing',
+    ] = PathSharing.REQUIRES_DISMOUNTING
     return split_paths
 
 
@@ -114,7 +114,7 @@ def recategorise_zebra_crossings(paths: gpd.GeoDataFrame, zebra_crossing_nodes: 
     utm_crs = line_paths.estimate_utm_crs()
     line_paths, zebra_crossing_nodes = line_paths.to_crs(utm_crs), zebra_crossing_nodes.to_crs(utm_crs)
     matches = zebra_crossing_nodes.sjoin(
-        line_paths[line_paths['category'].isin([PathCategory.EXCLUSIVE, PathCategory.SHARED_WITH_PEDESTRIANS])],
+        line_paths[line_paths['path_sharing'].isin([PathSharing.EXCLUSIVE, PathSharing.SHARED_WITH_PEDESTRIANS])],
         how='inner',
         lsuffix='zebra_crossings',
         rsuffix='paths',
@@ -123,7 +123,7 @@ def recategorise_zebra_crossings(paths: gpd.GeoDataFrame, zebra_crossing_nodes: 
     if len(matches) > 0:
         matches = matches.groupby('index_paths')
         # TODO: the column naming tells me that this is not using the `explode_tags` functionality of ohsome py
-        # TODO: columns that were removed, please check: 'index','@other_tags_zebra_crossings',  'category','rating','@other_tags_paths'
+        # TODO: columns that were removed, please check: 'index','@other_tags_zebra_crossings',  'path_sharing','rating','@other_tags_paths'
         matches = matches[
             [
                 'index_paths',

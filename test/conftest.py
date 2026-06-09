@@ -7,6 +7,8 @@ import pandas as pd
 import pytest
 import responses
 import shapely
+from approvaltests import set_default_reporter
+from approvaltests.reporters import DiffReporter
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
@@ -14,7 +16,7 @@ from climatoology.utility.naturalness import NaturalnessIndex
 from mobility_tools.settings import ORSSettings, S3Settings
 from shapely import LineString
 
-from bikeability.components.path_categories.path_categories import PathCategory
+from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.core.input import ComputeInputBikeability
 from bikeability.core.operator_worker import OperatorBikeability
 from test.utils import filter_start_matcher
@@ -23,6 +25,11 @@ from test.utils import filter_start_matcher
 @pytest.fixture
 def test_resources() -> Path:
     return Path('test/resources')
+
+
+@pytest.fixture(scope='session', autouse=True)
+def set_default_reporter_for_all_tests() -> None:
+    set_default_reporter(DiffReporter())
 
 
 @pytest.fixture
@@ -167,9 +174,9 @@ def test_line() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
         data={
             '@osmId': ['way/171574582', 'way/171574582'],
-            'category': [
-                PathCategory.NO_ACCESS,
-                PathCategory.SHARED_WITH_PEDESTRIANS,
+            'path_sharing': [
+                PathSharing.NO_ACCESS,
+                PathSharing.SHARED_WITH_PEDESTRIANS,
             ],
             'geometry': [line_geom, line_geom],
             '@other_tags': [
@@ -193,7 +200,7 @@ def test_polygon() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
         data={
             '@osmId': ['way/171574582'],
-            'category': [PathCategory.NO_ACCESS],
+            'path_sharing': [PathSharing.NO_ACCESS],
             'geometry': [polygon_geom],
             '@other_tags': [{'bicycle': 'no'}],
         },
