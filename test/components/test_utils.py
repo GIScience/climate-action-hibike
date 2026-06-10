@@ -6,6 +6,7 @@ import ohsome
 import pytest
 import shapely
 from climatoology.base.exception import ClimatoologyUserError, InputValidationError
+from numpy.testing import assert_almost_equal
 from ohsome import OhsomeClient
 from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import validate_filter
@@ -13,6 +14,7 @@ from ohsome_filter_to_sql.main import validate_filter
 from bikeability.components.utils.utils import (
     check_paths_count_limit,
     fetch_osm_data,
+    length_weighted_mean,
     ohsome_filter,
 )
 
@@ -80,3 +82,18 @@ def test_fetch_osm_data_ohsome_error(default_aoi):
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
 def test_ohsome_filter(geometry_type):
     validate_filter(ohsome_filter(geometry_type))
+
+
+def test_length_weighted_mean():
+    col = 'column'
+    input_data = gpd.GeoDataFrame(
+        data={col: [1, 4]},
+        geometry=[shapely.LineString([(0.0, 0.0), (0.0, 0.2)]), shapely.LineString([(0.0, 0.0), (0.0, 0.1)])],
+        crs=4326,
+    )
+
+    expected = 2
+
+    received = length_weighted_mean(input_data, col=col)
+
+    assert_almost_equal(received, expected)
