@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/2.0.2...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.0.0...main)
+
+## [3.0.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.0.0) - 2026-06-24
 
 ### Added
 - New slope indicator showing slopes for bikeable paths ([#89](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/89))
