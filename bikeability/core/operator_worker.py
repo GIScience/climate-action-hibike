@@ -5,7 +5,7 @@ from importlib.resources import files
 import geopandas as gpd
 import pandas as pd
 import shapely
-from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources
+from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources, LanguageAlpha2
 from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
 from mobility_tools.settings import ORSSettings, S3Settings
@@ -119,10 +119,13 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
     def compute(  # dead: disable # type: ignore
         self,
+        *,
         resources: ComputationResources,
         aoi: shapely.MultiPolygon,
         aoi_properties: AoiProperties,
         params: ComputeInputBikeability,
+        language: LanguageAlpha2 | None = None,
+        **kwargs,
     ) -> list[Artifact]:
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
