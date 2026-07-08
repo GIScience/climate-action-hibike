@@ -7,6 +7,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.0.2...main)
 
+### Fixed
+- Catch 413 error and also handle unknown ohsome
+  errors ([#117](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/117))
+
 ## [3.0.2](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.0.2) - 2026-06-25
 
 ### Fixed
@@ -31,7 +35,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - resources are now part of the package folder, and can be accessed from a packaged version of bikeability. Usages of `pathlib.Path` in the package were changed to using `importlib.resources.path` contexts or read using the methods provided by `importlib`.
 - test resources now live in the test folder and not with general package resources
 - Add relation of plugin to climate action to plugin description ([#140](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/140))
-- results are now only cached for 8 weeks instead of half a year ([#106]https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/106))
+- results are now only cached for 8 weeks instead of half a year ([#106](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/106))
 - OSM Ids are now also carried forward in naturalness ([#114](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/114))
 - `check_paths_count_limit` now raises an `InputValidationError` instead of a `ClimatoologyUserError` ([#137](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/137))
 - Mark naturalness on paths in tunnels as 0 ([#134](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/134))
