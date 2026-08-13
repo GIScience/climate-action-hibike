@@ -2133,14 +2133,14 @@ urllib3 = ">=2.5.0,<3.0.0"
 
 [[package]]
 name = "ohsome-filter-to-sql"
-version = "0.11.0"
+version = "0.14.0"
 description = "Translate ohsome API filter to SQL WHERE clause ready to be used with ohsomeDB"
 optional = false
-python-versions = "<3.15,>=3.11"
+python-versions = "<3.15,>=3.13"
 groups = ["main"]
 files = [
-    {file = "ohsome_filter_to_sql-0.11.0-py3-none-any.whl", hash = "sha256:b0d85ed8e8759d4077a4a060d4bd8066e5df95fae332de700dfb98275ff560fd"},
-    {file = "ohsome_filter_to_sql-0.11.0.tar.gz", hash = "sha256:347594e66ff08efd5ab064f2db99d3ba4567414d69e8ba7cec5591ea13f66a9d"},
+    {file = "ohsome_filter_to_sql-0.14.0-py3-none-any.whl", hash = "sha256:d12a7119d69b651fdfb194d90c2a0ff138bb7accf93b0db21d38770670ff4029"},
+    {file = "ohsome_filter_to_sql-0.14.0.tar.gz", hash = "sha256:2a11d46bbe65c5c13a6b0f4d30563ae300c63dd3b0cca1d02d76e543aedf7196"},
 ]
 
 [package.dependencies]
@@ -2901,14 +2901,14 @@ uuid-utils = ["uuid-utils (>=0.6.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "pydantic-settings"
-version = "2.14.2"
+version = "2.15.0"
 description = "Settings management using Pydantic"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "pydantic_settings-2.14.2-py3-none-any.whl", hash = "sha256:a20c97b37910b6550d5ea50fbcc2d4187defe58cd57070b73863d069419c9440"},
-    {file = "pydantic_settings-2.14.2.tar.gz", hash = "sha256:c19dd64b19097f1de80184f0cc7b0272a13ae6e170cbf240a3e27e381ed14a5f"},
+    {file = "pydantic_settings-2.15.0-py3-none-any.whl", hash = "sha256:0ba092c291c94baceb5eff768aa0d56400a457585bc0175925a5a5510303da42"},
+    {file = "pydantic_settings-2.15.0.tar.gz", hash = "sha256:694b793e84f766ba76a90ebdefc01d0a9a045dab0382bee70393da93712ad117"},
 ]
 
 [package.dependencies]
@@ -2917,7 +2917,7 @@ python-dotenv = ">=0.21.0"
 typing-inspection = ">=0.4.0"
 
 [package.extras]
-aws-secrets-manager = ["boto3 (>=1.35.0)", "types-boto3[secretsmanager]"]
+aws-secrets-manager = ["boto3 (>=1.35.0)"]
 azure-key-vault = ["azure-identity (>=1.16.0)", "azure-keyvault-secrets (>=4.8.0)"]
 gcp-secret-manager = ["google-cloud-secret-manager (>=2.23.1)"]
 toml = ["tomli (>=2.0.1)"]
