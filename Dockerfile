@@ -1,14 +1,23 @@
-FROM python:3.13.5-bookworm
+FROM python:3.13-bookworm
 SHELL ["/bin/bash", "-c"]
 
 ARG CI_COMMIT_SHORT_SHA
 ENV PACKAGE_NAME='bikeability'
 
-RUN pip install --no-cache-dir poetry==2.1.3
+RUN useradd -ms /bin/bash plugin
+USER plugin
+ENV WD=/home/plugin
+WORKDIR $WD
+
+ENV POETRY_HOME="$WD/.cache/poetry"
+
+RUN python3 -m venv $POETRY_HOME &&\
+    $POETRY_HOME/bin/pip install poetry==2.*
+
+
+ENV PATH="$PATH:$POETRY_HOME/bin"
 
 COPY pyproject.toml poetry.lock ./
-
-
 RUN poetry install --no-ansi --no-interaction --without dev,test --no-root
 
 COPY $PACKAGE_NAME $PACKAGE_NAME
