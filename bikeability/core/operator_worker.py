@@ -16,8 +16,15 @@ from shapely import make_valid
 from bikeability.components.detour_factors.detour_analysis import (
     detour_factor_analysis,
 )
-from bikeability.components.dooring_risk.dooring_artifacts import build_dooring_artifact
-from bikeability.components.dooring_risk.dooring_risk import get_dooring_risk, parallel_parking_filter
+from bikeability.components.dooring_risk.dooring_artifacts import (
+    build_dooring_artifact,
+    build_dooring_risk_stacked_bar_artifact,
+)
+from bikeability.components.dooring_risk.dooring_risk import (
+    get_dooring_risk,
+    parallel_parking_filter,
+)
+from bikeability.components.dooring_risk.dooring_risk_summary import summarise_dooring_risk
 from bikeability.components.naturalness import (
     build_naturalness_artifact,
     build_naturalness_summary_bar_artifact,
@@ -149,7 +156,9 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
         parallel_car_parking = self.get_parallel_parking(buffered_aoi)
         dooring_risk_paths = get_dooring_risk(paths, parallel_car_parking)
+        dooring_risk_stacked_bar = summarise_dooring_risk(dooring_risk_paths, get_utm_zone(aoi))
         dooring_risk_artifact = build_dooring_artifact(dooring_risk_paths, resources)
+        dooring_risk_stacked_bar_artifact = build_dooring_risk_stacked_bar_artifact(dooring_risk_stacked_bar, resources)
 
         aoi_summary_category_stacked_bar = summarise_aoi(paths, get_utm_zone(aoi))
         aoi_summary_category_stacked_bar_artifact = build_aoi_summary_category_stacked_bar_artifact(
@@ -161,6 +170,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             smoothness_artifact,
             surface_types_artifact,
             dooring_risk_artifact,
+            dooring_risk_stacked_bar_artifact,
             aoi_summary_category_stacked_bar_artifact,
         ]
 

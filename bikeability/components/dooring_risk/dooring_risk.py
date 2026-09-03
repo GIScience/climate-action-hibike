@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class DooringRiskCategory(Enum):
-    DOORING_SAFE = 'safe_route'
+    DOORING_SAFE = 'no_dooring'
     DOORING_RISK = 'risk_of_dooring'
     UNKNOWN = 'unknown'
 

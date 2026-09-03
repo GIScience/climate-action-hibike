@@ -7,6 +7,8 @@ from approvaltests import verify
 from ohsome import OhsomeClient
 from ohsome_filter_to_sql.main import validate_filter
 from pandas.testing import assert_series_equal
+from plotly.graph_objects import Figure
+from pyproj import CRS
 
 from bikeability.components.dooring_risk.dooring_risk import (
     DooringRiskCategory,
@@ -15,6 +17,7 @@ from bikeability.components.dooring_risk.dooring_risk import (
     get_dooring_risk,
     parallel_parking_filter,
 )
+from bikeability.components.dooring_risk.dooring_risk_summary import summarise_dooring_risk
 from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.utils.utils import (
     fetch_osm_data,
@@ -180,3 +183,17 @@ def test_get_dooring_risk_missing_geometry_types(test_line, test_polygon, expect
     result = pd.concat([dooring_risk_line_paths, dooring_risk_polygon_paths], ignore_index=True)
 
     verify(result.to_csv())
+
+
+def test_summarise_dooring_risk(default_path_geometry, default_polygon_geometry):
+    input_paths = gpd.GeoDataFrame(
+        data={
+            'dooring_category': [DooringRiskCategory.DOORING_RISK, None] + 3 * [DooringRiskCategory.DOORING_SAFE],
+            'geometry': 4 * [default_path_geometry] + [default_polygon_geometry],
+        },
+        crs='EPSG:4326',
+    )
+    category_stacked_bar_chart = summarise_dooring_risk(paths=input_paths, projected_crs=CRS.from_user_input(32632))
+
+    assert isinstance(category_stacked_bar_chart, Figure)
+    assert category_stacked_bar_chart['data'][0]['x'] == pytest.approx((66.67,), abs=0.01)

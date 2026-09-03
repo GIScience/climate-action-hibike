@@ -2,7 +2,7 @@ from typing import Union
 
 import matplotlib
 import pandas as pd
-from matplotlib.colors import Normalize, to_hex
+from matplotlib.colors import Colormap, Normalize, to_hex
 from pydantic_extra_types.color import Color
 
 from bikeability.components.dooring_risk.dooring_risk import DooringRiskCategory
@@ -12,11 +12,12 @@ from bikeability.components.surface_types.surface_types import SurfaceType
 
 
 def get_qualitative_color(
-    category: Union[PathSharing, SmoothnessCategory, SurfaceType, DooringRiskCategory], cmap_name: str
+    category: Union[PathSharing, SmoothnessCategory, SurfaceType, DooringRiskCategory], cmap: str | Colormap
 ) -> Color:
     norm = Normalize(0, 1)
-    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap_name).get_cmap()
-    cmap.set_under('#808080')
+    if isinstance(cmap, str):
+        cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap).get_cmap()
+        cmap.set_under('#808080')
 
     category_norm = {name: idx / (len(category.get_visible()) - 1) for idx, name in enumerate(category.get_visible())}
 

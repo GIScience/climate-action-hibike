@@ -18,7 +18,7 @@ def build_path_sharing_artifact(
     paths_without_restriction = paths[paths.path_sharing.isin(PathSharing.get_visible())].copy(deep=False)
 
     paths_without_restriction['color'] = paths_without_restriction.path_sharing.apply(
-        get_qualitative_color, cmap_name=cmap_name
+        get_qualitative_color, cmap=cmap_name
     )
 
     paths_without_restriction['label'] = paths_without_restriction.path_sharing.apply(lambda r: r.value)

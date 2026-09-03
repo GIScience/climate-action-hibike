@@ -7,6 +7,12 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.0.3...main)
 
+### Added
+- Stacked bar chart artifact with distribution of dooring risk ([#161](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/161))
+
+### Changed
+- Rename value of DooringRiskCategory.DOORING_SAFE from "safe_route" to "no_dooring" ([#159](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/159))
+
 ## [3.0.3](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.0.3) - 2026-07-08
 
 ### Fixed
