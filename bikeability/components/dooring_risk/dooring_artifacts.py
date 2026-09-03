@@ -1,8 +1,9 @@
 from importlib.resources import read_text
 
 import geopandas as gpd
+import plotly.graph_objects as go
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
-from climatoology.base.artifact_creators import create_vector_artifact
+from climatoology.base.artifact_creators import create_plotly_chart_artifact, create_vector_artifact
 from climatoology.base.computation import ComputationResources
 from pydantic_extra_types.color import Color
 
@@ -16,8 +17,8 @@ def build_dooring_artifact(
 ) -> Artifact:
     legend = Legend(
         legend_data={
-            DooringRiskCategory.DOORING_SAFE.value: Color('#313695'),
-            DooringRiskCategory.DOORING_RISK.value: Color('#f00000'),
+            DooringRiskCategory.DOORING_SAFE.value: Color('#617CCC'),
+            DooringRiskCategory.DOORING_RISK.value: Color('#FF675C'),
             DooringRiskCategory.UNKNOWN.value: Color('grey'),
         },
     )
@@ -46,3 +47,17 @@ def build_dooring_artifact(
 def get_colors_from_dict_legend(category: DooringRiskCategory, legend: Legend) -> Color:
     assert isinstance(getattr(legend, 'legend_data'), dict), 'Legend data must be a dict'
     return legend.legend_data[category.value]
+
+
+def build_dooring_risk_stacked_bar_artifact(aoi_aggregate: go.Figure, resources: ComputationResources) -> Artifact:
+    metadata = ArtifactMetadata(
+        name='Distribution of Dooring Risk',
+        summary='How is the total length of paths distributed across the dooring risk categories?',
+        tags={Topics.TRAFFIC, Topics.SAFETY},
+    )
+
+    return create_plotly_chart_artifact(
+        figure=aoi_aggregate,
+        metadata=metadata,
+        resources=resources,
+    )

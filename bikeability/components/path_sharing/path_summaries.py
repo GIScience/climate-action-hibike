@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 from climatoology.base.artifact import Artifact, ArtifactMetadata
 from climatoology.base.artifact_creators import create_plotly_chart_artifact
 from climatoology.base.computation import ComputationResources
-from plotly.graph_objs import Figure
 from pyproj import CRS
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
@@ -40,7 +39,7 @@ def summarise_aoi(
     total_length = summary_sorted['length'].sum()
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100
 
-    stacked_bar_colors = summary_sorted.path_sharing.apply(get_qualitative_color, cmap_name='coolwarm')
+    stacked_bar_colors = summary_sorted.path_sharing.apply(get_qualitative_color, cmap='coolwarm')
     stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
     summary_sorted['path_sharing'] = summary_sorted.path_sharing.apply(lambda cat: cat.value)
 
@@ -57,6 +56,7 @@ def summarise_aoi(
                 hovertemplate=f'{row["path_sharing"]}: {row["length"]:.2f} km ({row["percent"]:.1f}%)<extra></extra>'.replace(
                     '_', ' '
                 ).capitalize(),
+                legendrank=len(summary_sorted) - i,
                 showlegend=True,
             )
         )
@@ -80,7 +80,9 @@ def summarise_aoi(
     return category_fig_stacked_bar
 
 
-def build_aoi_summary_category_stacked_bar_artifact(aoi_aggregate: Figure, resources: ComputationResources) -> Artifact:
+def build_aoi_summary_category_stacked_bar_artifact(
+    aoi_aggregate: go.Figure, resources: ComputationResources
+) -> Artifact:
     metadata = ArtifactMetadata(
         name='Distribution of Path Sharing',
         summary='How is the total length of paths distributed across the path sharing categories? '

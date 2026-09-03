@@ -30,7 +30,7 @@ def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, cou
 
     ohsome_responses = ohsome.elements.count.post(bpolys=aoi, filter=ohsome_filter('line')).data
     path_lines_count = sum([response['value'] for response in ohsome_responses['result']])
-    log.info(f'There are {path_lines_count} are selected.')
+    log.info(f'There are {path_lines_count} paths selected.')
     if path_lines_count > count_limit:
         raise InputValidationError(
             f'There are too many path segments in the selected area: {path_lines_count} path segments. '

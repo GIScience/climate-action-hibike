@@ -14,7 +14,7 @@ def build_smoothness_artifact(
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
 ) -> Artifact:
-    smoothness_paths['color'] = smoothness_paths.smoothness.apply(get_qualitative_color, cmap_name=cmap_name)
+    smoothness_paths['color'] = smoothness_paths.smoothness.apply(get_qualitative_color, cmap=cmap_name)
     smoothness_paths['label'] = smoothness_paths.smoothness.apply(lambda r: r.name)
     metadata = ArtifactMetadata(
         name='Path Smoothness',
