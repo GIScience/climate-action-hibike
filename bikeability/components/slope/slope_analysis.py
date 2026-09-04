@@ -31,6 +31,9 @@ def compute_slope_analysis(
         raise ClimatoologyUserError('Plugin was initialised without S3 settings')
     log.debug('Computing slopes for paths')
 
+    paths['@osmId'] = paths['osm_type'] + '_' + paths['osm_id']
+    paths.drop(columns=['osm_type', 'osm_id'], inplace=True)
+
     multi_line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]
     multi_line_paths = multi_line_paths.loc[multi_line_paths.path_sharing.isin(PathSharing.get_bikeable())].copy(
         deep=False
@@ -42,10 +45,11 @@ def compute_slope_analysis(
         raise ClimatoologyUserError('No linear paths to calculate slope for.')
 
     # Calculate the slope for each path segment.
-    paths_with_slopes = get_paths_slopes(line_string_paths, s3settings, segment_length=30)
+    paths_with_slopes = get_paths_slopes(line_string_paths, s3settings, segment_length=30, id_col='@osmId')
     paths_with_slopes['slope'] = paths_with_slopes['slope'].abs()
 
     smoothed_slopes = merge_similar_slopes(paths_with_slopes)
+
     slope_artifact = build_slope_artifact(path_slopes_data=smoothed_slopes, resources=resources)
 
     slope_summary = summarise_slope(paths_with_slopes)

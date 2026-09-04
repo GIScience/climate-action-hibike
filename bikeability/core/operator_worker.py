@@ -1,3 +1,4 @@
+import importlib
 import logging
 from datetime import timedelta
 from importlib.resources import files
@@ -9,7 +10,7 @@ from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator
 from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
 from mobility_tools.settings import ORSSettings, S3Settings
-from ohsome import OhsomeClient
+from ohsome_py2.client import OhsomeClient
 from pydantic.networks import HttpUrl
 from shapely import make_valid
 
@@ -52,6 +53,7 @@ from bikeability.components.utils.utils import (
     ohsome_filter,
 )
 from bikeability.core.input import BikeabilityIndicators, ComputeInputBikeability
+from bikeability.core.settings import Settings
 
 log = logging.getLogger(__name__)
 
@@ -59,13 +61,19 @@ log = logging.getLogger(__name__)
 class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
     def __init__(
         self,
+        hibike_settings: Settings,
         naturalness_utility: NaturalnessUtility | None = None,
         ors_settings: ORSSettings | None = None,
         s3_settings: S3Settings | None = None,
         check_size: bool = True,
     ):
         super().__init__()
-        self.ohsome = OhsomeClient(user_agent='CA Plugin Bikeability')
+        version = importlib.metadata.version('bikeability')
+        self.ohsome = OhsomeClient(
+            user_agent='climate-action-navigator-bikeability/' + version,
+            base_url=hibike_settings.ohsome_base_url,
+            v2=hibike_settings.feature_flag_ohsome2,
+        )
         log.debug('Initialised bikeability operator with ohsome client')
 
         self.ors_settings = ors_settings

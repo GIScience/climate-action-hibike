@@ -33,7 +33,7 @@ class SurfaceType(Enum):
 
 
 def categorise_surface(row: pd.Series) -> SurfaceType:
-    match row['@other_tags']:
+    match row['osm_tags']:
         case x if x.get('surface') is None:
             return SurfaceType.UNKNOWN
         case x if x.get('surface') == 'asphalt':

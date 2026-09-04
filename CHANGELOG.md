@@ -9,9 +9,14 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 - Stacked bar chart artifact with distribution of dooring risk ([#161](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/161))
+- Option to use ohsome API v2 (by setting `FEATURE_FLAG_OHSOME2` and `OHSOME_BASE_URL`) ([#168](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/168))
 
 ### Changed
 - Rename value of DooringRiskCategory.DOORING_SAFE from "safe_route" to "no_dooring" ([#159](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/159))
+- Updated ohsome-py2 to use the latest ohsome v2 API schema ([#168](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/168))
+
+### Removed
+- Remove approvaltests
 
 ## [3.0.3](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.0.3) - 2026-07-08
 

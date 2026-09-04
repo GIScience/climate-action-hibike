@@ -32,7 +32,7 @@ def build_path_sharing_artifact(
     )
 
     return create_vector_artifact(
-        data=paths_without_restriction[['@osmId', 'color', 'label', 'geometry']],
+        data=paths_without_restriction[['osm_id', 'osm_type', 'color', 'label', 'geometry']],
         metadata=metadata,
         resources=resources,
         legend=Legend(

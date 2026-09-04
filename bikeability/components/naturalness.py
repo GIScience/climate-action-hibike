@@ -91,10 +91,10 @@ def get_naturalness(
 
     path_lines = paths[paths.geom_type.isin(['LineString', 'MultiLinesString'])]
     if len(path_lines) > 0:
-        path_lines.loc[path_lines['@other_tags'].apply(lambda x: x.get('tunnel')) == 'yes', 'naturalness'] = 0
+        path_lines.loc[path_lines['osm_tags'].apply(lambda x: x.get('tunnel')) == 'yes', 'naturalness'] = 0
     path_polygons = paths[paths.geom_type.isin(['Polygon', 'MultiPolygon'])]
     if len(path_polygons) > 0:
-        path_polygons.loc[path_polygons['@other_tags'].apply(lambda x: x.get('tunnel')) == 'yes', 'naturalness'] = 0
+        path_polygons.loc[path_polygons['osm_tags'].apply(lambda x: x.get('tunnel')) == 'yes', 'naturalness'] = 0
 
     lines_valid = _preprocess_path_lines(path_lines.copy())
 
@@ -111,7 +111,7 @@ def get_naturalness(
 
         log.debug('Post-process: reset path_line geometry which is not pre-processed')
         lines_ndvi.geometry = path_lines.geometry
-        lines_ndvi['@osmId'] = path_lines['@osmId']
+        lines_ndvi[['osm_id', 'osm_type']] = path_lines[['osm_id', 'osm_type']]
         lines_ndvi.loc[lines_valid[lines_valid['naturalness'] == 0].index, 'naturalness'] = 0
 
         naturalness_paths.append(lines_ndvi)
@@ -125,7 +125,7 @@ def get_naturalness(
             index=nature_index,
             agg_stats=agg_stats,
         )
-        polygons_ndvi['@osmId'] = path_polygons['@osmId']
+        polygons_ndvi[['osm_id', 'osm_type']] = path_polygons[['osm_id', 'osm_type']]
         polygons_ndvi.loc[path_polygons[path_polygons['naturalness'] == 0].index, 'naturalness'] = 0
         naturalness_paths.append(polygons_ndvi)
 

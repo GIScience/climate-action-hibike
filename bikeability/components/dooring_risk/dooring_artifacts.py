@@ -37,7 +37,7 @@ def build_dooring_artifact(
     dooring_risk_paths['label'] = dooring_risk_paths['dooring_category'].apply(lambda x: x.value)
 
     return create_vector_artifact(
-        data=dooring_risk_paths[['@osmId', 'color', 'label', 'geometry']],
+        data=dooring_risk_paths[['osm_id', 'osm_type', 'color', 'label', 'geometry']],
         metadata=metadata,
         resources=resources,
         legend=legend,

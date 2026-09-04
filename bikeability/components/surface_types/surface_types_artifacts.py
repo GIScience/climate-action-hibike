@@ -36,7 +36,7 @@ def build_surface_types_artifact(
     )
 
     return create_vector_artifact(
-        data=surface_type_paths[['@osmId', 'color', 'label', 'geometry']],
+        data=surface_type_paths[['osm_id', 'osm_type', 'color', 'label', 'geometry']],
         metadata=metadata,
         resources=resources,
         legend=Legend(legend_data=legend_data),

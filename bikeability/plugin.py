@@ -18,7 +18,7 @@ def init_plugin(
         base_url=f'http://{settings.naturalness_host}:{settings.naturalness_port}{settings.naturalness_path}',
     )
     operator = OperatorBikeability(
-        naturalness_utility, ors_settings, s3_settings
+        settings, naturalness_utility, ors_settings, s3_settings
     )  # todo: confirm there should be initialized settings or global settings.
 
     log.info(f'Running plugin: {operator.info().name}')

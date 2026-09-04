@@ -1,0 +1,100 @@
+interactions:
+- request:
+    body: bpolys=%7B%22type%22%3A+%22FeatureCollection%22%2C+%22features%22%3A+%5B%7B%22id%22%3A+%220%22%2C+%22type%22%3A+%22Feature%22%2C+%22properties%22%3A+%7B%7D%2C+%22geometry%22%3A+%7B%22type%22%3A+%22MultiPolygon%22%2C+%22coordinates%22%3A+%5B%5B%5B%5B8.7108559%2C+49.407988%5D%2C+%5B8.7108559%2C+49.4136026%5D%2C+%5B8.6983273%2C+49.4136026%5D%2C+%5B8.6983273%2C+49.407988%5D%2C+%5B8.7108559%2C+49.407988%5D%5D%5D%5D%7D%7D%5D%7D&filter=geometry%3Apolygon+and+amenity%3Dparking+and+orientation%3Dparallel&properties=tags&clipGeometry=True
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '534'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      user-agent:
+      - ohsome-py/0.3.0
+    method: POST
+    uri: https://api.ohsome.org/v1/elements/geometry
+  response:
+    body:
+      string: "{\n  \"attribution\" : {\n    \"url\" : \"https://ohsome.org/copyrights\",\n
+        \   \"text\" : \"\xA9 OpenStreetMap contributors\"\n  },\n  \"apiVersion\"
+        : \"1.10.4\",\n  \"type\" : \"FeatureCollection\",\n  \"features\" : [{\n
+        \   \"type\" : \"Feature\",\n    \"geometry\" : {\n      \"type\" : \"Polygon\",\n
+        \     \"coordinates\" : [\n        [\n          [\n            8.7088956,\n
+        \           49.4134043\n          ],\n          [\n            8.7089478,\n
+        \           49.4134006\n          ],\n          [\n            8.7090276,\n
+        \           49.4133954\n          ],\n          [\n            8.709138,\n
+        \           49.4133915\n          ],\n          [\n            8.7092208,\n
+        \           49.4133891\n          ],\n          [\n            8.7093381,\n
+        \           49.4133844\n          ],\n          [\n            8.7094446,\n
+        \           49.4133773\n          ],\n          [\n            8.7095227,\n
+        \           49.4133742\n          ],\n          [\n            8.7095919,\n
+        \           49.4133732\n          ],\n          [\n            8.7096753,\n
+        \           49.413372\n          ],\n          [\n            8.7097689,\n
+        \           49.4133703\n          ],\n          [\n            8.7097855,\n
+        \           49.4133699\n          ],\n          [\n            8.7098045,\n
+        \           49.413349\n          ],\n          [\n            8.7097233,\n
+        \           49.4133494\n          ],\n          [\n            8.7096668,\n
+        \           49.4133588\n          ],\n          [\n            8.7095387,\n
+        \           49.413359\n          ],\n          [\n            8.7095215,\n
+        \           49.413359\n          ],\n          [\n            8.7094115,\n
+        \           49.4133632\n          ],\n          [\n            8.7092994,\n
+        \           49.4133694\n          ],\n          [\n            8.7091838,\n
+        \           49.4133744\n          ],\n          [\n            8.7090337,\n
+        \           49.4133785\n          ],\n          [\n            8.7088927,\n
+        \           49.4133863\n          ],\n          [\n            8.7088956,\n
+        \           49.4134043\n          ]\n        ]\n      ]\n    },\n    \"properties\"
+        : {\n      \"@osmId\" : \"way/171691954\",\n      \"@snapshotTimestamp\" :
+        \"2026-07-27T09:00:00Z\",\n      \"access\" : \"permit\",\n      \"amenity\"
+        : \"parking\",\n      \"description\" : \"nur PKW\",\n      \"orientation\"
+        : \"parallel\",\n      \"park_ride\" : \"no\",\n      \"parking\" : \"street_side\",\n
+        \     \"supervised\" : \"no\",\n      \"surface\" : \"asphalt\"\n    }\n  },
+        {\n    \"type\" : \"Feature\",\n    \"geometry\" : {\n      \"type\" : \"Polygon\",\n
+        \     \"coordinates\" : [\n        [\n          [\n            8.7062472,\n
+        \           49.4095436\n          ],\n          [\n            8.7062462,\n
+        \           49.4095271\n          ],\n          [\n            8.7064041,\n
+        \           49.4095251\n          ],\n          [\n            8.7064051,\n
+        \           49.4095416\n          ],\n          [\n            8.7062472,\n
+        \           49.4095436\n          ]\n        ]\n      ]\n    },\n    \"properties\"
+        : {\n      \"@osmId\" : \"way/1178649726\",\n      \"@snapshotTimestamp\"
+        : \"2026-07-27T09:00:00Z\",\n      \"access\" : \"permit\",\n      \"amenity\"
+        : \"parking\",\n      \"capacity\" : \"2\",\n      \"capacity:disabled\" :
+        \"2\",\n      \"orientation\" : \"parallel\",\n      \"parking\" : \"lane\",\n
+        \     \"surface\" : \"paving_stones\"\n    }\n  }]\n}\n"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization
+      Access-Control-Allow-Methods:
+      - POST, GET
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Max-Age:
+      - '3600'
+      Connection:
+      - Keep-Alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/geo+json;charset=utf-8
+      Content-disposition:
+      - attachment;filename=ohsome.geojson
+      Date:
+      - Thu, 03 Sep 2026 13:44:13 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - Apache/2.4.58 (Ubuntu)
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubdomains;
+      Transfer-Encoding:
+      - chunked
+      vary:
+      - accept-encoding
+    status:
+      code: 200
+      message: ''
+version: 1

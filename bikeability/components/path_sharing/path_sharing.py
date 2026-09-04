@@ -40,7 +40,7 @@ class PathSharing(Enum):
 
 
 def apply_path_sharing_filters(row: pd.Series) -> PathSharing:
-    tags = row['@other_tags']
+    tags = row['osm_tags']
     speed_limit = filters.parse_maxspeed_tag(tags)
     match tags:
         case x if filters.no_access(x):

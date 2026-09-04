@@ -1,10 +1,8 @@
 import geopandas as gpd
-import geopandas.testing
 import pandas as pd
 import pytest
 import shapely
-from approvaltests import verify
-from ohsome import OhsomeClient
+from geopandas.testing import assert_geodataframe_equal
 from ohsome_filter_to_sql.main import validate_filter
 from pandas.testing import assert_series_equal
 from plotly.graph_objects import Figure
@@ -25,8 +23,9 @@ from bikeability.components.utils.utils import (
 
 expected_parking_line = gpd.GeoDataFrame(
     data={
-        '@osmId': ['way/1205391562'],
-        '@other_tags': [{'amenity': 'parking', 'orientation': 'parallel', 'parking': 'street_side'}],
+        'osm_id': ['1205391562'],
+        'osm_type': ['way'],
+        'osm_tags': [{'amenity': 'parking', 'orientation': 'parallel', 'parking': 'street_side'}],
     },
     geometry=[
         shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)]),
@@ -37,8 +36,9 @@ expected_parking_line = gpd.GeoDataFrame(
 
 expected_parking_polygon = gpd.GeoDataFrame(
     data={
-        '@osmId': ['way/1205391562'],
-        '@other_tags': [{'amenity': 'parking', 'orientation': 'parallel', 'parking': 'street_side'}],
+        'osm_id': ['1205391562'],
+        'osm_type': ['way'],
+        'osm_tags': [{'amenity': 'parking', 'orientation': 'parallel', 'parking': 'street_side'}],
     },
     geometry=[
         shapely.from_wkt(
@@ -65,7 +65,7 @@ def dooring_risk():
     parking[-1] = True
     dooring_risk_tags = pd.DataFrame(
         data={
-            '@other_tags': tags,
+            'osm_tags': tags,
             'expected_dooring_risk': [DooringRiskCategory.DOORING_RISK for _ in tags],
             'parking': parking,
             'path_sharing': [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags],
@@ -93,7 +93,7 @@ def dooring_safe():
 
     dooring_risk_tags = pd.DataFrame(
         data={
-            '@other_tags': tags,
+            'osm_tags': tags,
             'expected_dooring_risk': [DooringRiskCategory.DOORING_SAFE for _ in tags],
             'parking': [False for _ in tags],
             'path_sharing': category,
@@ -107,7 +107,7 @@ def dooring_safe():
 def dooring_unknown():
     return pd.DataFrame(
         data={
-            '@other_tags': [{}],
+            'osm_tags': [{}],
             'expected_dooring_risk': [DooringRiskCategory.UNKNOWN],
             'path_sharing': [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED],
             'parking': [False],
@@ -120,44 +120,66 @@ def dooring_test_cases(dooring_risk, dooring_safe, dooring_unknown):
     return pd.concat([dooring_risk, dooring_safe, dooring_unknown])
 
 
-def test_find_nearest_parking(responses_mock, default_aoi, test_resources):
-    with (
-        open(test_resources / 'ohsome_line_response.geojson', 'rb') as line_file,
-        open(test_resources / 'ohsome_parking_response.geojson', 'rb') as parking_file,
-    ):
-        responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=line_file.read())
-        responses_mock.post('https://api.ohsome.org/v1/elements/geometry', body=parking_file.read())
-
-    line_paths = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
-    line_paths = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
-    line_paths['path_sharing'] = None  # FIXME
-    parking_polygons = fetch_osm_data(default_aoi, parallel_parking_filter('polygon'), OhsomeClient())
+def test_find_nearest_parking():
+    line_paths = gpd.GeoDataFrame(
+        data={
+            'osm_id': ['1', '2'],
+            'osm_type': ['way'] * 2,
+            'osm_tags': [{'amenity': 'parking', 'orientation': 'parallel'}] * 2,
+            'path_sharing': [None] * 2,
+        },
+        geometry=[
+            shapely.LineString([[0, 0], [0, 1], [2, 1], [2, 2]]),  # have nearest parking
+            shapely.LineString([[20, 0], [20, 1], [22, 1], [22, 2]]),  # do not have nearest parking
+        ],
+        crs=32632,
+    ).to_crs(4326)
+    parking_polygons = gpd.GeoDataFrame(
+        data={
+            'osm_id': ['10', '20'],
+            'osm_type': ['relation', 'relation'],
+            'osm_tags': [{'amenity': 'parking', 'orientation': 'parallel'}] * 2,
+        },
+        geometry=[
+            shapely.box(2.1, 0, 3, 4),
+            shapely.MultiPolygon(
+                polygons=[
+                    shapely.box(-2, 2, -0.1, 4),
+                    shapely.box(-2, 1, -1.1, 1.99),
+                ]
+            ),
+        ],
+        crs=32632,
+    ).to_crs(4326)
 
     line_paths_with_parking = find_nearest_parking(line_paths, parking_polygons)
 
-    assert line_paths_with_parking.columns.to_list() == ['geometry', '@osmId', '@other_tags', 'parking', 'path_sharing']
-    assert line_paths_with_parking.crs.to_epsg() == 4326
+    assert isinstance(line_paths_with_parking, gpd.GeoDataFrame)
+    assert not line_paths_with_parking.empty
+    assert all(line_paths_with_parking['parking'].values == [True, False])
+    assert all(
+        [
+            col in line_paths_with_parking
+            for col in ['osm_id', 'osm_type', 'osm_tags', 'geometry', 'parking', 'path_sharing']
+        ]
+    )
 
 
-@pytest.mark.parametrize(
-    'geometry_type, expected_parking_data, expected_geometry_type',
-    [
-        ('polygon', expected_parking_polygon, 'Polygon'),
-    ],
-)
-def test_parking_filter(
-    responses_mock, default_aoi, geometry_type, expected_parking_data, expected_geometry_type, test_resources
-):
-    with open(test_resources / 'ohsome_parking_response.geojson', 'rb') as vector:
-        responses_mock.post(
-            'https://api.ohsome.org/v1/elements/geometry',
-            body=vector.read(),
+@pytest.mark.vcr
+def test_parking_filter(parametrized_ohsome_client, default_aoi):
+    fetch_parking_data = fetch_osm_data(
+        aoi=default_aoi, osm_filter=parallel_parking_filter('polygon'), ohsome=parametrized_ohsome_client
+    )
+
+    assert isinstance(fetch_parking_data, gpd.GeoDataFrame)
+    assert not fetch_parking_data.empty
+    assert all([col in fetch_parking_data for col in ['osm_id', 'osm_type', 'osm_tags', 'geometry']])
+    assert all(fetch_parking_data.geom_type == 'Polygon')
+    assert all(
+        fetch_parking_data['osm_tags'].apply(
+            lambda x: x.get('amenity') == 'parking' and x.get('orientation') == 'parallel'
         )
-
-    fetch_parking_data = fetch_osm_data(default_aoi, parallel_parking_filter(geometry_type), OhsomeClient())
-
-    geopandas.testing.assert_geodataframe_equal(fetch_parking_data, expected_parking_data, check_like=True)
-    assert fetch_parking_data.geom_type[0] == expected_geometry_type
+    )
 
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])
@@ -173,16 +195,29 @@ def test_dooring_filter(dooring_test_cases):
 
 def test_get_dooring_risk(default_paths, expected_parking_polygon):
     result = get_dooring_risk(default_paths, expected_parking_polygon)
-    verify(result.to_csv())
+
+    expected_result = gpd.GeoDataFrame(default_paths.iloc[1:2].reset_index(drop=True))
+    expected_result['dooring_category'] = DooringRiskCategory.DOORING_SAFE
+    assert_geodataframe_equal(
+        result,
+        expected_result[['osm_id', 'osm_type', 'geometry', 'dooring_category']],
+        check_less_precise=True,
+    )
 
 
 def test_get_dooring_risk_missing_geometry_types(test_line, test_polygon, expected_parking_polygon):
-    dooring_risk_line_paths = get_dooring_risk(test_polygon, expected_parking_polygon)
-    dooring_risk_polygon_paths = get_dooring_risk(test_line, expected_parking_polygon)
+    dooring_risk_polygon_paths = get_dooring_risk(test_polygon, expected_parking_polygon)
+    dooring_risk_line_paths = get_dooring_risk(test_line, expected_parking_polygon)
 
     result = pd.concat([dooring_risk_line_paths, dooring_risk_polygon_paths], ignore_index=True)
 
-    verify(result.to_csv())
+    expected_result = gpd.GeoDataFrame(test_line.iloc[1:2].reset_index(drop=True))
+    expected_result['dooring_category'] = DooringRiskCategory.DOORING_SAFE
+    assert_geodataframe_equal(
+        result,
+        expected_result[['osm_id', 'osm_type', 'geometry', 'dooring_category']],
+        check_less_precise=True,
+    )
 
 
 def test_summarise_dooring_risk(default_path_geometry, default_polygon_geometry):
