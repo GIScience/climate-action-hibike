@@ -8,16 +8,14 @@ from bikeability.components.path_sharing.path_sharing import (
 
 EXCLUSIVE_DF = pd.DataFrame(
     {
-        '@osmId': ['way/246387137', 'way/118975501'],
-        '@other_tags': [{'highway': 'cycleway', 'foot': 'no'}, {'highway': 'path', 'foot': 'yes', 'segregated': 'yes'}],
+        'osm_tags': [{'highway': 'cycleway', 'foot': 'no'}, {'highway': 'path', 'foot': 'yes', 'segregated': 'yes'}],
         'expected_category': [PathSharing.EXCLUSIVE, PathSharing.EXCLUSIVE],
     }
 )
 
 SHARED_WITH_PEDESTRIANS_DF = pd.DataFrame(
     {
-        '@osmId': ['way/587937936', 'way/27620739', 'way/406929620', 'way/208162626', 'way/156194371'],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'path'},
             {'highway': 'path', 'bicycle': 'designated', 'foot': 'designated', 'segregated': 'no'},
             {'highway': 'footway', 'bicycle': 'yes'},
@@ -37,17 +35,7 @@ SHARED_WITH_PEDESTRIANS_DF = pd.DataFrame(
 
 SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF = pd.DataFrame(
     {
-        '@osmId': [
-            'way/34386123',
-            'way/27342468',
-            'way/715905252',
-            'way/35978590',
-            'way/274709010',
-            'way/440466305',
-            'way/83188869',
-            'way/191212309',
-        ],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'living_street', 'bicycle': 'yes'},
             {'highway': 'living_street', 'cycleway:both': 'no'},
             {'highway': 'service', 'bicycle': 'yes'},
@@ -73,8 +61,7 @@ SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF = pd.DataFrame(
 
 SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF = pd.DataFrame(
     {
-        '@osmId': ['way/37685272', 'way/244287984', 'way/258562283', 'way/28891216', 'way/932097064', 'way/277455037'],
-        '@other_tags': [
+        'osm_tags': [
             {
                 'highway': 'residential',
                 'bicycle': 'designated',
@@ -102,8 +89,7 @@ SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED_DF = pd.DataFrame(
 
 SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF = pd.DataFrame(
     {
-        '@osmId': ['way/254010814', 'way/596760204', 'way/26816187'],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'residential', 'cycleway:both': 'lane', 'maxspeed': '50'},
             {'highway': 'tertiary', 'cycleway:both': 'no', 'maxspeed': '50'},
             {'highway': 'residential', 'maxspeed:type': 'DE:urban'},
@@ -120,8 +106,7 @@ SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED_DF = pd.DataFrame(
 
 SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF = pd.DataFrame(
     {
-        '@osmId': ['way/372602113', 'way/189054375', 'way/155281272'],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'tertiary', 'maxspeed': '70', 'cycleway:both': 'no'},
             {'highway': 'unclassified', 'maxspeed:type': 'DE:rural'},
             {'highway': 'secondary', 'maxspeed': '70', 'cycleway:left': 'no', 'cycleway:right': 'separate'},
@@ -137,8 +122,7 @@ SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED_DF = pd.DataFrame(
 
 SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF = pd.DataFrame(
     {
-        '@osmId': ['way/25108534', 'way/276155445', 'way/31146043'],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'primary_link', 'cycleway:both': 'no'},
             {'highway': 'tertiary'},
             {'highway': 'tertiary', 'cycleway': 'no'},
@@ -154,8 +138,7 @@ SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED_DF = pd.DataFrame(
 
 REQUIRES_DISMOUNTING_DF = pd.DataFrame(
     {
-        '@osmId': ['way/131478149', 'way/24968605', 'way/87956068'],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'steps', 'ramp:bicycle': 'yes'},
             {'highway': 'steps', 'ramp': 'yes', 'ramp:stroller': 'yes'},
             {'highway': 'track', 'ford': 'yes'},
@@ -171,15 +154,7 @@ REQUIRES_DISMOUNTING_DF = pd.DataFrame(
 
 PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
     {
-        '@osmId': [
-            'way/694458151',
-            'way/26028197',
-            'way/870757384',
-            'railway=platform',
-            'highway=platform',
-            'bicycle=dismount',
-        ],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'footway', 'footway': 'sidewalk'},
             {'highway': 'footway', 'bicycle': 'no'},
             {'highway': 'pedestrian', 'bicycle': 'no'},
@@ -201,16 +176,7 @@ PEDESTRIAN_EXCLUSIVE_DF = pd.DataFrame(
 
 NO_ACCESS_DF = pd.DataFrame(
     {
-        '@osmId': [
-            'way/320034117',
-            'way/849049867',
-            'way/25805786',
-            'way/4084008',
-            'way/24635973',
-            'way/343029968',
-            'way/111754956',
-        ],
-        '@other_tags': [
+        'osm_tags': [
             {'highway': 'trunk'},
             {'highway': 'secondary', 'bicycle': 'no'},
             {'highway': 'primary', 'motorroad': 'yes'},

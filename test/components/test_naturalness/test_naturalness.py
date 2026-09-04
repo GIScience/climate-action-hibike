@@ -15,7 +15,7 @@ from bikeability.components.naturalness import _preprocess_path_lines, get_natur
 def naturalness_test_lines() -> gpd.GeoDataFrame:
     path_lines = gpd.GeoDataFrame(
         index=[1, 2, 3],
-        data={'@osmId': ['a', 'b', 'c'], '@other_tags': [{'tunnel': 'yes'}, {}, {}]},
+        data={'osm_id': ['a', 'b', 'c'], 'osm_type': ['way', 'way', 'way'], 'osm_tags': [{'tunnel': 'yes'}, {}, {}]},
         geometry=[
             shapely.LineString([[12.4, 48.25], [12.4, 48.30]]),  # width = 0
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),  # width = 0
@@ -32,7 +32,7 @@ def naturalness_test_polygons() -> gpd.GeoDataFrame:
     polygon_geom = shapely.Polygon(((12.3, 48.2), (12.3, 48.25), (12.35, 48.25), (12.3, 48.25)))
     polygons = gpd.GeoDataFrame(
         index=[3, 4],
-        data={'@osmId': ['d', 'd'], '@other_tags': [{}]},
+        data={'osm_id': ['d', 'd'], 'osm_type': ['relation', 'relation'], 'osm_tags': [{}]},
         geometry=[polygon_geom, polygon_geom],
         crs='EPSG:4326',
     )
@@ -43,7 +43,7 @@ def naturalness_test_polygons() -> gpd.GeoDataFrame:
 def test_preprocess_line_paths(naturalness_utility_mock, naturalness_test_lines, naturalness_test_polygons):
     expected_valid_path_lines = gpd.GeoDataFrame(
         index=[1, 2, 3],
-        data={'@osmId': ['a', 'b', 'c']},
+        data={'osm_id': ['a', 'b', 'c'], 'osm_type': ['way', 'way', 'way']},
         geometry=[
             shapely.LineString([[12.4, 48.25], [12.4 + 0.000009, 48.30]]),  # width = 0
             shapely.LineString([[12.41, 48.25], [12.41 + 0.000009, 48.30]]),  # width = 0
@@ -53,7 +53,7 @@ def test_preprocess_line_paths(naturalness_utility_mock, naturalness_test_lines,
     )
 
     computed_valid_path_lines = _preprocess_path_lines(naturalness_test_lines)
-    computed_valid_path_lines.drop(columns=['@other_tags'], inplace=True)
+    computed_valid_path_lines.drop(columns=['osm_tags'], inplace=True)
 
     gpdtest.assert_geodataframe_equal(computed_valid_path_lines, expected_valid_path_lines, check_like=True)
 
@@ -74,7 +74,11 @@ def test_get_naturalness(naturalness_utility_mock, naturalness_test_lines, natur
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),
             shapely.Polygon([[12.4, 48.25], [12.4, 48.30], [12.41, 48.30]]),
         ],
-        data={'@osmId': ['a', 'b', 'd'], 'naturalness': [0.0, 0.6, 0.6]},  # Walkability: 0.5, 0.6
+        data={
+            'osm_id': ['a', 'b', 'd'],
+            'osm_type': ['way', 'way', 'relation'],
+            'naturalness': [0.0, 0.6, 0.6],
+        },  # Walkability: 0.5, 0.6
         crs=CRS.from_epsg(4326),
     )
 
@@ -104,7 +108,11 @@ def test_get_naturalness_missing_geometry_types(
             shapely.LineString([[12.41, 48.25], [12.41, 48.30]]),
             shapely.Polygon([[12.4, 48.25], [12.4, 48.30], [12.41, 48.30]]),
         ],
-        data={'naturalness': [0.0, 0.6, 0.6], '@osmId': ['a', 'b', 'd']},  # Walkability: 0.5, 0.6
+        data={
+            'naturalness': [0.0, 0.6, 0.6],
+            'osm_id': ['a', 'b', 'd'],
+            'osm_type': ['way', 'way', 'relation'],
+        },  # Walkability: 0.5, 0.6
         crs=CRS.from_epsg(4326),
     )
 

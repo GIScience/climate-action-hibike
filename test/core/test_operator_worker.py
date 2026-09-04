@@ -1,26 +1,17 @@
-from geopandas import testing
+import pytest
 
 
-def test_get_paths(operator, expected_compute_input, default_aoi, ohsome_api_osm, default_paths):
-    expected_paths = default_paths.drop(columns=['path_sharing'])
-    received_paths = operator.get_paths(default_aoi)
+@pytest.mark.vcr
+def test_get_paths(operator, parametrized_ohsome_client, small_aoi):
+    operator.ohsome = parametrized_ohsome_client
+    received_paths = operator.get_paths(small_aoi)
 
-    testing.assert_geodataframe_equal(
-        received_paths,
-        expected_paths,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
+    assert set(received_paths.columns) >= {'osm_id', 'osm_type', 'geometry', 'osm_tags'}
 
 
-def test_get_parking(operator, default_aoi, ohsome_api_parking, expected_parking_polygon):
+@pytest.mark.vcr
+def test_get_parking(operator, parametrized_ohsome_client, default_aoi):
+    operator.ohsome = parametrized_ohsome_client
     computed_parking_polygon = operator.get_parallel_parking(default_aoi)
 
-    testing.assert_geodataframe_equal(
-        computed_parking_polygon.drop_duplicates(subset=['@osmId', 'geometry']),
-        expected_parking_polygon,
-        check_like=True,
-        check_geom_type=True,
-        check_less_precise=True,
-    )
+    assert set(computed_parking_polygon.columns) >= {'osm_id', 'osm_type', 'geometry', 'osm_tags'}

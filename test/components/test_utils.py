@@ -2,14 +2,13 @@ from unittest.mock import patch
 
 import geopandas as gpd
 import geopandas.testing
-import ohsome
 import pytest
 import shapely
 from climatoology.base.exception import ClimatoologyUserError, InputValidationError
 from numpy.testing import assert_almost_equal
-from ohsome import OhsomeClient
 from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import validate_filter
+from ohsome_py2.client import OhsomeClient
 
 from bikeability.components.utils.utils import (
     check_paths_count_limit,
@@ -19,47 +18,29 @@ from bikeability.components.utils.utils import (
 )
 
 
-def test_check_paths_count_limit(default_aoi, expected_compute_input, responses_mock, test_resources):
-    with open(test_resources / 'ohsome_count_response.json', 'rb') as paths_count:
-        responses_mock.post(
-            'https://api.ohsome.org/v1/elements/count',
-            body=paths_count.read(),
-        )
-
-    # test false situation
+@pytest.mark.vcr
+def test_check_paths_count_limit(parametrized_ohsome_client, small_aoi):
     with pytest.raises(InputValidationError):
-        check_paths_count_limit(default_aoi, OhsomeClient(), 5000)
-
-
-def test_fetch_osm_data(default_aoi, expected_compute_input, responses_mock, test_resources):
-    with open(test_resources / 'ohsome_line_response.geojson', 'rb') as vector:
-        responses_mock.post(
-            'https://api.ohsome.org/v1/elements/geometry',
-            body=vector.read(),
+        check_paths_count_limit(
+            aoi=small_aoi,
+            count_limit=100,
+            ohsome=parametrized_ohsome_client,
         )
 
-    expected_osm_data = gpd.GeoDataFrame(
-        data={
-            '@osmId': ['way/171574582', 'way/171574582'],
-            '@other_tags': [
-                {'bicycle': 'no'},
-                {
-                    'highway': 'track',
-                    'bicycle': 'yes',
-                    'smoothness': 'intermediate',
-                    'surface': 'fine_gravel',
-                    'parking:both': 'no',
-                },
-            ],
-        },
-        geometry=[
-            shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)]),
-            shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)]),
-        ],
-        crs=4326,
+
+@pytest.mark.vcr
+def test_fetch_osm_data(small_aoi, parametrized_ohsome_client):
+    # Basic test that could probably be deleted (it is a very short function that just calls external code)
+
+    computed_osm_data = fetch_osm_data(
+        aoi=small_aoi,
+        osm_filter='geometry:polygon and highway=*',
+        ohsome=parametrized_ohsome_client,
     )
-    computed_osm_data = fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
-    geopandas.testing.assert_geodataframe_equal(computed_osm_data, expected_osm_data, check_like=True)
+
+    assert isinstance(computed_osm_data, gpd.GeoDataFrame)
+    assert not computed_osm_data.empty
+    assert all([col in computed_osm_data for col in ['osm_id', 'osm_type', 'osm_tags', 'geometry']])
 
 
 class MockPostClient:
@@ -73,10 +54,15 @@ class MockElements:
         return MockPostClient()
 
 
-@patch.object(ohsome.OhsomeClient, attribute='elements', new=MockElements())
-def test_fetch_osm_data_ohsome_error(default_aoi):
+@patch.object(OhsomeClient, attribute='features_extraction', new=MockElements())
+def test_fetch_osm_data_ohsome_error(default_aoi, parametrized_ohsome_client):
+    # We won't test this with V2 because it doesn't need the API, just the mocks defined above
     with pytest.raises(ClimatoologyUserError):
-        fetch_osm_data(default_aoi, 'dummy=yes', OhsomeClient())
+        fetch_osm_data(
+            aoi=default_aoi,
+            osm_filter='dummy=yes',
+            ohsome=parametrized_ohsome_client,
+        )
 
 
 @pytest.mark.parametrize('geometry_type', ['line', 'polygon'])

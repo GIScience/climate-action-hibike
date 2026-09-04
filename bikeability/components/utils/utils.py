@@ -4,9 +4,8 @@ from enum import StrEnum
 import geopandas as gpd
 import shapely
 from climatoology.base.exception import ClimatoologyUserError, InputValidationError
-from ohsome import OhsomeClient
-from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import OhsomeFilter
+from ohsome_py2.client import OhsomeAPIError, OhsomeClient
 from pyproj import CRS, Transformer
 from shapely.ops import transform
 
@@ -25,36 +24,30 @@ class Topics(StrEnum):
 
 def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, count_limit: int) -> None:
     """
-    Check whether paths count is over than limit. (NOTE: just check path_lines)
+    Check whether paths count is over the limit. (NOTE: just check path_lines)
     """
-
-    ohsome_responses = ohsome.elements.count.post(bpolys=aoi, filter=ohsome_filter('line')).data
-    path_lines_count = sum([response['value'] for response in ohsome_responses['result']])
+    path_lines_count = ohsome.features_stats(aoi=aoi, osm_filter=ohsome_filter('line'), measure='count')
     log.info(f'There are {path_lines_count} paths selected.')
     if path_lines_count > count_limit:
         raise InputValidationError(
             f'There are too many path segments in the selected area: {path_lines_count} path segments. '
-            f'Currently, only areas with a maximum of 500,000 path segments are allowed. '
+            f'Currently, only areas with a maximum of {count_limit} path segments are allowed. '
             f'Please select a smaller area or a sub-region of your selected area.'
         )
 
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: OhsomeFilter, ohsome: OhsomeClient) -> gpd.GeoDataFrame:
     try:
-        elements = ohsome.elements.geometry.post(
-            bpolys=aoi, clipGeometry=True, properties='tags', filter=osm_filter
-        ).as_dataframe()
-    except Exception as e:
-        if isinstance(e, OhsomeException) and e.error_code in [413, 500, 501, 502, 503, 507]:
-            raise ClimatoologyUserError('There was an error collecting OSM data. Please try again later.')
-        else:
-            log.exception('Unexpected error when downloading OSM data.')
-            raise ClimatoologyUserError(
-                'Unexpected error when collecting OSM data. Please contact us to find out more.'
-            )
+        elements = ohsome.features_extraction(aoi=aoi, osm_filter=osm_filter, clip=True)
+    except OhsomeAPIError:
+        raise ClimatoologyUserError('There was an error collecting OSM data. Please try again later.')
+    except Exception:
+        log.exception('Unexpected error when downloading OSM data.')
+        raise ClimatoologyUserError('Unexpected error when collecting OSM data. Please contact us to find out more.')
 
-    elements = elements.reset_index()
-    return elements[['@osmId', 'geometry', '@other_tags']]
+    elements = elements.rename_geometry('geometry')
+    elements['osm_id'] = elements['osm_id'].astype(str)  # v2 returns osm_id as int, while v1 returns them as str.
+    return elements[['osm_id', 'osm_type', 'geometry', 'osm_tags']]
 
 
 def ohsome_filter(geometry_type: str) -> OhsomeFilter:

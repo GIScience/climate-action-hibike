@@ -28,7 +28,7 @@ class SmoothnessCategory(Enum):
 
 
 def apply_path_smoothness_filters(row: pd.Series) -> SmoothnessCategory:
-    match row['@other_tags']:
+    match row['osm_tags']:
         case x if filters.too_bumpy_to_ride(x):
             return SmoothnessCategory.TOO_BUMPY_TO_RIDE
         case x if filters.bad(x):

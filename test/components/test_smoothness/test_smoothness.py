@@ -5,7 +5,7 @@ from bikeability.components.smoothness.smoothness import SmoothnessCategory, app
 
 VALIDATION_PATHS = pd.DataFrame(
     data={
-        '@other_tags': [
+        'osm_tags': [
             {'smoothness': 'excellent'},
             {'smoothness': 'good'},
             {'smoothness': 'intermediate'},

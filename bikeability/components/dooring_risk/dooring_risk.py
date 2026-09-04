@@ -77,7 +77,7 @@ def apply_dooring_filters(row: pd.Series) -> DooringRiskCategory:
 
     filters = DooringRiskFilters()
 
-    match row['@other_tags']:
+    match row['osm_tags']:
         case x if filters.dooring_risk(x):
             return DooringRiskCategory.DOORING_RISK
         case x if filters.dooring_safe(x):
@@ -97,7 +97,7 @@ def get_dooring_risk(paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.
     line_paths = paths[paths.geom_type.isin(['LineString', 'MultiLineString'])]
 
     if line_paths.empty:
-        return polygon_paths[['@osmId', 'geometry', 'dooring_category']]
+        return polygon_paths[['osm_id', 'osm_type', 'geometry', 'dooring_category']]
 
     line_paths_with_parking = find_nearest_parking(line_paths, parking)
 
@@ -105,7 +105,7 @@ def get_dooring_risk(paths: gpd.GeoDataFrame, parking: gpd.GeoDataFrame) -> gpd.
 
     dooring_risk_paths = pd.concat([polygon_paths, line_paths_with_parking], ignore_index=True)
 
-    return gpd.GeoDataFrame(dooring_risk_paths[['@osmId', 'geometry', 'dooring_category']])
+    return gpd.GeoDataFrame(dooring_risk_paths[['osm_id', 'osm_type', 'geometry', 'dooring_category']])
 
 
 def find_nearest_parking(line_paths, parking):
@@ -114,12 +114,14 @@ def find_nearest_parking(line_paths, parking):
     parking = parking.to_crs(utm_crs)
     line_paths_with_parking = line_paths.sjoin_nearest(parking, how='left', max_distance=10, distance_col='distance')
 
-    line_paths_with_parking['parking'] = line_paths_with_parking.apply(lambda row: pd.notna(row['distance']), axis=1)
+    line_paths_with_parking['parking'] = line_paths_with_parking['distance'].notna()
     line_paths_with_parking = line_paths_with_parking.to_crs('EPSG:4326')
 
-    line_paths = line_paths_with_parking.rename(columns={'@other_tags_left': '@other_tags', '@osmId_left': '@osmId'})
+    line_paths = line_paths_with_parking.rename(
+        columns={'osm_tags_left': 'osm_tags', 'osm_id_left': 'osm_id', 'osm_type_left': 'osm_type'}
+    )
 
-    line_paths = line_paths[['geometry', '@osmId', '@other_tags', 'parking', 'path_sharing']]
+    line_paths = line_paths[['geometry', 'osm_id', 'osm_type', 'osm_tags', 'parking', 'path_sharing']]
 
     return line_paths
 

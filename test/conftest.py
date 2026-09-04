@@ -7,29 +7,47 @@ import pandas as pd
 import pytest
 import responses
 import shapely
-from approvaltests import set_default_reporter
-from approvaltests.reporters import DiffReporter
 from climatoology.base.baseoperator import AoiProperties
 from climatoology.base.computation import ComputationScope
 from climatoology.utility.api import TimeRange
 from climatoology.utility.naturalness import NaturalnessIndex
+from dotenv import load_dotenv
 from mobility_tools.settings import ORSSettings, S3Settings
+from ohsome_py2.client import OhsomeClient
 from shapely import LineString
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.core.input import ComputeInputBikeability
 from bikeability.core.operator_worker import OperatorBikeability
+from bikeability.core.settings import Settings
 from test.utils import filter_start_matcher
+
+load_dotenv()  # To load the `OHSOME_BASE_URL` environment variable, for recording new cassettes
+pytest_plugins = ('ohsome_py2.test.fixtures',)
+
+
+@pytest.fixture(scope='module')
+def vcr_cassette_dir(request):
+    file_name = Path(request.module.__file__).stem
+    cassette_dir = str(Path(__file__).parent / 'resources' / 'vcr_cassettes' / file_name)
+    return cassette_dir
+
+
+@pytest.fixture(scope='session')
+def vcr_config(vcr_config_ohsomepy2):
+    vcr_config_ohsomepy2.update(
+        {
+            'filter_headers': ['authorization'],
+            'match_on': ['method', 'scheme', 'host', 'port', 'path', 'query', 'body'],
+        }
+    )
+
+    return vcr_config_ohsomepy2
 
 
 @pytest.fixture
 def test_resources() -> Path:
     return Path('test/resources')
-
-
-@pytest.fixture(scope='session', autouse=True)
-def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(DiffReporter())
 
 
 @pytest.fixture
@@ -39,19 +57,12 @@ def expected_compute_input() -> ComputeInputBikeability:
 
 @pytest.fixture
 def default_aoi() -> shapely.MultiPolygon:
-    return shapely.MultiPolygon(
-        polygons=[
-            [
-                [
-                    [12.3, 48.22],
-                    [12.3, 48.34],
-                    [12.48, 48.34],
-                    [12.48, 48.22],
-                    [12.3, 48.22],
-                ]
-            ]  # type: ignore
-        ]
-    )
+    return shapely.MultiPolygon(polygons=[shapely.box(8.6983273, 49.4079880, 8.7108559, 49.4136026)])
+
+
+@pytest.fixture
+def small_aoi() -> shapely.Polygon:
+    return shapely.MultiPolygon([shapely.box(8.6742192, 49.4046213, 8.6774288, 49.4064122)])
 
 
 @pytest.fixture
@@ -73,6 +84,17 @@ def responses_mock():
 
 
 @pytest.fixture
+def default_settings() -> Settings:
+    settings = Settings(
+        naturalness_host='mock-naturalness-host',
+        naturalness_port=1234,
+        naturalness_path='mock-naturalness-path',
+        feature_flag_ohsome2=False,
+    )
+    return settings
+
+
+@pytest.fixture
 def default_ors_settings() -> ORSSettings:
     return ORSSettings()
 
@@ -90,9 +112,14 @@ def default_s3_settings() -> S3Settings:
     )
 
 
+@pytest.fixture(params=[True, False])
+def parametrized_ohsome_client(request):
+    return OhsomeClient(user_agent='can-hibike-test', v2=request.param)
+
+
 @pytest.fixture
-def operator(default_ors_settings, naturalness_utility_mock, default_s3_settings):
-    return OperatorBikeability(naturalness_utility_mock, default_ors_settings, default_s3_settings)
+def operator(default_settings, default_ors_settings, naturalness_utility_mock, default_s3_settings):
+    return OperatorBikeability(default_settings, naturalness_utility_mock, default_ors_settings, default_s3_settings)
 
 
 @pytest.fixture
@@ -159,13 +186,14 @@ def test_line() -> gpd.GeoDataFrame:
     line_geom = shapely.LineString([(12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22)])
     return gpd.GeoDataFrame(
         data={
-            '@osmId': ['way/171574582', 'way/171574582'],
+            'osm_id': ['171574582', '171574582'],
+            'osm_type': ['way', 'way'],
             'path_sharing': [
                 PathSharing.NO_ACCESS,
                 PathSharing.SHARED_WITH_PEDESTRIANS,
             ],
             'geometry': [line_geom, line_geom],
-            '@other_tags': [
+            'osm_tags': [
                 {'bicycle': 'no'},
                 {
                     'highway': 'track',
@@ -185,10 +213,11 @@ def test_polygon() -> gpd.GeoDataFrame:
     polygon_geom = shapely.Polygon(((12.3, 48.22), (12.3, 48.2205), (12.3005, 48.22), (12.3, 48.22)))
     return gpd.GeoDataFrame(
         data={
-            '@osmId': ['way/171574582'],
+            'osm_id': ['171574582'],
+            'osm_type': ['way'],
             'path_sharing': [PathSharing.NO_ACCESS],
             'geometry': [polygon_geom],
-            '@other_tags': [{'bicycle': 'no'}],
+            'osm_tags': [{'bicycle': 'no'}],
         },
         crs='EPSG:4326',
     )
@@ -203,9 +232,10 @@ def default_paths(test_line, test_polygon):
 def test_polygon_empty() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
         data={
-            '@osmId': [],
+            'osm_id': [],
+            'osm_type': [],
             'geometry': [],
-            '@other_tags': [],
+            'osm_tags': [],
         },
         crs='EPSG:4326',
     )
@@ -218,9 +248,10 @@ def expected_parking_polygon() -> gpd.GeoDataFrame:
     )
     return gpd.GeoDataFrame(
         data={
-            '@osmId': ['way/1205391562'],
+            'osm_id': ['1205391562'],
+            'osm_type': ['way'],
             'geometry': [polygon_geom],
-            '@other_tags': [
+            'osm_tags': [
                 {
                     'amenity': 'parking',
                     'orientation': 'parallel',

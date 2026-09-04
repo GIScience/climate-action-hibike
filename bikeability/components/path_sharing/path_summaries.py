@@ -24,7 +24,7 @@ def summarise_aoi(
     Creates a stacked bar chart summarizing path sharing by length.
     """
 
-    log.info('Summarising Walkable Path Categories')
+    log.info('Summarising Bikeable Path Categories')
 
     line_paths = paths[
         paths.geom_type.isin(['LineString', 'MultiLineString'])

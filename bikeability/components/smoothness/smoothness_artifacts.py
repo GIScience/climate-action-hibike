@@ -25,5 +25,7 @@ def build_smoothness_artifact(
     )
 
     return create_vector_artifact(
-        data=smoothness_paths[['@osmId', 'color', 'label', 'geometry']], resources=resources, metadata=metadata
+        data=smoothness_paths[['osm_id', 'osm_type', 'color', 'label', 'geometry']],
+        resources=resources,
+        metadata=metadata,
     )
