@@ -3,7 +3,7 @@ from enum import StrEnum
 
 import geopandas as gpd
 import shapely
-from climatoology.base.exception import ClimatoologyUserError, InputValidationError
+from climatoology.base.exception import ClimatoologyUserError
 from ohsome_filter_to_sql.main import OhsomeFilter
 from ohsome_py2.client import OhsomeAPIError, OhsomeClient
 from pyproj import CRS, Transformer
@@ -20,20 +20,6 @@ class Topics(StrEnum):
     BARRIERS = 'barriers'
     SAFETY = 'safety'
     GREENNESS = 'greenness'
-
-
-def check_paths_count_limit(aoi: shapely.MultiPolygon, ohsome: OhsomeClient, count_limit: int) -> None:
-    """
-    Check whether paths count is over the limit. (NOTE: just check path_lines)
-    """
-    path_lines_count = ohsome.features_stats(aoi=aoi, osm_filter=ohsome_filter('line'), measure='count')
-    log.info(f'There are {path_lines_count} paths selected.')
-    if path_lines_count > count_limit:
-        raise InputValidationError(
-            f'There are too many path segments in the selected area: {path_lines_count} path segments. '
-            f'Currently, only areas with a maximum of {count_limit} path segments are allowed. '
-            f'Please select a smaller area or a sub-region of your selected area.'
-        )
 
 
 def fetch_osm_data(aoi: shapely.MultiPolygon, osm_filter: OhsomeFilter, ohsome: OhsomeClient) -> gpd.GeoDataFrame:

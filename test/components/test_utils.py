@@ -4,28 +4,17 @@ import geopandas as gpd
 import geopandas.testing
 import pytest
 import shapely
-from climatoology.base.exception import ClimatoologyUserError, InputValidationError
+from climatoology.base.exception import ClimatoologyUserError
 from numpy.testing import assert_almost_equal
 from ohsome.exceptions import OhsomeException
 from ohsome_filter_to_sql.main import validate_filter
 from ohsome_py2.client import OhsomeClient
 
 from bikeability.components.utils.utils import (
-    check_paths_count_limit,
     fetch_osm_data,
     length_weighted_mean,
     ohsome_filter,
 )
-
-
-@pytest.mark.vcr
-def test_check_paths_count_limit(parametrized_ohsome_client, small_aoi):
-    with pytest.raises(InputValidationError):
-        check_paths_count_limit(
-            aoi=small_aoi,
-            count_limit=100,
-            ohsome=parametrized_ohsome_client,
-        )
 
 
 @pytest.mark.vcr
