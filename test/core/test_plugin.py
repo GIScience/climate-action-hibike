@@ -38,7 +38,6 @@ def test_plugin_compute_request_all_optionals(
     compute_resources,
     ohsome_api_osm,
     ohsome_api_parking,
-    ohsome_api_count,
     detour_factor_mock,
     slopes_mock,
 ):

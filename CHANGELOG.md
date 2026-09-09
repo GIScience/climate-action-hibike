@@ -5,11 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.0.3...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.1.0...main)
+
+## [3.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.1.0) - 2026-09-09
 
 ### Added
 - Stacked bar chart artifact with distribution of dooring risk ([#161](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/161))
 - Option to use ohsome API v2 (by setting `FEATURE_FLAG_OHSOME2` and `OHSOME_BASE_URL`) ([#168](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/168))
+- AOI area constraint ([#167](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/167))
 
 ### Changed
 - Rename value of DooringRiskCategory.DOORING_SAFE from "safe_route" to "no_dooring" ([#159](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/159))
@@ -20,6 +23,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Removed
 - Remove approvaltests
+- Path count limit check
 
 ## [3.0.3](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.0.3) - 2026-07-08
 

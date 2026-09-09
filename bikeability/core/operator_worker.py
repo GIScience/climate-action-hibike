@@ -6,6 +6,7 @@ from importlib.resources import files
 import geopandas as gpd
 import pandas as pd
 import shapely
+from climatoology.base.aoi import AreaConstraint
 from climatoology.base.baseoperator import AoiProperties, Artifact, BaseOperator, ComputationResources, LanguageAlpha2
 from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, PluginInfo, generate_plugin_info
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
@@ -46,7 +47,6 @@ from bikeability.components.smoothness.smoothness_artifacts import build_smoothn
 from bikeability.components.surface_types.surface_types import get_surface_types
 from bikeability.components.surface_types.surface_types_artifacts import build_surface_types_artifact
 from bikeability.components.utils.utils import (
-    check_paths_count_limit,
     fetch_osm_data,
     get_buffered_aoi,
     get_utm_zone,
@@ -105,6 +105,11 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
 
     def info(self) -> PluginInfo:
         resources_dir = files('bikeability.resources')
+        aoi_constraints = [
+            [
+                AreaConstraint(max_area=1000),
+            ]
+        ]
 
         info = generate_plugin_info(
             name='hiBike',
@@ -128,6 +133,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                 name='Demo Heidelberg',
                 path=resources_dir / 'Heidelberg_AOI.geojson',
             ),
+            aoi_constraints=aoi_constraints,
         )
         log.info(f'Return info {info.model_dump()}')
         return info
@@ -145,10 +151,6 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         buffered_aoi = get_buffered_aoi(aoi)
-
-        log.debug('Get the number of the paths (lines & polygons) which will return.')
-        if self.check_size:
-            check_paths_count_limit(aoi, self.ohsome, 500000)
 
         paths = self.get_paths(aoi)
 
