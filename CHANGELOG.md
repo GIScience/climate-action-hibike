@@ -14,6 +14,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 - Rename value of DooringRiskCategory.DOORING_SAFE from "safe_route" to "no_dooring" ([#159](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/159))
 - Updated ohsome-py2 to use the latest ohsome v2 API schema ([#168](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/168))
+- Updated climatoology to 7.4.1
+- Updated mobility-tools to 3.0.0
+- Renamed settings in `.env.base_template` and `.env.s3_template` in line with changes in mobility-tools and climatoology
 
 ### Removed
 - Remove approvaltests

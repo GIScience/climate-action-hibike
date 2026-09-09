@@ -102,13 +102,9 @@ def default_ors_settings() -> ORSSettings:
 @pytest.fixture
 def default_s3_settings() -> S3Settings:
     return S3Settings(
-        s3_default_filename='test',
-        s3_bucket='test',
-        s3_secure=False,
-        s3_endpoint='test',
-        s3_access_key='',
-        s3_secret_key='',
-        s3_dem_version='8.0.0',
+        elevation_s3_endpoint='test',
+        elevation_s3_access_key='',
+        elevation_s3_secret_key='',
     )
 
 
