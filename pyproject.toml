@@ -13,13 +13,13 @@ readme = "README.md"
 
 requires-python = ">=3.13.5,<3.14"
 dependencies = [
-    "climatoology @ git+https://gitlab.heigit.org/climate-action/climatoology.git@7.2.0",
+    "climatoology @ git+https://gitlab.heigit.org/climate-action/climatoology.git@7.4.1",
     "pydantic (>=2.12.5,<3.0.0)",
     "pydantic-settings (>=2.1.0,<3.0.0)",
     "shapely (>=2.0.2,<3.0.0)",
     "matplotlib (>=3.8.3,<4.0.0)",
     "ohsome-filter-to-sql (>=0.3.0,<1.0.0)",
-    "mobility-tools @ git+https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git@2.0.3",
+    "mobility-tools @ git+https://gitlab.heigit.org/climate-action/utilities/mobility-tools.git@3.0.0",
     "ohsome-py2 @ git+https://gitlab.heigit.org/climate-action/utilities/ohsome-py2.git@0.3.2",
 ]
 
