@@ -117,17 +117,21 @@ def no_access(d: dict) -> bool:
 
 
 def no_bike_access(d: dict) -> bool:
-    return d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination'] or d.get(
-        'highway'
-    ) not in [
-        *potential_bikeable_highway_values,
-        'pedestrian',
-        'path',
-        'cycleway',
-        'footway',
-        'steps',
-        'platform',
-    ]
+    return (
+        d.get('bicycle') in ['no', 'private', 'use_sidepath', 'discouraged', 'destination']
+        or d.get('highway')
+        not in [
+            *potential_bikeable_highway_values,
+            'pedestrian',
+            'path',
+            'cycleway',
+            'footway',
+            'steps',
+            'platform',
+        ]
+        or d.get('highway') == 'service'
+        and not (d.get('service') == 'alley' or d.get('bicycle') in ['yes', 'designated', 'permissive', 'destination'])
+    )
 
 
 def parse_maxspeed_tag(d: dict) -> SpeedLimitCategory:
