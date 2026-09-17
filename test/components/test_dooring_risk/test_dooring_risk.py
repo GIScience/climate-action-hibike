@@ -85,7 +85,6 @@ def dooring_safe():
         {'parking:both:orientation': 'diagonal'},
         {'parking:left:orientation': 'diagonal', 'parking:right': 'no'},
         {'parking:right:orientation': 'diagonal', 'parking:left': 'no'},
-        {'parking:both:orientation': 'parallel'},
     ]
 
     category = [PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_MEDIUM_SPEED for _ in tags]
