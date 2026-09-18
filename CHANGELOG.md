@@ -9,6 +9,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 - Assume service roads are not intended bike infrastructure if they aren't explicitly marked as cycling accessible or if their purpose makes them suitable for bike access ([#172](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/172))
+- reduced size of docker image by using python-slim, multi-stage build, and including only the required files
 
 ## [3.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.1.0) - 2026-09-09
 
