@@ -8,7 +8,7 @@ hiBike is currently composed of several indicators:
 
 4. **Surface types**: The surface material of bikeable paths based on OSM data.
 
-5. **Greenness (Optional)**: The greenness around bikeable paths
+5. **Greenness (Optional)**: The greenness around bikeable paths based on Sentinel-2 satellite imagery.
 
 5. **Detour Factors (Optional)**: Highlights areas in which there is no bikeable infrastructure or in which cyclists need to take large detours. Based on OSM data and [openrouteservice](https://openrouteservice.org/) routing.
 
