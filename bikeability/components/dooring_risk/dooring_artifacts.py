@@ -53,7 +53,7 @@ def build_dooring_risk_stacked_bar_artifact(aoi_aggregate: go.Figure, resources:
     metadata = ArtifactMetadata(
         name='Distribution of Dooring Risk',
         summary='How is the total length of paths distributed across the dooring risk categories?',
-        tags={Topics.TRAFFIC, Topics.SAFETY},
+        tags={Topics.TRAFFIC, Topics.SAFETY, Topics.SUMMARY},
     )
 
     return create_plotly_chart_artifact(

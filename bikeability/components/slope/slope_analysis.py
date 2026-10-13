@@ -29,7 +29,7 @@ def compute_slope_analysis(
 ) -> list[Artifact]:
     if s3settings is None:
         raise ClimatoologyUserError('Plugin was initialised without S3 settings')
-    log.debug('Computing slopes for paths')
+    log.info('Computing slopes for paths')
 
     paths['@osmId'] = paths['osm_type'] + '_' + paths['osm_id']
     paths.drop(columns=['osm_type', 'osm_id'], inplace=True)
@@ -51,7 +51,7 @@ def compute_slope_analysis(
     smoothed_slopes = merge_similar_slopes(paths_with_slopes)
 
     slope_artifact = build_slope_artifact(path_slopes_data=smoothed_slopes, resources=resources)
-
+    log.info('Slope computed')
     slope_summary = summarise_slope(paths_with_slopes)
     slope_summary_artifact = build_slope_summary_artifact(slope_summary, resources)
 
@@ -88,6 +88,7 @@ def build_slope_artifact(
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
 ) -> Artifact:
+    log.debug('Building slope artifact')
     legend_lower_bound, legend_upper_bound = 0, 6
     path_slopes_data['color'] = get_continuous_colors(
         path_slopes_data['slope'],
