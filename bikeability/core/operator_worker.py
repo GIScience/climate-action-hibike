@@ -12,7 +12,6 @@ from climatoology.base.plugin_info import Concern, CustomAOI, PluginAuthor, Plug
 from climatoology.utility.naturalness import NaturalnessIndex, NaturalnessUtility
 from mobility_tools.settings import ORSSettings, S3Settings
 from ohsome_py2.client import OhsomeClient
-from pydantic.networks import HttpUrl
 from shapely import make_valid
 
 from bikeability.components.detour_factors.detour_analysis import (
@@ -116,9 +115,52 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             icon=resources_dir / 'info/bike-lane.jpeg',
             authors=[
                 PluginAuthor(
-                    name='Climate Action Team',
+                    name='Emily C. Wilke',
                     affiliation='HeiGIT gGmbH',
-                    website=HttpUrl('https://heigit.org/heigit-team/'),
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Moritz Schott',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Veit Ulrich',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Jonas Kemmer',
+                    affiliation='HeiGIT gGmbH',
+                ),
+                PluginAuthor(
+                    name='Fatemeh Rafiei',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Gefei Kong',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Satvik Parashar',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Danielle Gatland',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
+                ),
+                PluginAuthor(
+                    name='Anna Buch',
+                    affiliation='HeiGIT gGmbH',
+                ),
+                PluginAuthor(
+                    name='Sebastian Block',
+                    affiliation='HeiGIT gGmbH',
+                    website='https://heigit.org/heigit-team/',
                 ),
             ],
             concerns={Concern.MOBILITY_CYCLING},
