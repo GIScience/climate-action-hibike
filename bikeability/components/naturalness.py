@@ -72,7 +72,7 @@ def fetch_naturalness_by_vector(
         resolution=resolution,
     )
 
-    naturalness_gdf = naturalness_gdf.rename(columns={'median': 'naturalness'})
+    naturalness_gdf = naturalness_gdf.rename(columns={'median': 'naturalness'}).dropna(subset=['naturalness'])
     return naturalness_gdf
 
 

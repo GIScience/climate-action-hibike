@@ -169,7 +169,6 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
             methodology=resources_dir / 'info/methodology.md',
             sources_library=resources_dir / 'literature.bib',
             computation_shelf_life=timedelta(weeks=8),
-            # TODO replace this  aoi
             demo_input_parameters=ComputeInputBikeability(),
             demo_aoi=CustomAOI(
                 name='Demo Heidelberg',
