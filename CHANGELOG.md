@@ -7,6 +7,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.1.0...main)
 
+### Fix
+- Fix the greenness indicator failure caused by nan values ([#176](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/176))
+
 ### Changed
 - Assume service roads are not intended bike infrastructure if they aren't explicitly marked as cycling accessible or if their purpose makes them suitable for bike access ([#172](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/172))
 - Reduced size of docker image by using python-slim, multi-stage build, and including only the required files

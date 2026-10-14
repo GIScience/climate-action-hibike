@@ -18,7 +18,7 @@ def init_plugin(
     )
     operator = OperatorBikeability(
         initialized_settings, naturalness_utility, initialized_ors_settings, initialized_s3_settings
-    )  # todo: confirm there should be initialized settings or global settings.
+    )
 
     log.info(f'Running plugin: {operator.info().name}')
     return start_plugin(operator=operator)
