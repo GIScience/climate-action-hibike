@@ -31,7 +31,7 @@ def summarise_dooring_risk(paths: gpd.GeoDataFrame, projected_crs: CRS, length_r
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100
 
     dooring_color_map = mcolors.LinearSegmentedColormap.from_list('dooring_color_map', ['#617CCC', '#FF675C', 'grey'])
-    dooring_color_map.set_under('#808080')
+    dooring_color_map.with_extremes(under='#808080')
     stacked_bar_colors = summary_sorted.dooring_category.apply(get_qualitative_color, cmap=dooring_color_map)
     stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
     summary_sorted['dooring_category'] = summary_sorted['dooring_category'].apply(lambda x: x.value)

@@ -73,7 +73,9 @@ def merge_similar_slopes(paths: gpd.GeoDataFrame, merging_tolerance: float = 1.0
             geometry = linemerge(paths.loc[indices].geometry.to_list())
             if isinstance(geometry, shapely.MultiLineString):
                 geometry = linemerge(geometry)
-            smoothed_path = gpd.GeoDataFrame(data={'@osmId': [osm_id], 'slope': mean_slope}, geometry=[geometry])
+            smoothed_path = gpd.GeoDataFrame(
+                data={'@osmId': [osm_id], 'slope': mean_slope}, geometry=[geometry], crs=4326
+            )
             reconstituted_paths.append(smoothed_path)
             continue
 
