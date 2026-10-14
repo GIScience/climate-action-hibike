@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
 from climatoology.base.artifact_creators import create_plotly_chart_artifact, create_vector_artifact
 from climatoology.base.computation import ComputationResources
-from pydantic_extra_types.color import Color
 
 from bikeability.components.dooring_risk.dooring_risk import DooringRiskCategory
 from bikeability.components.utils.utils import Topics
@@ -16,14 +15,12 @@ def build_dooring_artifact(
     resources: ComputationResources,
 ) -> Artifact:
     legend = Legend(
-        legend_data={
-            DooringRiskCategory.DOORING_SAFE.value: Color('#617CCC'),
-            DooringRiskCategory.DOORING_RISK.value: Color('#FF675C'),
-            DooringRiskCategory.UNKNOWN.value: Color('grey'),
-        },
+        legend_data=DooringRiskCategory.get_qualitative_colors(),
     )
 
-    dooring_risk_paths['color'] = dooring_risk_paths.dooring_category.apply(get_colors_from_dict_legend, legend=legend)
+    dooring_risk_paths['color'] = dooring_risk_paths.dooring_category.apply(
+        lambda category: DooringRiskCategory.get_qualitative_colors().get(category.value)
+    )
 
     metadata = ArtifactMetadata(
         name='Dooring Risk',
@@ -42,11 +39,6 @@ def build_dooring_artifact(
         resources=resources,
         legend=legend,
     )
-
-
-def get_colors_from_dict_legend(category: DooringRiskCategory, legend: Legend) -> Color:
-    assert isinstance(getattr(legend, 'legend_data'), dict), 'Legend data must be a dict'
-    return legend.legend_data[category.value]
 
 
 def build_dooring_risk_stacked_bar_artifact(aoi_aggregate: go.Figure, resources: ComputationResources) -> Artifact:

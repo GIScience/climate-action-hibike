@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class SpeedLimitCategory(Enum):
-    WALKING_SPEED = 15
     LOW = 30
     MEDIUM = 50
     HIGH = 100
@@ -44,17 +43,10 @@ def designated_exclusive(d: dict) -> bool:
     return d.get('highway') in ['cycleway', 'path', 'footway', 'pedestrian'] and not _shared_with_pedestrians(d)
 
 
-def shared_with_motorised_traffic_walking_speed(d: dict, speed_limit: SpeedLimitCategory) -> bool:
-    if speed_limit == SpeedLimitCategory.WALKING_SPEED:
-        return True
-
-    return d.get('highway') in ['living_street', 'service']
-
-
 def shared_with_motorised_traffic_low_speed(d: dict, speed_limit: SpeedLimitCategory) -> bool:
     if speed_limit == SpeedLimitCategory.LOW:
         return True
-    return d.get('zone:maxspeed') in ['DE:30', '30']
+    return d.get('zone:maxspeed') in ['DE:30', '30'] or (d.get('highway') in ['living_street', 'service'])
 
 
 def shared_with_motorised_traffic_medium_speed(d: dict, speed_limit: SpeedLimitCategory) -> bool:
@@ -145,7 +137,7 @@ def parse_maxspeed_tag(d: dict) -> SpeedLimitCategory:
         case None:
             return SpeedLimitCategory.UNKNOWN
         case 'walk':
-            return SpeedLimitCategory.WALKING_SPEED
+            return SpeedLimitCategory.LOW
         case 'DE:urban' | 'AT:urban':
             return SpeedLimitCategory.MEDIUM
         case 'none' | 'DE:rural' | 'AT:rural':
@@ -161,9 +153,7 @@ def parse_maxspeed_tag(d: dict) -> SpeedLimitCategory:
         else:
             max_speed_kph = int(max_speed)
 
-        if max_speed_kph <= SpeedLimitCategory.WALKING_SPEED.value:
-            return SpeedLimitCategory.WALKING_SPEED
-        elif max_speed_kph <= SpeedLimitCategory.LOW.value:
+        if max_speed_kph <= SpeedLimitCategory.LOW.value:
             return SpeedLimitCategory.LOW
         elif max_speed_kph <= SpeedLimitCategory.MEDIUM.value:
             return SpeedLimitCategory.MEDIUM

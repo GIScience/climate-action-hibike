@@ -6,7 +6,6 @@ from climatoology.base.artifact_creators import create_vector_artifact
 from climatoology.base.computation import ComputationResources
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
-from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics
 
 
@@ -17,8 +16,9 @@ def build_path_sharing_artifact(
 ) -> Artifact:
     paths_without_restriction = paths[paths.path_sharing.isin(PathSharing.get_visible())].copy(deep=False)
 
+    legend_data = PathSharing.get_qualitative_colors(colormap=cmap_name)
     paths_without_restriction['color'] = paths_without_restriction.path_sharing.apply(
-        get_qualitative_color, cmap=cmap_name
+        lambda category: legend_data.get(category.value)
     )
 
     paths_without_restriction['label'] = paths_without_restriction.path_sharing.apply(lambda r: r.value)
@@ -37,8 +37,6 @@ def build_path_sharing_artifact(
         resources=resources,
         legend=Legend(
             title='Who Shares This Path with Me?',
-            legend_data={
-                category.value: get_qualitative_color(category, cmap_name) for category in PathSharing.get_visible()
-            },
+            legend_data=legend_data,
         ),
     )

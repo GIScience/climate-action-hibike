@@ -1,11 +1,9 @@
 import geopandas as gpd
-import matplotlib.colors as mcolors
 import pandas as pd
 from plotly import graph_objects as go
 from pyproj import CRS
 
 from bikeability.components.dooring_risk.dooring_risk import DooringRiskCategory, log
-from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import calculate_length
 
 
@@ -30,9 +28,9 @@ def summarise_dooring_risk(paths: gpd.GeoDataFrame, projected_crs: CRS, length_r
     total_length = summary_sorted['length'].sum()
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100
 
-    dooring_color_map = mcolors.LinearSegmentedColormap.from_list('dooring_color_map', ['#617CCC', '#FF675C', 'grey'])
-    dooring_color_map.with_extremes(under='#808080')
-    stacked_bar_colors = summary_sorted.dooring_category.apply(get_qualitative_color, cmap=dooring_color_map)
+    stacked_bar_colors = summary_sorted.dooring_category.apply(
+        lambda category: DooringRiskCategory.get_qualitative_colors().get(category.value)
+    )
     stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
     summary_sorted['dooring_category'] = summary_sorted['dooring_category'].apply(lambda x: x.value)
 

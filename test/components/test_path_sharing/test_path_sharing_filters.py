@@ -4,9 +4,9 @@ import bikeability.components.path_sharing.path_sharing_filters as filters
 from bikeability.components.path_sharing.path_sharing_filters import SpeedLimitCategory
 
 SPEED_TAGS = {
-    'walk': SpeedLimitCategory.WALKING_SPEED,
-    '15': SpeedLimitCategory.WALKING_SPEED,
-    '7 mph': SpeedLimitCategory.WALKING_SPEED,
+    'walk': SpeedLimitCategory.LOW,
+    '15': SpeedLimitCategory.LOW,
+    '7 mph': SpeedLimitCategory.LOW,
     '20': SpeedLimitCategory.LOW,
     '15 mph': SpeedLimitCategory.LOW,
     '30': SpeedLimitCategory.LOW,

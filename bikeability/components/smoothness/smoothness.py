@@ -1,29 +1,30 @@
 import logging
-from enum import Enum
+from typing import Self
 
 import geopandas as gpd
 import pandas as pd
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.components.smoothness import filters
+from bikeability.components.utils.colors import ColorCategories
 
 log = logging.getLogger(__name__)
 
 
-class SmoothnessCategory(Enum):
+class SmoothnessCategory(ColorCategories):
     EXCELLENT = 'excellent'
     GOOD = 'good'
     INTERMEDIATE = 'intermediate'
     BAD = 'bad'
-    TOO_BUMPY_TO_RIDE = 'too_bumpy_to_ride'
+    TOO_BUMPY_TO_RIDE = 'too bumpy to ride'
     UNKNOWN = 'unknown'
 
     @classmethod
-    def get_hidden(cls):
+    def get_hidden(cls) -> list[Self]:
         return []
 
     @classmethod
-    def get_visible(cls):
+    def get_visible(cls) -> list[Self]:
         return [category for category in cls if category not in cls.get_hidden()]
 
 

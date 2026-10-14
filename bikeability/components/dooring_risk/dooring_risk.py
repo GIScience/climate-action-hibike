@@ -1,28 +1,38 @@
 import logging
-from enum import Enum
-from typing import Dict
+from typing import Dict, Self, override
 
 import geopandas as gpd
 import pandas as pd
 from ohsome_filter_to_sql.main import OhsomeFilter
+from pydantic_extra_types import Color
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
+from bikeability.components.utils.colors import ColorCategories
 
 log = logging.getLogger(__name__)
 
 
-class DooringRiskCategory(Enum):
+class DooringRiskCategory(ColorCategories):
     DOORING_SAFE = 'no_dooring'
     DOORING_RISK = 'risk_of_dooring'
     UNKNOWN = 'unknown'
 
     @classmethod
-    def get_hidden(cls):
-        return []
+    def get_hidden(cls) -> list[Self]:
+        return list()
 
     @classmethod
-    def get_visible(cls):
+    def get_visible(cls) -> list[Self]:
         return [category for category in cls if category not in cls.get_hidden()]
+
+    @classmethod
+    @override
+    def get_qualitative_colors(cls) -> Dict[str, Color]:
+        return {
+            DooringRiskCategory.DOORING_SAFE.value: Color('#617CCC'),
+            DooringRiskCategory.DOORING_RISK.value: Color('#FF675C'),
+            DooringRiskCategory.UNKNOWN.value: Color('grey'),
+        }
 
 
 class DooringRiskFilters:

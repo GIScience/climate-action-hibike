@@ -1,6 +1,6 @@
 import logging
-from enum import Enum
 from importlib.resources import read_text
+from typing import Self, override
 
 import geopandas as gpd
 import matplotlib.colors as mcolors
@@ -18,6 +18,7 @@ from mobility_tools.utils.exceptions import SizeLimitExceededError
 from plotly.graph_objects import Figure
 from pydantic_extra_types.color import Color
 
+from bikeability.components.utils.colors import ColorCategories
 from bikeability.components.utils.utils import Topics
 
 log = logging.getLogger(__name__)
@@ -44,12 +45,10 @@ def detour_factor_analysis(
     return [detour_artifact, summary_artifact]
 
 
-def build_detour_factor_artifact(
-    detour_factor_data: gpd.GeoDataFrame, resources: ComputationResources, cmap_name: str = 'YlOrRd'
-) -> Artifact:
+def build_detour_factor_artifact(detour_factor_data: gpd.GeoDataFrame, resources: ComputationResources) -> Artifact:
     """Artifact containing a GeoJSON with hex-grid cells and the Detour Factor."""
 
-    detour_data = apply_color_and_label(detour_factor_data, cmap_name)
+    detour_data = apply_color_and_label(detour_factor_data)
 
     metadata = ArtifactMetadata(
         name='Detour Factor',
@@ -67,14 +66,23 @@ def build_detour_factor_artifact(
     )
 
 
-class DetourCategory(Enum):
+class DetourCategory(ColorCategories):
     LOW_DETOUR = 0.0
     MEDIUM_DETOUR = 2.0
     HIGH_DETOUR = 3.0
     UNREACHABLE = np.nan
 
+    @classmethod
+    def get_visible(cls) -> list[Self]:
+        return [cls.MEDIUM_DETOUR, cls.HIGH_DETOUR, cls.UNREACHABLE]
 
-def apply_color_and_label(detour_factor_data: gpd.GeoDataFrame, cmap_name: str = 'YlOrRd') -> gpd.GeoDataFrame:
+    @classmethod
+    @override
+    def get_qualitative_colors(cls) -> dict[Self, Color]:
+        return DETOUR_FACTOR_COLOR_MAP
+
+
+def apply_color_and_label(detour_factor_data: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     def categorize_detour(detour_value):
         if detour_value < DetourCategory.MEDIUM_DETOUR.value:
             return DetourCategory.LOW_DETOUR
@@ -90,7 +98,9 @@ def apply_color_and_label(detour_factor_data: gpd.GeoDataFrame, cmap_name: str =
         detour_factor_data['detour_category'] != DetourCategory.LOW_DETOUR
     ].copy(deep=False)
 
-    detour_factor_data_no_low['color'] = detour_factor_data_no_low['detour_category'].map(DETOUR_FACTOR_COLOR_MAP)
+    detour_factor_data_no_low['color'] = detour_factor_data_no_low['detour_category'].map(
+        DetourCategory.get_qualitative_colors()
+    )
 
     detour_factor_data_no_low['label'] = detour_factor_data_no_low.detour_category.apply(apply_labels)
 

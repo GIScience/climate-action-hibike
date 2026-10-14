@@ -46,14 +46,14 @@ SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED_DF = pd.DataFrame(
             {'highway': 'residential', 'bicycle': 'designated', 'maxspeed': '15', 'motorvehicle': 'destination'},
         ],
         'expected_category': [
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
-            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_WALKING_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
+            PathSharing.SHARED_WITH_MOTORISED_TRAFFIC_LOW_SPEED,
         ],
     }
 )
