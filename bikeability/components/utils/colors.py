@@ -16,8 +16,8 @@ def get_qualitative_color(
 ) -> Color:
     norm = Normalize(0, 1)
     if isinstance(cmap, str):
-        cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap).get_cmap()
-        cmap.set_under('#808080')
+        cmap: Colormap = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap).get_cmap()
+        cmap.with_extremes(under='#808080')
 
     category_norm = {name: idx / (len(category.get_visible()) - 1) for idx, name in enumerate(category.get_visible())}
 
@@ -29,7 +29,7 @@ def get_qualitative_color(
 
 def get_continuous_colors(category: pd.Series, cmap_name: str, vmin: float = 0, vmax: float = 1) -> list[Color]:
     norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
-    cmap = matplotlib.colormaps.get(cmap_name)
-    cmap.set_bad('#808080')
+    cmap: Colormap = matplotlib.colormaps.get(cmap_name)
+    cmap.with_extremes(bad='#808080')
     mapped_colors = [Color(matplotlib.colors.to_hex(col)) for col in cmap(norm(category))]
     return mapped_colors
