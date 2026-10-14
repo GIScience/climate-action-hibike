@@ -9,7 +9,6 @@ from climatoology.base.computation import ComputationResources
 from pyproj import CRS
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
-from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics, calculate_length
 
 log = logging.getLogger(__name__)
@@ -39,9 +38,9 @@ def summarise_aoi(
     total_length = summary_sorted['length'].sum()
     summary_sorted['percent'] = summary_sorted['length'] / total_length * 100
 
-    stacked_bar_colors = summary_sorted.path_sharing.apply(get_qualitative_color, cmap='coolwarm')
-    stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
     summary_sorted['path_sharing'] = summary_sorted.path_sharing.apply(lambda cat: cat.value)
+    stacked_bar_colors = summary_sorted.path_sharing.map(PathSharing.get_qualitative_colors(colormap='coolwarm'))
+    stacked_bar_colors = [c.as_hex() for c in stacked_bar_colors]
 
     category_fig_stacked_bar = go.Figure()
 

@@ -1,15 +1,18 @@
 import logging
-from enum import Enum
+from typing import Self, override
 
 import geopandas as gpd
 import pandas as pd
+from matplotlib.colors import Colormap
+from pydantic_extra_types import Color
 
 from bikeability.components.path_sharing.path_sharing import PathSharing
+from bikeability.components.utils.colors import ColorCategories
 
 log = logging.getLogger(__name__)
 
 
-class SurfaceType(Enum):
+class SurfaceType(ColorCategories):
     ASPHALT = 'asphalt'
     CONCRETE = 'concrete'
     PAVING_STONES = 'paving_stones'
@@ -24,12 +27,22 @@ class SurfaceType(Enum):
     UNKNOWN = 'unknown'
 
     @classmethod
-    def get_hidden(cls):
+    def get_hidden(cls) -> list[Self]:
         return []
 
     @classmethod
-    def get_visible(cls):
+    def get_visible(cls) -> list[Self]:
         return [category for category in cls if category not in cls.get_hidden()]
+
+    @classmethod
+    @override
+    def get_qualitative_colors(cls, colormap: str | Colormap) -> dict[str, Color]:
+        colors = super().get_qualitative_colors(colormap)
+        for category_value, color in colors.items():
+            if color == Color('#7f7f7f'):
+                colors.update({category_value: Color('#3c3c3c')})
+                return colors
+        return colors
 
 
 def categorise_surface(row: pd.Series) -> SurfaceType:

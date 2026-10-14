@@ -13,6 +13,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 - Update dockerfile to simplify and correct poetry installing location
 - added data source to methodology for Greenness
 - added actual plugin authors
+- merged path sharing category for shared with cars up to 15km/h into shared with cars up to 30 km/h ([#160](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/160))
+- reworked colour assignment through the various categorical artifacts based on the base class `ColorCategories`
+- changed colour of category shared with cars of unknown speed to match the highest speed category
 
 ### Fixed
 - changed description of dooring risk indicator to match categories

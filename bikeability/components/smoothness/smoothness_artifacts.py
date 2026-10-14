@@ -5,7 +5,7 @@ from climatoology.base.artifact import Artifact, ArtifactMetadata
 from climatoology.base.artifact_creators import create_vector_artifact
 from climatoology.base.computation import ComputationResources
 
-from bikeability.components.utils.colors import get_qualitative_color
+from bikeability.components.smoothness.smoothness import SmoothnessCategory
 from bikeability.components.utils.utils import Topics
 
 
@@ -14,8 +14,10 @@ def build_smoothness_artifact(
     resources: ComputationResources,
     cmap_name: str = 'coolwarm',
 ) -> Artifact:
-    smoothness_paths['color'] = smoothness_paths.smoothness.apply(get_qualitative_color, cmap=cmap_name)
-    smoothness_paths['label'] = smoothness_paths.smoothness.apply(lambda r: r.name)
+    smoothness_paths['label'] = smoothness_paths.smoothness.apply(lambda r: r.value)
+    smoothness_paths['color'] = smoothness_paths.label.map(
+        SmoothnessCategory.get_qualitative_colors(colormap=cmap_name)
+    )
     metadata = ArtifactMetadata(
         name='Path Smoothness',
         summary=read_text('bikeability.resources.info.path_smoothness', 'summary.md'),

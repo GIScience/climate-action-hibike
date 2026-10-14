@@ -4,10 +4,8 @@ import geopandas as gpd
 from climatoology.base.artifact import Artifact, ArtifactMetadata, Legend
 from climatoology.base.artifact_creators import create_vector_artifact
 from climatoology.base.computation import ComputationResources
-from pydantic_extra_types.color import Color
 
 from bikeability.components.surface_types.surface_types import SurfaceType
-from bikeability.components.utils.colors import get_qualitative_color
 from bikeability.components.utils.utils import Topics
 
 
@@ -17,15 +15,10 @@ def build_surface_types_artifact(
     cmap_name: str = 'tab20',
 ) -> Artifact:
     # Define color and legend
-    legend_data = {}
-    for surface_type in SurfaceType.get_visible():
-        legend_color = get_qualitative_color(surface_type, cmap_name)
-        legend_data[surface_type.value] = legend_color if legend_color != Color('#7f7f7f') else Color('#3c3c3c')
+    legend_data = SurfaceType.get_qualitative_colors(colormap=cmap_name)
 
-    surface_type_paths['color'] = surface_type_paths.surface_type.apply(
-        lambda path_surface_type: legend_data[path_surface_type.value]
-    )
     surface_type_paths['label'] = surface_type_paths.surface_type.apply(lambda r: r.value)
+    surface_type_paths['color'] = surface_type_paths.label.map(legend_data)
 
     metadata = ArtifactMetadata(
         name='Surface Types',
