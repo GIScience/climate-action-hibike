@@ -7,7 +7,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.2.0...main)
 
-## [3.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.2.0) - 2026-10-15
+## [3.2.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.2.0) - 2026-10-15
 
 ### Changed
 - Assume service roads are not intended bike infrastructure if they aren't explicitly marked as cycling accessible or if their purpose makes them suitable for bike access ([#172](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/172))
