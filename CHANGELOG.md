@@ -5,10 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.1.0...main)
+## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.2.0...main)
 
-### Fix
-- Fix the greenness indicator failure caused by nan values ([#176](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/176))
+## [3.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.2.0) - 2026-10-15
 
 ### Changed
 - Assume service roads are not intended bike infrastructure if they aren't explicitly marked as cycling accessible or if their purpose makes them suitable for bike access ([#172](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/172))
@@ -22,6 +21,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Fixed
 - changed description of dooring risk indicator to match categories
+- Fix the greenness indicator failure caused by nan values ([#176](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/176))
 
 ## [3.1.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.1.0) - 2026-09-09
 
