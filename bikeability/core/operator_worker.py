@@ -71,7 +71,6 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         self.ohsome = OhsomeClient(
             user_agent='climate-action-navigator-bikeability/' + version,
             base_url=hibike_settings.ohsome_base_url,
-            v2=hibike_settings.feature_flag_ohsome2,
         )
         log.debug('Initialised bikeability operator with ohsome client')
 

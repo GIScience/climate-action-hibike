@@ -12,7 +12,7 @@ def test_plugin_info_request(operator):
 @pytest.mark.vcr
 def test_plugin_compute_request_minimal(
     operator,
-    parametrized_ohsome_client,
+    ohsome_client,
     small_aoi,
     expected_compute_input,
     default_aoi_properties,
@@ -30,14 +30,13 @@ def test_plugin_compute_request_minimal(
         assert isinstance(artifact, Artifact)
 
 
+@pytest.mark.vcr
 def test_plugin_compute_request_all_optionals(
     operator,
     expected_compute_input,
     default_aoi,
     default_aoi_properties,
     compute_resources,
-    ohsome_api_osm,
-    ohsome_api_parking,
     detour_factor_mock,
     slopes_mock,
 ):

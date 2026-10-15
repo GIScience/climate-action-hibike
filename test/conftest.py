@@ -1,5 +1,6 @@
 import uuid
 from pathlib import Path
+from random import random
 from unittest.mock import patch
 
 import geopandas as gpd
@@ -20,7 +21,6 @@ from bikeability.components.path_sharing.path_sharing import PathSharing
 from bikeability.core.input import ComputeInputBikeability
 from bikeability.core.operator_worker import OperatorBikeability
 from bikeability.core.settings import Settings
-from test.utils import filter_start_matcher
 
 load_dotenv()  # To load the `OHSOME_BASE_URL` environment variable, for recording new cassettes
 pytest_plugins = ('ohsome_py2.test.fixtures',)
@@ -89,7 +89,6 @@ def default_settings() -> Settings:
         naturalness_host='mock-naturalness-host',
         naturalness_port=1234,
         naturalness_path='mock-naturalness-path',
-        feature_flag_ohsome2=False,
     )
     return settings
 
@@ -108,60 +107,16 @@ def default_s3_settings() -> S3Settings:
     )
 
 
-@pytest.fixture(params=[True, False])
-def parametrized_ohsome_client(request):
-    return OhsomeClient(user_agent='can-hibike-test', v2=request.param)
+@pytest.fixture()
+def ohsome_client(request):
+    return OhsomeClient(user_agent='can-hibike-test')
 
 
 @pytest.fixture
-def operator(default_settings, default_ors_settings, naturalness_utility_mock, default_s3_settings):
-    return OperatorBikeability(default_settings, naturalness_utility_mock, default_ors_settings, default_s3_settings)
-
-
-@pytest.fixture
-def ohsome_api_osm(responses_mock, test_resources):
-    with (
-        open(test_resources / 'ohsome_line_response.geojson', 'r') as line_file,
-        open(test_resources / 'ohsome_polygon_response.geojson', 'r') as polygon_file,
-    ):
-        line_body = line_file.read()
-        polygon_body = polygon_file.read()
-
-    responses_mock.post(
-        'https://api.ohsome.org/v1/elements/geometry',
-        body=line_body,
-        match=[filter_start_matcher('geometry:line and (highway')],
+def operator(default_settings, default_ors_settings, naturalness_utility_random_mock, default_s3_settings):
+    return OperatorBikeability(
+        default_settings, naturalness_utility_random_mock, default_ors_settings, default_s3_settings
     )
-    responses_mock.post(
-        'https://api.ohsome.org/v1/elements/geometry',
-        body=polygon_body,
-        match=[filter_start_matcher('geometry:polygon and (highway')],
-    )
-
-    return responses_mock
-
-
-@pytest.fixture
-def ohsome_api_parking(responses_mock, test_resources):
-    with (
-        open(test_resources / 'ohsome_parking_response.geojson', 'r') as parking_line_file,
-        open(test_resources / 'ohsome_parking_response.geojson', 'r') as parking_polygon_file,
-    ):
-        parking_line_body = parking_line_file.read()
-        parking_polygon_body = parking_polygon_file.read()
-
-    responses_mock.post(
-        'https://api.ohsome.org/v1/elements/geometry',
-        body=parking_line_body,
-        match=[filter_start_matcher('geometry:line and amenity=parking')],
-    )
-    responses_mock.post(
-        'https://api.ohsome.org/v1/elements/geometry',
-        body=parking_polygon_body,
-        match=[filter_start_matcher('geometry:polygon and amenity=parking')],
-    )
-
-    return responses_mock
 
 
 @pytest.fixture
@@ -248,6 +203,8 @@ def expected_parking_polygon() -> gpd.GeoDataFrame:
 
 @pytest.fixture
 def naturalness_utility_mock():
+    """Naturalness mock specifically for the `naturalness_test_lines` paths."""
+
     def mock_get_vector(
         index: NaturalnessIndex,
         aggregation_stats: list[str],
@@ -274,6 +231,29 @@ def naturalness_utility_mock():
             return polygon_vectors
 
         raise ValueError
+
+    with patch('climatoology.utility.naturalness.NaturalnessUtility') as naturalness_utility:
+        naturalness_utility.compute_vector.side_effect = mock_get_vector
+        yield naturalness_utility
+
+
+@pytest.fixture
+def naturalness_utility_random_mock():
+    """Naturalness mock with random values."""
+
+    def mock_get_vector(
+        index: NaturalnessIndex,
+        aggregation_stats: list[str],
+        vectors: list[gpd.GeoSeries],
+        time_range: TimeRange,
+        resolution: int = 90,
+        max_raster_size: int = 1000,
+    ) -> gpd.GeoDataFrame:
+        vectors = gpd.GeoDataFrame(pd.concat(vectors))
+        for stat in aggregation_stats:
+            vectors[stat] = [random()] * len(vectors)
+
+        return vectors
 
     with patch('climatoology.utility.naturalness.NaturalnessUtility') as naturalness_utility:
         naturalness_utility.compute_vector.side_effect = mock_get_vector

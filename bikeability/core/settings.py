@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     naturalness_port: int
     naturalness_path: str
 
-    feature_flag_ohsome2: bool = False
     ohsome_base_url: Optional[str] = None
 
     model_config = SettingsConfigDict(env_file='.env')  # dead: disable

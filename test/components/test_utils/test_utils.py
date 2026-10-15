@@ -18,13 +18,13 @@ from bikeability.components.utils.utils import (
 
 
 @pytest.mark.vcr
-def test_fetch_osm_data(small_aoi, parametrized_ohsome_client):
+def test_fetch_osm_data(small_aoi, ohsome_client):
     # Basic test that could probably be deleted (it is a very short function that just calls external code)
 
     computed_osm_data = fetch_osm_data(
         aoi=small_aoi,
         osm_filter='geometry:polygon and highway=*',
-        ohsome=parametrized_ohsome_client,
+        ohsome=ohsome_client,
     )
 
     assert isinstance(computed_osm_data, gpd.GeoDataFrame)
@@ -44,13 +44,13 @@ class MockElements:
 
 
 @patch.object(OhsomeClient, attribute='features_extraction', new=MockElements())
-def test_fetch_osm_data_ohsome_error(default_aoi, parametrized_ohsome_client):
+def test_fetch_osm_data_ohsome_error(default_aoi, ohsome_client):
     # We won't test this with V2 because it doesn't need the API, just the mocks defined above
     with pytest.raises(ClimatoologyUserError):
         fetch_osm_data(
             aoi=default_aoi,
             osm_filter='dummy=yes',
-            ohsome=parametrized_ohsome_client,
+            ohsome=ohsome_client,
         )
 
 

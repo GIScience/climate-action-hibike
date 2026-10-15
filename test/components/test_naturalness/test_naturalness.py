@@ -40,7 +40,7 @@ def naturalness_test_polygons() -> gpd.GeoDataFrame:
     return polygons
 
 
-def test_preprocess_line_paths(naturalness_utility_mock, naturalness_test_lines, naturalness_test_polygons):
+def test_preprocess_line_paths(naturalness_test_lines, naturalness_test_polygons):
     expected_valid_path_lines = gpd.GeoDataFrame(
         index=[1, 2, 3],
         data={'osm_id': ['a', 'b', 'c'], 'osm_type': ['way', 'way', 'way']},

@@ -7,6 +7,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.2.0...main)
 
+### Removed
+- Remove the ohsome feature flag and use only ohsome v2
+
 ## [3.2.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.2.0) - 2026-10-15
 
 ### Changed

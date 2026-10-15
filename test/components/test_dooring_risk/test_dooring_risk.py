@@ -165,9 +165,9 @@ def test_find_nearest_parking():
 
 
 @pytest.mark.vcr
-def test_parking_filter(parametrized_ohsome_client, default_aoi):
+def test_parking_filter(ohsome_client, default_aoi):
     fetch_parking_data = fetch_osm_data(
-        aoi=default_aoi, osm_filter=parallel_parking_filter('polygon'), ohsome=parametrized_ohsome_client
+        aoi=default_aoi, osm_filter=parallel_parking_filter('polygon'), ohsome=ohsome_client
     )
 
     assert isinstance(fetch_parking_data, gpd.GeoDataFrame)
