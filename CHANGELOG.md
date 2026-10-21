@@ -10,6 +10,9 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Removed
 - Remove the ohsome feature flag and use only ohsome v2
 
+### Fixed
+- use separate color for PathSharing.CarsWithUnknownSpeed([#169](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/169))
+
 ## [3.2.0](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/releases/3.2.0) - 2026-10-15
 
 ### Changed

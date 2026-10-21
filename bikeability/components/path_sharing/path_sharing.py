@@ -59,11 +59,8 @@ class PathSharing(ColorCategories):
             for idx, name in enumerate(considered_colors)
         }
 
-        category_norm[cls.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED.value] = category_norm[
-            cls.SHARED_WITH_MOTORISED_TRAFFIC_HIGH_SPEED.value
-        ]
+        category_norm[cls.SHARED_WITH_MOTORISED_TRAFFIC_UNKNOWN_SPEED.value] = Color('#fb325a')
         category_norm[cls.REQUIRES_DISMOUNTING.value] = Color('#f47a7a')
-
         category_norm.pop(cls.UNKNOWN.value)
         category_norm[cls.UNKNOWN.value] = Color('#808080')
 
