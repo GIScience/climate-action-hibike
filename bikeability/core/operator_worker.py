@@ -162,7 +162,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
                     website='https://heigit.org/heigit-team/',
                 ),
             ],
-            concerns={Concern.MOBILITY_CYCLING},
+            concerns={Concern.MOBILITY},
             purpose=resources_dir / 'info/purpose.md',
             teaser='Assess the safety, comfort, and attractiveness of cycling infrastructure in an area of interest.',
             methodology=resources_dir / 'info/methodology.md',
