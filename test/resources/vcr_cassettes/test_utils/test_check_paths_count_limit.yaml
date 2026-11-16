@@ -1,0 +1,41 @@
+interactions:
+- request:
+    body: '{"aoi":{"type":"MultiPolygon","coordinates":[[[[8.6774288,49.4046213],[8.6774288,49.4064122],[8.6742192,49.4064122],[8.6742192,49.4046213],[8.6774288,49.4046213]]]]},"filter":"geometry:line
+      and (highway=* or railway=platform) and not (cycleway=separate or cycleway:both=separate
+      or (cycleway:right=separate and cycleway:left=separate) or indoor=yes or indoor=corridor)","clip":true,"time":"latest"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '398'
+      content-type:
+      - application/json
+      host:
+      - http://ohsome-secret-url
+      user-agent:
+      - can-hibike-test
+    method: POST
+    uri: http://ohsome-secret-url/stats/features/count.json
+  response:
+    body:
+      string: "{\"apiVersion\":\"2.1.1\",\"attribution\":{\"url\":\"https://ohsome.org/copyrights\",\"text\":\"\xA9
+        OpenStreetMap contributors\"},\"result\":{\"timestamp\":[\"2026-11-16T13:39:40Z\"],\"value\":[155]}}"
+    headers:
+      content-length:
+      - '177'
+      content-type:
+      - application/json
+      date:
+      - Mon, 16 Nov 2026 13:40:58 GMT
+      server:
+      - envoy
+      x-envoy-upstream-service-time:
+      - '189'
+    status:
+      code: 200
+      message: OK
+version: 1

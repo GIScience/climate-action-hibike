@@ -7,6 +7,10 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/compare/3.2.0...main)
 
+### Changed
+
+- Reintroduce path count check for AOI Size limit ([#186](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/186))
+
 ### Removed
 - Remove the ohsome feature flag and use only ohsome v2
 

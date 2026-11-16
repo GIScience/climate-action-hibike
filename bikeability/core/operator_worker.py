@@ -46,6 +46,7 @@ from bikeability.components.smoothness.smoothness_artifacts import build_smoothn
 from bikeability.components.surface_types.surface_types import get_surface_types
 from bikeability.components.surface_types.surface_types_artifacts import build_surface_types_artifact
 from bikeability.components.utils.utils import (
+    check_paths_count_limit,
     fetch_osm_data,
     get_buffered_aoi,
     get_utm_zone,
@@ -191,6 +192,10 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         log.info(f'Handling compute request: {params.model_dump()} in context: {resources}')
 
         buffered_aoi = get_buffered_aoi(aoi)
+
+        log.debug('Get the number of line paths which Ohsome will return.')
+        if self.check_size:
+            check_paths_count_limit(aoi, self.ohsome, 500000)
 
         paths = self.get_paths(aoi)
 
