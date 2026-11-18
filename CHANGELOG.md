@@ -10,6 +10,7 @@ and this project mostly adheres to [Semantic Versioning](https://semver.org/spec
 ### Changed
 
 - Reintroduce path count check for AOI Size limit ([#186](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/186))
+- Set aoi size limit to area of bounding box of Cologne (roughly) ([#185](https://gitlab.heigit.org/climate-action/plugins/bikeability/-/work_items/185))
 
 ### Removed
 - Remove the ohsome feature flag and use only ohsome v2

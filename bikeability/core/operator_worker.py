@@ -106,7 +106,7 @@ class OperatorBikeability(BaseOperator[ComputeInputBikeability]):
         resources_dir = files('bikeability.resources')
         aoi_constraints = [
             [
-                AreaConstraint(max_area=1000),
+                AreaConstraint(max_area=750),
             ]
         ]
 
